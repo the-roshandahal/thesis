@@ -1,0 +1,91 @@
+{% load static %}
+{% include 'header.html' %}
+
+{% load static %}
+{% include 'header.html' %}
+
+<div class="main-content">
+
+    <div class="page-content">
+        <div class="container-fluid">
+            <!-- Main content here -->
+              <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                {% if messages %}
+                                    {% for message in messages %}
+                                        <div class="alert alert-primary alert-dismissible fade show" role="alert">
+                                            {{ message }}
+                                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                        </div>
+                                    {% endfor %}
+                                {% endif %}
+                                <div class="row mb-2">
+                                    <div class="col-md-6">
+                                        <div class="form-inline float-md-start mb-3">
+                                            <h4 class="card-title">Projects</h4>
+                                            <p class="card-title-desc">View and Manage Projects
+                                </p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3 float-end">
+                                            <a href="{% url 'add_project' %}" class="btn btn-primary">
+                                                <i class="mdi mdi-plus me-1"></i> Add Project
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    {% for project in projects %}
+                                    <div class="col-lg-6 mb-4">
+                                        <div class="card border">
+                                            <div class="row no-gutters align-items-center">
+                                                <div class="col-md-4">
+                                                    <img class="card-img img-fluid" src="{% static 'assets/images/small/img-2.jpg' %}" alt="Card image">
+                                                </div>
+                                                <div class="col-md-8">
+                                                    <div class="card-body">
+                                                        <a href="{% url 'project_detail' project.id %}"><h5 class="card-title">{{ project.title }}</h5></a>
+
+                                                        <!-- Truncated description -->
+                                                        <p class="card-text">
+                                                            {{ project.description|truncatechars:100|safe }}
+                                                        </p>
+
+                                                        <!-- Dynamic topic areas as badges -->
+                                                        {% for area in project.areas.all %}
+                                                            <span class="badge badge-soft-info font-size-12">{{ area.name }}</span>
+                                                        {% empty %}
+                                                            <span class="badge badge-soft-secondary font-size-12">No Areas</span>
+                                                        {% endfor %}
+
+                                                        <!-- Optional project info -->
+                                                        <p class="mt-2 mb-1">
+                                                            <strong>Type:</strong> {{ project.project_type }}<br>
+                                                        </p>
+
+                                                        <!-- Formatted created date -->
+                                                        <p class="card-text">
+                                                            <small class="text-muted">Created {{ project.created|date:"M d, Y - H:i" }}</small>
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+
+                                </div>
+
+                            </div>
+                        </div>
+                    </div> <!-- end col -->
+                </div> <!-- end row -->
+        </div>
+    </div>
+    <!-- End Page-content -->
+</div>
+<!-- end main content-->
+{% include 'footer.html' %}

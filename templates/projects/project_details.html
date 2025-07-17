@@ -1,0 +1,70 @@
+{% load static %}
+{% include 'header.html' %}
+
+<div class="main-content">
+
+    <div class="page-content">
+        <div class="container-fluid">
+            <!-- Main content here -->
+             
+
+
+            <div class="container mt-4">
+    <div class="row">
+        <div class="col-lg-8 offset-lg-2">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h2 class="card-title">{{ project.title }}</h2>
+                    <p class="text-muted">Created: {{ project.created|date:"F j, Y, g:i a" }}</p>
+                    <p>{{ project.description|safe }}</p>
+
+                    <h5>Topic Areas:</h5>
+                    <ul>
+                        {% for area in project.areas.all %}
+                            <li>{{ area.name }}</li>
+                        {% empty %}
+                            <li>No areas defined</li>
+                        {% endfor %}
+                    </ul>
+
+
+                    <h5 class="mt-4">Uploaded Files</h5>
+                    {% if project.files.exists %}
+                        <ul>
+                            {% for file in project.files.all %}
+                                <li>
+                                    <a href="{{ file.file.url }}" target="_blank">
+                                        {{ file.file.name|cut:"uploads/" }}
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>No files uploaded.</p>
+                    {% endif %}
+
+                    <h5 class="mt-4">Reference Links</h5>
+                    {% if project.links.exists %}
+                        <ul>
+                            {% for link in project.links.all %}
+                                <li><a href="{{ link.url }}" target="_blank">{{ link.url }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>No links added.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+        </div>
+
+    </div>
+    <!-- End Page-content -->
+
+</div>
+<!-- end main content-->
+{% include 'footer.html' %}

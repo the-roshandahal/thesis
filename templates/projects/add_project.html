@@ -1,0 +1,304 @@
+{% load static %}
+{% include 'header.html' %}
+<div class="main-content">
+
+    <div class="page-content">
+        <div class="container-fluid">
+            <!-- Main content here -->
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title mb-4">Add Project</h4>
+                        <form action="{% url 'add_project' %}" method="POST" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <!-- Project Title & Type -->
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <div class="mb-3">
+                                        <label class="form-label" for="project-title">Project Title</label>
+                                        <input type="text" class="form-control" id="project-title" name="project_title" required>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="mb-3">
+                                        <label class="form-label" for="project-type">Project Type</label>
+                                        <select class="form-select" id="project-type" name="project_type" required>
+                                            <option selected value="Research">Research</option>
+                                            <option value="Development">Development</option>
+                                            <option value="R and D">R and D</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Topic Areas & Pre-requisites -->
+                            <div class="row">
+                                
+                                <div class="col-lg-6">
+                                    <div class="mb-3">
+                                        <label class="form-label" for="prerequisites">Pre-requisites</label>
+                                        <input type="text" class="form-control" id="prerequisites" name="prerequisites" required>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <label class="form-label">Topic Areas</label>
+                                    <div class="input-group mb-2">
+                                        <input type="text" id="topicAreaInput" class="form-control" placeholder="Enter topic area">
+                                        <button class="btn btn-primary" type="button" onclick="addTopicArea()">Add</button>
+                                    </div>
+                                    <div id="topicAreaList" class="list-group mb-2"></div>
+                                </div>
+                            </div>
+                            <!-- Description (TinyMCE or other editor) -->
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="mb-3">
+                                        <label class="form-label" for="description">Description</label>
+                                        <textarea id="description" name="description"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- File Upload Section -->
+                            <div class="row">
+                                <div class="col-12 mb-4">
+                                    <label class="form-label">Upload Files</label>
+                                    <input type="file" id="fileInput" name="uploaded_files[]" class="form-control mb-2" multiple>
+                                    <div id="fileList" class="list-group"></div>
+                                </div>
+                            </div>
+
+                            <!-- Link Input Section -->
+                            <div class="row">
+                                <div class="col-12">
+                                    <label class="form-label">Add Links</label>
+                                    <div class="input-group mb-2">
+                                        <input type="text" id="linkInput" class="form-control" placeholder="Enter URL">
+                                        <button class="btn btn-primary" type="button" onclick="addLink()">Add Link</button>
+                                    </div>
+                                    <div id="linkList" class="list-group"></div>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-lg waves-effect waves-light">
+                                                Submit <i class="ri-arrow-right-line align-middle ms-2"></i> 
+                                            </button>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End Page-content -->
+<script>
+    // Elements
+const fileInput = document.getElementById('fileInput');
+const fileList = document.getElementById('fileList');
+const linkInput = document.getElementById('linkInput');
+const linkList = document.getElementById('linkList');
+const topicAreaInput = document.getElementById('topicAreaInput');
+const topicAreaList = document.getElementById('topicAreaList');
+const form = document.querySelector('form');
+
+// Store uploaded files here
+let uploadedFiles = [];
+
+// --- FILES ---
+// Handle file input change
+fileInput.addEventListener('change', (event) => {
+    for (let file of event.target.files) {
+        // Prevent duplicates by name and size (optional)
+        if (!uploadedFiles.some(f => f.name === file.name && f.size === file.size)) {
+            uploadedFiles.push(file);
+            displayFile(file);
+        }
+    }
+    // Do NOT clear fileInput.value, keep files in uploadedFiles array
+});
+
+// Display file with delete button
+function displayFile(file) {
+    const div = document.createElement('div');
+    div.className = 'list-group-item d-flex justify-content-between align-items-center';
+    div.textContent = file.name;
+
+    const btn = document.createElement('button');
+    btn.className = 'btn btn-sm btn-danger';
+    btn.type = 'button';
+    btn.textContent = 'Delete';
+    btn.onclick = () => {
+        uploadedFiles = uploadedFiles.filter(f => f !== file);
+        fileList.removeChild(div);
+    };
+
+    div.appendChild(btn);
+    fileList.appendChild(div);
+}
+
+// --- LINKS ---
+function addLink() {
+    const url = linkInput.value.trim();
+    if (!url) return;
+
+    // Check duplicates case-insensitive
+    const existing = [...document.querySelectorAll('input[name="project_links[]"]')].some(
+        input => input.value.trim().toLowerCase() === url.toLowerCase()
+    );
+    if (existing) {
+        alert('This link is already added.');
+        linkInput.value = '';
+        return;
+    }
+
+    const div = document.createElement('div');
+    div.className = 'list-group-item d-flex justify-content-between align-items-center';
+
+    const link = document.createElement('a');
+    link.href = url;
+    link.textContent = url;
+    link.target = '_blank';
+
+    const btn = document.createElement('button');
+    btn.className = 'btn btn-sm btn-danger';
+    btn.type = 'button';
+    btn.textContent = 'Delete';
+    btn.onclick = () => {
+        linkList.removeChild(div);
+        hiddenInput.remove();
+    };
+
+    const hiddenInput = document.createElement('input');
+    hiddenInput.type = 'hidden';
+    hiddenInput.name = 'project_links[]';
+    hiddenInput.value = url;
+
+    div.appendChild(link);
+    div.appendChild(btn);
+    linkList.appendChild(div);
+    form.appendChild(hiddenInput);
+
+    linkInput.value = '';
+}
+
+// --- TOPIC AREAS ---
+function addTopicArea() {
+    const value = topicAreaInput.value.trim();
+    if (!value) return;
+
+    // Case-insensitive duplicate check
+    const existing = [...document.querySelectorAll('input[name="project_areas[]"]')].some(
+        input => input.value.trim().toLowerCase() === value.toLowerCase()
+    );
+    if (existing) {
+        alert('This topic area is already added.');
+        topicAreaInput.value = '';
+        return;
+    }
+
+    const div = document.createElement('div');
+    div.className = 'list-group-item d-flex justify-content-between align-items-center';
+    div.textContent = value;
+
+    const btn = document.createElement('button');
+    btn.className = 'btn btn-sm btn-danger';
+    btn.type = 'button';
+    btn.textContent = 'Delete';
+    btn.onclick = () => {
+        topicAreaList.removeChild(div);
+        hiddenInput.remove();
+    };
+
+    const hiddenInput = document.createElement('input');
+    hiddenInput.type = 'hidden';
+    hiddenInput.name = 'project_areas[]';
+    hiddenInput.value = value;
+
+    div.appendChild(btn);
+    topicAreaList.appendChild(div);
+    form.appendChild(hiddenInput);
+
+    topicAreaInput.value = '';
+}
+
+// --- FORM SUBMIT ---
+form.addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const submitBtn = form.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+
+    const formData = new FormData();
+
+    // Append regular form inputs except files and submit buttons
+    for (const element of form.elements) {
+        if (!element.name || element.type === 'file' || element.type === 'submit') continue;
+        if ((element.type === 'checkbox' || element.type === 'radio') && !element.checked) continue;
+
+        formData.append(element.name, element.value);
+    }
+
+    // Append all files stored in uploadedFiles array
+    for (const file of uploadedFiles) {
+        formData.append('uploaded_files[]', file);
+    }
+
+    // Append all hidden inputs (links, topic areas)
+    const hiddenInputs = form.querySelectorAll('input[type="hidden"]');
+    hiddenInputs.forEach(input => {
+        formData.append(input.name, input.value);
+    });
+
+    fetch(form.action, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value,
+        },
+        body: formData,
+    })
+    .then(response => {
+        if (response.ok) {
+            // Redirect as needed
+            window.location.href = '/projects/project_supervisor/';
+        } else {
+            alert('Error submitting form.');
+            submitBtn.disabled = false;
+        }
+    })
+    .catch(error => {
+        alert('Error: ' + error);
+        submitBtn.disabled = false;
+    });
+});
+
+    
+</script>
+
+<!-- Place the first <script> tag in your HTML's <head> -->
+<script src="https://cdn.tiny.cloud/1/8p60kqoizb0mofpgt8i39kf9jkzt678ttryxifpvb4bm045w/tinymce/7/tinymce.min.js"
+    referrerpolicy="origin"></script>
+
+<!-- Place the following <script> and <textarea> tags your HTML's <body> -->
+<script>
+    tinymce.init({
+        selector: 'textarea',
+        plugins: [
+            // Core editing features
+            'anchor', 'autolink', 'charmap', 'codesample', 'emoticons', 'image', 'link', 'lists', 'media', 'searchreplace', 'table', 'visualblocks', 'wordcount',
+            // Your account includes a free trial of TinyMCE premium features
+            // Try the most popular premium features until Jul 31, 2025:
+            'checklist', 'mediaembed', 'casechange', 'formatpainter', 'pageembed', 'a11ychecker', 'tinymcespellchecker', 'permanentpen', 'powerpaste', 'advtable', 'advcode', 'editimage', 'advtemplate', 'ai', 'mentions', 'tinycomments', 'tableofcontents', 'footnotes', 'mergetags', 'autocorrect', 'typography', 'inlinecss', 'markdown', 'importword', 'exportword', 'exportpdf'
+        ],
+        toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat',
+        tinycomments_mode: 'embedded',
+        tinycomments_author: 'Author name',
+        mergetags_list: [
+            { value: 'First.Name', title: 'First Name' },
+            { value: 'Email', title: 'Email' },
+        ],
+        ai_request: (request, respondWith) => respondWith.string(() => Promise.reject('See docs to implement AI Assistant')),
+    });
+</script>
+
+<!-- end main content-->
+{% include 'footer.html' %}
