@@ -6,6 +6,28 @@
     <div class="page-content">
         <div class="container-fluid">
             <!-- Main content here -->
+             <div class = 'row'>
+
+             {% for project in projects%}
+             <div class="col-md-6 col-xl-4">
+        
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title">{{project.title}}</h4>
+                        <p class="card-text">{{project.description|truncatechars:100|safe}}</p>
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">Supervisor : {{project.supervisor.first_name}} {{project.supervisor.last_name}}</li>
+                    </ul>
+                    <div class="card-body">
+                        <a href="{% url 'project_detail' project.id %}" class="card-link">View Project</a>
+                    </div>
+                </div>
+                
+
+            </div><!-- end col -->
+            {% endfor %}
+             </div>
 
 
 

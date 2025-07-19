@@ -24,7 +24,8 @@ def add_project(request):
             title=title,
             project_type=project_type,
             prerequisites=prerequisites,
-            description=description
+            description=description,
+            supervisor=request.user
         )
 
         areas = request.POST.getlist('project_areas[]')

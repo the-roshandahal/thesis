@@ -59,7 +59,7 @@
 
                     
 
-                    
+                    {% if request.user.is_authenticated %}
                     <div class="dropdown d-inline-block">
                         <button type="button" class="btn header-item noti-icon waves-effect"
                             id="page-header-notifications-dropdown" data-bs-toggle="dropdown" aria-expanded="false">
@@ -121,11 +121,17 @@
                                     class="align-middle">Logout</span></a>
                         </div>
                     </div>
-
+                    {% else %}
+                    <div class="dropdown d-inline-block">
+                        <div class="page-title-box align-self-center d-none d-md-block">
+                    <a href="{% url 'login' %}"><h4 class="page-title mb-0">Login</h4></a>
+                  </div>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         </header>
-
+        {% if request.user.is_authenticated %}
         <div class="topnav">
             <div class="container-fluid">
                 <nav class="navbar navbar-light navbar-expand-lg topnav-menu">
@@ -154,6 +160,8 @@
                                 </a>
                             </li>
                             {% endif %}
+
+
                             {% if request.user.is_staff %}
                             <li class="nav-item">
                                 <a class="nav-link" href="{% url 'project_supervisor' %}">
@@ -176,3 +184,4 @@
                 </nav>
             </div>
         </div>
+        {% endif %}

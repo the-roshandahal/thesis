@@ -3,11 +3,12 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from accounts.models import *
 from django.contrib.auth.models import User
+from projects.models import *
 
 
 from django.contrib.auth.decorators import login_required
 
-@login_required(login_url='login')
+# @login_required(login_url='login')
 def home(request):
 
     if request.user.is_superuser:
@@ -17,5 +18,15 @@ def home(request):
         return render(request, 'supervisor_dashboard.html')
 
     else:
-        return render(request, 'student_dashboard.html')
+        projects = Project.objects.all()
+        context = {
+            'projects' : projects,
+        }
+        return render(request, 'student_dashboard.html', context)
 
+def homepage(request):
+    projects = Project.objects.all()
+    context = {
+        'projects' : projects,
+    }
+    return render (request, 'index.html', context)

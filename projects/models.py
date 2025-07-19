@@ -1,4 +1,7 @@
 from django.db import models
+from django.db import models
+from django.contrib.auth.models import AbstractUser
+from accounts.models import *
 
 # Create your models here.
 class Project(models.Model):
@@ -12,7 +15,8 @@ class Project(models.Model):
     project_type = models.CharField(max_length=50, choices=PROJECT_TYPES)
     prerequisites = models.CharField(max_length=255)
     description = models.TextField()
-    created = models.DateTimeField(auto_now_add=True)  # ✅ added field
+    created = models.DateTimeField(auto_now_add=True)
+    supervisor = models.ForeignKey(User, on_delete= models.CASCADE)
 
     def __str__(self):
         return self.title

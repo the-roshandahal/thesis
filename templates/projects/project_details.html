@@ -19,13 +19,13 @@
                     <p>{{ project.description|safe }}</p>
 
                     <h5>Topic Areas:</h5>
-                    <ul>
-                        {% for area in project.areas.all %}
-                            <li>{{ area.name }}</li>
-                        {% empty %}
-                            <li>No areas defined</li>
-                        {% endfor %}
-                    </ul>
+                    {% for area in project.areas.all %}
+                    <span class="badge bg-primary">{{ area.name }}</span>
+                        
+                    {% empty %}
+                        <p>No areas defined</p>
+                    {% endfor %}
+                    
 
 
                     <h5 class="mt-4">Uploaded Files</h5>
