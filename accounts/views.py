@@ -51,7 +51,7 @@ def login(request):
 
 def logout_view(request):
     request.session.flush()
-    return redirect('login')
+    return redirect('homepage')
 
 
 def student_admin(request):

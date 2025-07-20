@@ -1,23 +1,12 @@
 {% load static %}
-
-
-
-
-
-
 <!doctype html>
 <html lang="en">
 {% include 'nav-links.html' %}
- 
-
-
 </head>
 
 <body data-topbar="colored" data-layout="horizontal">
     <!-- Begin page -->
     <div id="layout-wrapper">
-
-
         <header id="page-topbar">
             <div class="navbar-header">
                 <div class="d-flex">
@@ -50,89 +39,125 @@
 
                     <!-- start page title -->
                     <div class="page-title-box align-self-center d-none d-md-block">
-                        <h4 class="page-title mb-0">Horizontal</h4>
+                        <h4 class="page-title mb-0">TMS</h4>
                     </div>
                     <!-- end page title -->
                 </div>
 
                 <div class="d-flex">
-                    
-
-                    
-
-                    
-
-                    
                     <div class="dropdown d-inline-block">
                         <div class="page-title-box align-self-center d-none d-md-block">
-                    <a href="{% url 'login' %}"><h4 class="page-title mb-0">Login</h4></a>
-                  </div>
+                            <a href="{% url 'login' %}">
+                                <h4 class="page-title mb-0">Login</h4>
+                            </a>
+                        </div>
                     </div>
-
-
-                   
-
                 </div>
             </div>
         </header>
 
+        <div class="page-content">
+            <div class="container-fluid">
+                <div class="container d-flex justify-content-center p-2">
+                    <div class="row w-100">
+                        <div class="col-md-8 mx-auto">
+                            <form class="d-flex" method="get" role="search">
+                                <!-- Filter Dropdown -->
+                                <select class="form-select me-2" name="topic_type" style="max-width: 200px;">
+                                    <option value="" {% if not selected_topic_type %}selected{% endif %}>All Types</option>
+                                    <option value="Research" {% if selected_topic_type == 'Research' %}selected{% endif %}>Research</option>
+                                    <option value="Development" {% if selected_topic_type == 'Development' %}selected{% endif %}>Development</option>
+                                    <option value="R and D" {% if selected_topic_type == 'R and D' %}selected{% endif %}>R and D</option>
+                                </select>
 
 
+                                <!-- Search Input -->
+                                <input class="form-control me-2" type="search" name="q" placeholder="Search Projects..."
+                                    value="{{ query|default:'' }}" aria-label="Search">
 
+                                <!-- Search Button -->
+                                <button class="btn btn-primary" type="submit">Search</button>
+                            </form>
 
-
-
-
-
-
-
-
-
-
-
-
-
-    <div class="page-content">
-        <div class="container-fluid">
-            <!-- Main content here -->
-             <div class = 'row'>
-
-             {% for project in projects%}
-             <div class="col-md-6 col-xl-4">
-        
-                <div class="card">
-                    <div class="card-body">
-                        <h4 class="card-title">{{project.title}}</h4>
-                        <p class="card-text">{{project.description|truncatechars:100|safe}}</p>
-                    </div>
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item">Supervisor : {{project.supervisor.first_name}} {{project.supervisor.last_name}}</li>
-                    </ul>
-                    <div class="card-body">
-                        <a href="{% url 'project_detail' project.id %}" class="card-link">View Project</a>
+                        </div>
                     </div>
                 </div>
 
-            </div><!-- end col -->
-            {% endfor %}
-             </div>
 
 
+                <!-- Main content here -->
+                <div class="container mt-4">
+                    <div class="row row-cols-1 row-cols-md-2 g-4">
+                        {% if projects %}
+                        {% for project in projects %}
+                        <div class="col">
+                            <div class="card shadow-sm h-100">
+                                <div class="card-body">
+                                    <a href="{% url 'project_detail' project.id %}">
 
-            
+                                        <h5 class="card-title">{{ project.title }}</h5>
+                                    </a>
+                                    <p class="mb-0 mt-2 text-muted"> Project Supervisor - <span
+                                            class="badge badge-soft-success mb-0">
+                                            {{project.supervisor.first_name}} {{ project.supervisor.last_name }}</span>
+                                    </p>
+
+                                    <!-- Tags -->
+                                    <div class="mb-2">
+                                        {% for tag in project.tags.all %}
+                                        <span class="badge bg-secondary">{{ tag.name }}</span>
+                                        {% endfor %}
+                                    </div>
+
+                                    <!-- Truncated Description -->
+                                    <p class="card-text">
+                                        {{ project.description|truncatechars:150|safe }}
+                                    </p>
+                                    <div class="row text-center mb-3">
+                                        <div class="col-md-4">
+                                            <strong>Availability:</strong><br>
+
+                                            {% if project.availability == "available" %}
+                                            <span class="badge bg-success">{{ project.availability }}</span>
+                                            {% else %}
+                                            <span class="badge bg-danger">{{ project.availability }}</span>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-4">
+                                            <strong>Last Modified:</strong><br>
+                                            {{ project.last_modified|date:"d M Y" }}
+                                        </div>
+                                        <div class="col-md-4">
+                                            <strong>Project Type:</strong><br>
+                                            {{ project.project_type }}
+                                        </div>
+                                    </div>
 
 
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        {% else %}
+                        <div class="container d-flex flex-column justify-content-center align-items-center p-2">
+                            <div class="col-12">
+                                <div class="alert alert-info text-center" role="alert">
+                                    No projects found matching your criteria.
+                                </div>
+                            </div>
+                            <a href="{% url 'homepage' %}">
+                                <button class="btn btn-primary mt-3">Back to Projects</button>
+                            </a>
+                        </div>
 
+                        {% endif %}
+                    </div>
+                </div>
 
-
-
-
-
-
-
+            </div>
         </div>
-
-    </div>
-    <!-- End Page-content -->
-
+        <!-- End Page-content -->
+</body>
 {% include 'footer.html' %}
+
+</html>

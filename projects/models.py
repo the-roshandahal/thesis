@@ -1,7 +1,8 @@
 from django.db import models
-from django.db import models
 from django.contrib.auth.models import AbstractUser
 from accounts.models import *
+from django.utils import timezone
+
 
 # Create your models here.
 class Project(models.Model):
@@ -17,7 +18,8 @@ class Project(models.Model):
     description = models.TextField()
     created = models.DateTimeField(auto_now_add=True)
     supervisor = models.ForeignKey(User, on_delete= models.CASCADE)
-
+    availability = models.CharField(max_length=100, default='available')
+    last_modified = models.DateTimeField(default=timezone.now())
     def __str__(self):
         return self.title
 

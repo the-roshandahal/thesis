@@ -25,7 +25,8 @@ def add_project(request):
             project_type=project_type,
             prerequisites=prerequisites,
             description=description,
-            supervisor=request.user
+            supervisor=request.user,
+            availability='available'
         )
 
         areas = request.POST.getlist('project_areas[]')
@@ -36,7 +37,6 @@ def add_project(request):
             ProjectFile.objects.create(project=project, file=f)
 
 
-        # Handle links
         for url in request.POST.getlist('project_links[]'):
             if url.strip():
                 ProjectLink.objects.create(project=project, url=url)
