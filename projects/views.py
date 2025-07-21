@@ -56,10 +56,9 @@ def add_project(request):
             # Process topic areas (same as before)
             areas = set()
             for area in request.POST.getlist('project_areas[]'):
-                clean_area = area.strip().lower()
-                if clean_area and clean_area not in areas:
-                    ProjectArea.objects.create(project=project, name=clean_area)
-                    areas.add(clean_area)
+                if area and area not in areas:
+                    ProjectArea.objects.create(project=project, name=area)
+                    areas.add(area)
 
             # Process files with custom names
             uploaded_files = request.FILES.getlist('uploaded_files')
