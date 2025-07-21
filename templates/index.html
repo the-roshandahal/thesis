@@ -12,7 +12,7 @@
                 <div class="d-flex">
                     <!-- LOGO -->
                     <div class="navbar-brand-box">
-                        <a href="{% url 'home' %}" class="logo logo-dark">
+                        <a href="{% url 'homepage' %}" class="logo logo-dark">
                             <span class="logo-sm">
                                 <img src="{% static 'assets/images/logo-sm-dark.png' %}" alt="logo-sm-dark" height="24">
                             </span>
@@ -21,7 +21,7 @@
                             </span>
                         </a>
 
-                        <a href="{% url 'home' %}" class="logo logo-light">
+                        <a href="{% url 'homepage' %}" class="logo logo-light">
                             <span class="logo-sm">
                                 <img src="{% static 'assets/images/logo-sm-light.png' %}" alt="logo-sm-light"
                                     height="24">
@@ -77,6 +77,11 @@
 
                                 <!-- Search Button -->
                                 <button class="btn btn-primary" type="submit">Search</button>
+                                {% if selected_topic_type or  query %}
+                                    <button type="button" class="btn btn-secondary mx-2" onclick="window.location.href='{% url 'homepage' %}'">
+                                        Clear
+                                    </button>
+                                {% endif %}
                             </form>
 
                         </div>
