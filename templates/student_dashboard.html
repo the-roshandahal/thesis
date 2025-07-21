@@ -2,50 +2,114 @@
 {% include 'header.html' %}
 
 <div class="main-content">
-
     <div class="page-content">
         <div class="container-fluid">
-            <!-- Main content here -->
-             <div class = 'row'>
-
-             {% for project in projects%}
-             <div class="col-md-6 col-xl-4">
-        
-                <div class="card">
-                    <div class="card-body">
-                        <h4 class="card-title">{{project.title}}</h4>
-                        <p class="card-text">{{project.description|truncatechars:100|safe}}</p>
-                    </div>
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item">Supervisor : {{project.supervisor.first_name}} {{project.supervisor.last_name}}</li>
-                    </ul>
-                    <div class="card-body">
-                        <a href="{% url 'project_detail' project.id %}" class="card-link">View Project</a>
+            <!-- Start page title -->
+            <div class="row">
+                <div class="col-12 mb-3">
+                    <div class="page-title-box d-flex align-items-center justify-content-between">
+                        <h4 class="mb-0">Your Projects</h4>
                     </div>
                 </div>
-                
+            </div>
+            <!-- End page title -->
 
-            </div><!-- end col -->
-            {% endfor %}
-             </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
+            <div class="row">
+                <div class="col-12">
+                    {% if applications %}
+                    <div class="row">
+                        {% for app in applications %}
+                        <div class="col-xl-6 col-md-6">
+                            <div class="card application-card">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h5 class="card-title mb-0 flex-grow-1 text-truncate">{{ app.project.title }}</h5>
+                                        <span class="badge rounded-pill bg-soft-{% if app.status == 'applied' %}warning text-warning{% elif app.status == 'accepted' %}success text-success{% else %}danger text-danger{% endif %} fs-12">
+                                            {{ app.status|title }}
+                                        </span>
+                                    </div>
+                                    
+                                    <p class="text-muted mb-2">
+                                        <i class="mdi mdi-clock-outline me-1"></i> 
+                                        Applied on: {{ app.applied_at|date:"M d, Y H:i" }}
+                                    </p>
+                                    
+                                    <div class="mb-3">
+                                        <span class="badge bg-soft-primary text-primary">
+                                            {{ app.application_type|title }}
+                                        </span>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <h6 class="fs-14">Group Members:</h6>
+                                        <div class="avatar-group">
+                                            {% for member in app.members.all %}
+                                            <div class="d-flex align-items-center mb-2">
+                                                <div class="avatar-xs me-2">
+                                                    <span class="avatar-title rounded-circle bg-soft-primary text-primary">
+                                                        {{ member.user.get_full_name|slice:":1" }}
+                                                    </span>
+                                                </div>
+                                                <div>
+                                                    <p class="mb-0 fs-13">
+                                                        {{ member.user.get_full_name }}
+                                                        {% if member.is_leader %}
+                                                        <span class="badge bg-soft-info text-info fs-11">Leader</span>
+                                                        {% endif %}
+                                                    </p>
+                                                    <p class="mb-0 text-muted fs-11">{{ member.user.email }}</p>
+                                                </div>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    
+                                    {% if app.message %}
+                                    <div class="mb-3">
+                                        <h6 class="fs-14">Message:</h6>
+                                        <div class="p-2 bg-light rounded">
+                                            <p class="mb-0 text-muted fs-13">{{ app.message }}</p>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    <div class="d-flex justify-content-between align-items-center mt-3">
+                                        <a href="{% url 'project_detail' app.project.id %}" class="btn btn-sm btn-soft-primary">
+                                            <i class="mdi mdi-eye-outline me-1"></i> View Project
+                                        </a>
+                                        <div class="text-end">
+                                            <small class="text-muted fs-11">Project ID: #{{ app.project.id }}</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-body text-center py-5">
+                                    <div class="avatar-lg mx-auto mb-4">
+                                        <div class="avatar-title bg-soft-primary text-primary rounded-circle fs-24">
+                                            <i class="mdi mdi-file-document-outline"></i>
+                                        </div>
+                                    </div>
+                                    <h5>No Applications Found</h5>
+                                    <p class="text-muted mb-4">You haven't applied to any projects yet.</p>
+                                    <a href="{% url 'project_list' %}" class="btn btn-primary">
+                                        <i class="mdi mdi-briefcase-search-outline me-1"></i> Browse Projects
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
         </div>
-
     </div>
-    <!-- End Page-content -->
-
 </div>
-<!-- end main content-->
+
 {% include 'footer.html' %}

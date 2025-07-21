@@ -6,47 +6,55 @@ from django.contrib.auth.hashers import check_password, make_password
 from .models import Admin, Supervisor, Student, User
 
 def login(request):
-    if request.method == 'POST':
-        email = request.POST.get('email')
-        password = request.POST.get('password')
-        user_type = request.POST.get('user_type')
-        user_obj = None
-
-        # Find the correct user based on user_type
-        if user_type == 'admin':
-            try:
-                user_obj = Admin.objects.get(user__email=email)
-            except Admin.DoesNotExist:
-                user_obj = None
-
-        elif user_type == 'supervisor':
-            try:
-                user_obj = Supervisor.objects.get(user__email=email)
-            except Supervisor.DoesNotExist:
-                user_obj = None
-
-        elif user_type == 'student':
-            try:
-                user_obj = Student.objects.get(user__email=email)
-            except Student.DoesNotExist:
-                user_obj = None
-
-        if user_obj:
-            user = user_obj.user  # Get the actual Django User object
-            if check_password(password, user.password):
-                auth_login(request, user)
-                request.session['user_type'] = user_type
-                user.last_login = timezone.now()
-                user.save()
-                print('user found:', user.email)
-                print('redirecting to home...')
-                return redirect('home')
-            else:
-                messages.error(request, 'Incorrect password.')
+    if request.user.is_authenticated:
+        if request.user.is_superuser:
+            return redirect('admin:index')  
+        elif request.user.is_staff:
+            return redirect('supervisor_dashboard')  
         else:
-            messages.error(request, f"No user found for email {email}.")
+            return redirect('home') 
+    else:
+        if request.method == 'POST':
+            email = request.POST.get('email')
+            password = request.POST.get('password')
+            user_type = request.POST.get('user_type')
+            user_obj = None
 
-    return render(request, 'accounts/login.html')
+            # Find the correct user based on user_type
+            if user_type == 'admin':
+                try:
+                    user_obj = Admin.objects.get(user__email=email)
+                except Admin.DoesNotExist:
+                    user_obj = None
+
+            elif user_type == 'supervisor':
+                try:
+                    user_obj = Supervisor.objects.get(user__email=email)
+                except Supervisor.DoesNotExist:
+                    user_obj = None
+
+            elif user_type == 'student':
+                try:
+                    user_obj = Student.objects.get(user__email=email)
+                except Student.DoesNotExist:
+                    user_obj = None
+
+            if user_obj:
+                user = user_obj.user  # Get the actual Django User object
+                if check_password(password, user.password):
+                    auth_login(request, user)
+                    request.session['user_type'] = user_type
+                    user.last_login = timezone.now()
+                    user.save()
+                    print('user found:', user.email)
+                    print('redirecting to home...')
+                    return redirect('home')
+                else:
+                    messages.error(request, 'Incorrect password.')
+            else:
+                messages.error(request, f"No user found for email {email}.")
+
+        return render(request, 'accounts/login.html')
 
 
 def logout_view(request):

@@ -5,6 +5,14 @@
     <div class="page-content">
         <div class="container-fluid py-4">
             <div class="row justify-content-center">
+                {% if messages %}
+                                    {% for message in messages %}
+                                        <div class="alert alert-primary alert-dismissible fade show" role="alert">
+                                            {{ message }}
+                                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                        </div>
+                                    {% endfor %}
+                                {% endif %}
                 <div class="col-lg-8">
                     <div class="card shadow-sm">
                         <div class="card-body p-4">
@@ -133,6 +141,9 @@
                                     No reference links added
                                 </div>
                                 {% endif %}
+                            </div>
+                            <div class="mb-4">
+                                <a href = "{% url 'apply_to_project' project.id %}"><button class = "btn btn-primary"> Apply</button></a>
                             </div>
                         </div> <!-- .card-body -->
                     </div> <!-- .card -->

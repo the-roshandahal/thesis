@@ -143,6 +143,11 @@
                                     <i class="uim uim-airplay"></i> Home
                                 </a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'student_projects' %}">
+                                    <i class="uim uim-airplay"></i> Projects
+                                </a>
+                            </li>
                             {% if request.user.is_superuser %}
                             <li class="nav-item">
                                 <a class="nav-link" href="{% url 'student_admin' %}">

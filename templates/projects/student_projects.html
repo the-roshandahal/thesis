@@ -1,0 +1,107 @@
+{% load static %}
+{% include 'header.html' %}
+
+<div class="main-content">
+
+    <div class="page-content">
+        <div class="container-fluid">
+            <!-- Main content here -->
+              <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                {% if messages %}
+                                    {% for message in messages %}
+                                        <div class="alert alert-primary alert-dismissible fade show" role="alert">
+                                            {{ message }}
+                                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                        </div>
+                                    {% endfor %}
+                                {% endif %}
+                                <div class="row mb-2">
+                                    <div class="col-md-6">
+                                        <div class="form-inline float-md-start mb-3">
+                                            <h4 class="card-title">Projects</h4>
+                                            <p class="card-title-desc">Browse and apply for Projects</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="container mt-2">
+                                    <div class="row row-cols-1 row-cols-md-2 g-4">
+                                        {% if projects %}
+                                        {% for project in projects %}
+                                        <div class="col">
+                                            <div class="card shadow-sm h-100 border">
+                                                <div class="card-body">
+                                                    <a href="{% url 'project_detail' project.id %}">
+
+                                                        <h5 class="card-title">{{ project.title }}</h5>
+                                                    </a>
+                                                    <p class="mb-0 mt-2 text-muted"> Project Supervisor - <span
+                                                            class="badge badge-soft-success mb-0">
+                                                            {{project.supervisor.first_name}} {{ project.supervisor.last_name }}</span>
+                                                    </p>
+
+                                                    <!-- Tags -->
+                                                    <div class="mb-2">
+                                                        {% for tag in project.tags.all %}
+                                                        <span class="badge bg-secondary">{{ tag.name }}</span>
+                                                        {% endfor %}
+                                                    </div>
+
+                                                    <!-- Truncated Description -->
+                                                    <p class="card-text">
+                                                        {{ project.description|truncatechars:150|safe }}
+                                                    </p>
+                                                    <div class="row text-center mb-3">
+                                                        <div class="col-md-4">
+                                                            <strong>Availability:</strong><br>
+
+                                                            {% if project.availability == "available" %}
+                                                            <span class="badge bg-success">{{ project.availability }}</span>
+                                                            {% else %}
+                                                            <span class="badge bg-danger">{{ project.availability }}</span>
+                                                            {% endif %}
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <strong>Last Modified:</strong><br>
+                                                            {{ project.last_modified|date:"d M Y" }}
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <strong>Project Type:</strong><br>
+                                                            {{ project.project_type }}
+                                                        </div>
+                                                    </div>
+
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                        {% else %}
+                                        <div class="container d-flex flex-column justify-content-center align-items-center p-2">
+                                            <div class="col-12">
+                                                <div class="alert alert-info text-center" role="alert">
+                                                    No projects found matching your criteria.
+                                                </div>
+                                            </div>
+                                            <a href="{% url 'homepage' %}">
+                                                <button class="btn btn-primary mt-3">Back to Projects</button>
+                                            </a>
+                                        </div>
+
+                                        {% endif %}
+                                    </div>
+                                </div>
+                              
+
+                            </div>
+                        </div>
+                    </div> <!-- end col -->
+                </div> <!-- end row -->
+        </div>
+    </div>
+    <!-- End Page-content -->
+</div>
+<!-- end main content-->
+{% include 'footer.html' %}

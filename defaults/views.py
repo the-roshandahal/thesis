@@ -4,6 +4,9 @@ from django.contrib import messages
 from accounts.models import *
 from django.contrib.auth.models import User
 from projects.models import *
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+from application.models import *
 
 
 from django.contrib.auth.decorators import login_required
@@ -12,17 +15,19 @@ from django.contrib.auth.decorators import login_required
 def home(request):
 
     if request.user.is_superuser:
-        return render(request, 'admin_dashboard.html')
+        return redirect('admin:index')  # Default Django admin dashboard
 
     elif request.user.is_staff:
         return render(request, 'supervisor_dashboard.html')
 
     else:
-        projects = Project.objects.all()
+        applications = Application.objects.filter(members__user=request.user).select_related('project').prefetch_related('members__user')
         context = {
-            'projects' : projects,
+            'applications': applications,
         }
-        return render(request, 'student_dashboard.html', context)
+        return render(request, 'student_dashboard.html',context)
+
+
 
 def homepage(request):
     query = request.GET.get('q')

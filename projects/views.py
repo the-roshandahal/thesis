@@ -1,8 +1,12 @@
-from django.shortcuts import render, get_object_or_404
-from django.shortcuts import render
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_http_methods
 from .models import *
+import os
+from django.core.exceptions import ValidationError
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+
+
 
 def project_supervisor(request):
     projects = Project.objects.all()
@@ -11,11 +15,7 @@ def project_supervisor(request):
     }
     return render(request, 'projects/project_supervisor.html',context)
 
-import os
-from django.shortcuts import render, redirect
-from django.views.decorators.http import require_http_methods
-from django.core.exceptions import ValidationError
-from .models import Project, ProjectArea, ProjectFile, ProjectLink
+
 
 def validate_pdf(file):
     """Validate that the uploaded file is a PDF and within size limits."""
@@ -132,3 +132,12 @@ def add_project(request):
 def project_detail(request, project_id):
     project = get_object_or_404(Project, id=project_id)
     return render(request, 'projects/project_details.html', {'project': project})
+
+
+
+def student_projects(request):
+    projects = Project.objects.all()
+    context = {
+        'projects' : projects,
+    }
+    return render(request,'projects/student_projects.html', context)
