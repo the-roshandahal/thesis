@@ -137,7 +137,7 @@ def accept_application(request, application_id):
         application.status = 'accepted'
         application.save()
         messages.success(request, "Application accepted.")
-    return redirect('supervisor_applications')
+    return redirect('supervisor_application')
 
 
 @login_required
@@ -147,4 +147,4 @@ def decline_application(request, application_id):
         application.status = 'declined'
         application.save()
         messages.success(request, "Application declined.")
-    return redirect('supervisor_applications')
+    return redirect('supervisor_application')
