@@ -150,6 +150,11 @@
                                     <i class="uim uim-airplay"></i> Projects
                                 </a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'student_view_assignment' %}">
+                                    <i class="uim uim-airplay"></i> Assessments
+                                </a>
+                            </li>
                             {% endif %}
                             {% if request.user.is_superuser %}
                             <li class="nav-item">

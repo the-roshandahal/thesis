@@ -123,3 +123,12 @@ def add_assessment(request,id):
 
 def edit_assessment(request,id):
     pass
+
+
+
+def student_view_assignment(request):
+    schema = AssessmentSchema.objects.first()  # or use logic to fetch based on context
+
+    return render(request, 'assessment/student_view_assignment.html', {
+        'schema': schema,
+    })

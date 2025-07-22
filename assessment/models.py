@@ -1,5 +1,7 @@
-from django.db import models
 
+from django.conf import settings
+from django.db import models
+from projects.models import *
 class AssessmentSchema(models.Model):
     name = models.CharField(max_length=100)
     start_date = models.DateField()
@@ -44,3 +46,22 @@ class AssessmentSampleFile(models.Model):
 
     def __str__(self):
         return self.name
+
+
+
+
+def submission_upload_path(instance, filename):
+    return f"submissions/user_{instance.student.id}/assessment_{instance.assessment.id}/{filename}"
+
+from django.db import models
+from django.utils import timezone
+
+class StudentSubmission(models.Model):
+    application = models.ForeignKey('application.Application', on_delete=models.CASCADE)
+    assignment = models.ForeignKey('Assessment', on_delete=models.CASCADE)
+    file = models.FileField(upload_to='student_submissions/')
+    submitted_at = models.DateTimeField(default=timezone.now)
+    attempt_number = models.PositiveIntegerField(default=1)
+
+    def __str__(self):
+        return f"{self.application.student.user.username} - {self.assignment.title} (Attempt {self.attempt_number})"

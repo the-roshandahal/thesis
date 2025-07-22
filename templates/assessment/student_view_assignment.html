@@ -1,0 +1,81 @@
+{% load static %}
+{% include 'header.html' %}
+
+<div class="main-content">
+
+    <div class="page-content">
+        <div class="container-fluid">
+            <!-- Main content here -->
+             
+
+<div class="container mt-4">
+    {% if schema %}
+        <div class="mb-4">
+            <h2>{{ schema.name }}</h2>
+            <p><strong>Start Date:</strong> {{ schema.start_date }}</p>
+            <p><strong>End Date:</strong> {{ schema.end_date }}</p>
+        </div>
+
+        {% if schema.assessments.all %}
+            <div class="row">
+                {% for assessment in schema.assessments.all %}
+                    <div class="col-md-6 mb-4">
+                        <div class="card shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ assessment.title }}</h5>
+                                <p class="card-text">{{ assessment.description }}</p>
+                                <p><strong>Due:</strong> {{ assessment.due_date }}</p>
+                                <p><strong>Weight:</strong> {{ assessment.weight }}%</p>
+
+                                {% if assessment.detail_files.all %}
+                                    <h6>Details:</h6>
+                                    <ul class="list-group mb-2">
+                                        {% for file in assessment.detail_files.all %}
+                                            <li class="list-group-item">
+                                                <a href="{{ file.file.url }}" target="_blank">{{ file.name }}</a>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                {% endif %}
+
+                                {% if assessment.sample_files.all %}
+                                    <h6>Sample Files:</h6>
+                                    <ul class="list-group">
+                                        {% for sample in assessment.sample_files.all %}
+                                            <li class="list-group-item">
+                                                <a href="{{ sample.file.url }}" target="_blank">{{ sample.name }}</a>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>No assessments found under this schema.</p>
+        {% endif %}
+    {% else %}
+        <p>No assessment schema found.</p>
+    {% endif %}
+</div>
+            
+
+
+
+
+
+
+
+
+
+
+        </div>
+
+    </div>
+    <!-- End Page-content -->
+
+</div>
+<!-- end main content-->
+{% include 'footer.html' %}
