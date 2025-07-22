@@ -9,7 +9,7 @@ from django.contrib import messages
 
 
 def project_supervisor(request):
-    projects = Project.objects.all()
+    projects = Project.objects.filter(supervisor=request.user)
     context = {
         'projects':projects
     }
@@ -129,9 +129,23 @@ def add_project(request):
     return render(request, 'projects/add_project.html')
 
 
+from application.models import ApplicationMember
+
+@login_required
 def project_detail(request, project_id):
     project = get_object_or_404(Project, id=project_id)
-    return render(request, 'projects/project_details.html', {'project': project})
+
+    # Check if the user has an active application
+    has_applied = ApplicationMember.objects.filter(
+        user=request.user,
+        application__status__in=["applied", "accepted"]
+    ).exists()
+
+    return render(request, "projects/project_details.html", {
+        "project": project,
+        "has_applied": has_applied,
+    })
+
 
 
 
@@ -141,3 +155,5 @@ def student_projects(request):
         'projects' : projects,
     }
     return render(request,'projects/student_projects.html', context)
+
+

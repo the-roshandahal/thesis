@@ -8,9 +8,10 @@ from .models import Admin, Supervisor, Student, User
 def login(request):
     if request.user.is_authenticated:
         if request.user.is_superuser:
-            return redirect('admin:index')  
+            return render( request,'admin_dashboard.html')  
+            # return redirect('admin:index')  
         elif request.user.is_staff:
-            return redirect('supervisor_dashboard')  
+            return render( request,'supervisor_dashboard.html')  
         else:
             return redirect('home') 
     else:

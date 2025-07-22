@@ -8,6 +8,12 @@ from projects.models import Project
 from django.contrib.auth import get_user_model
 from defaults.models import Notification
 
+
+
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+
 User = get_user_model()
 
 @login_required
@@ -116,3 +122,29 @@ def apply_to_project(request, project_id):
 
     # GET request
     return render(request, "application/apply_to_project.html", {'project': project})
+
+
+def supervisor_application(request):
+    user = request.user
+    applications = Application.objects.filter(project__supervisor=user).select_related('project').prefetch_related('members__user')
+    return render (request,'application/supervisor_application.html',{'applications': applications})
+
+
+@login_required
+def accept_application(request, application_id):
+    application = get_object_or_404(Application, id=application_id, project__supervisor=request.user)
+    if application.status != 'accepted':
+        application.status = 'accepted'
+        application.save()
+        messages.success(request, "Application accepted.")
+    return redirect('supervisor_applications')
+
+
+@login_required
+def decline_application(request, application_id):
+    application = get_object_or_404(Application, id=application_id, project__supervisor=request.user)
+    if application.status != 'declined':
+        application.status = 'declined'
+        application.save()
+        messages.success(request, "Application declined.")
+    return redirect('supervisor_applications')

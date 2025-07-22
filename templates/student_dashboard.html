@@ -23,30 +23,33 @@
                             <div class="card application-card">
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between align-items-center mb-3">
-                                        <h5 class="card-title mb-0 flex-grow-1 text-truncate">{{ app.project.title }}</h5>
-                                        <span class="badge rounded-pill bg-soft-{% if app.status == 'applied' %}warning text-warning{% elif app.status == 'accepted' %}success text-success{% else %}danger text-danger{% endif %} fs-12">
+                                        <h5 class="card-title mb-0 flex-grow-1 text-truncate">{{ app.project.title }}
+                                        </h5>
+                                        <span
+                                            class="badge rounded-pill bg-soft-{% if app.status == 'applied' %}warning text-warning{% elif app.status == 'accepted' %}success text-success{% else %}danger text-danger{% endif %} fs-12">
                                             {{ app.status|title }}
                                         </span>
                                     </div>
-                                    
+
                                     <p class="text-muted mb-2">
-                                        <i class="mdi mdi-clock-outline me-1"></i> 
+                                        <i class="mdi mdi-clock-outline me-1"></i>
                                         Applied on: {{ app.applied_at|date:"M d, Y H:i" }}
                                     </p>
-                                    
+
                                     <div class="mb-3">
                                         <span class="badge bg-soft-primary text-primary">
                                             {{ app.application_type|title }}
                                         </span>
                                     </div>
-                                    
+
                                     <div class="mb-3">
                                         <h6 class="fs-14">Group Members:</h6>
                                         <div class="avatar-group">
                                             {% for member in app.members.all %}
                                             <div class="d-flex align-items-center mb-2">
                                                 <div class="avatar-xs me-2">
-                                                    <span class="avatar-title rounded-circle bg-soft-primary text-primary">
+                                                    <span
+                                                        class="avatar-title rounded-circle bg-soft-primary text-primary">
                                                         {{ member.user.get_full_name|slice:":1" }}
                                                     </span>
                                                 </div>
@@ -63,7 +66,7 @@
                                             {% endfor %}
                                         </div>
                                     </div>
-                                    
+
                                     {% if app.message %}
                                     <div class="mb-3">
                                         <h6 class="fs-14">Message:</h6>
@@ -72,9 +75,10 @@
                                         </div>
                                     </div>
                                     {% endif %}
-                                    
+
                                     <div class="d-flex justify-content-between align-items-center mt-3">
-                                        <a href="{% url 'project_detail' app.project.id %}" class="btn btn-sm btn-soft-primary">
+                                        <a href="{% url 'project_detail' app.project.id %}"
+                                            class="btn btn-sm btn-soft-primary">
                                             <i class="mdi mdi-eye-outline me-1"></i> View Project
                                         </a>
                                         <div class="text-end">
@@ -98,7 +102,7 @@
                                     </div>
                                     <h5>No Applications Found</h5>
                                     <p class="text-muted mb-4">You haven't applied to any projects yet.</p>
-                                    <a href="{% url 'project_list' %}" class="btn btn-primary">
+                                    <a href="{% url 'student_projects' %}" class="btn btn-primary">
                                         <i class="mdi mdi-briefcase-search-outline me-1"></i> Browse Projects
                                     </a>
                                 </div>
