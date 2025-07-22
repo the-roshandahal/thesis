@@ -1,0 +1,155 @@
+{% load static %}
+{% include 'header.html' %}
+
+<div class="main-content">
+  <div class="page-content">
+    <div class="container-fluid">
+{% if messages %}
+                                    {% for message in messages %}
+                                        <div class="alert alert-primary alert-dismissible fade show" role="alert">
+                                            {{ message }}
+                                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                        </div>
+                                    {% endfor %}
+                                {% endif %}
+        <div class="container mt-4">
+  <h3>Create Assessment Schema</h3>
+<form id="assessmentSchemaForm" method="POST" enctype="multipart/form-data" action="{% url 'create_assessment_schema' %}">
+  {% csrf_token %}
+  <div class="mb-3 row">
+    <label class="col-sm-2 col-form-label">Schema Name</label>
+    <div class="col-sm-10">
+      <input type="text" name="schema_name" class="form-control" required>
+    </div>
+  </div>
+
+  <div class="mb-3 row">
+    <label class="col-sm-2 col-form-label">Start Date</label>
+    <div class="col-sm-4">
+      <input type="date" name="schema_start_date" class="form-control" required>
+    </div>
+    <label class="col-sm-2 col-form-label">End Date</label>
+    <div class="col-sm-4">
+      <input type="date" name="schema_end_date" class="form-control" required>
+    </div>
+  </div>
+
+  <hr>
+
+  <h4>Assignments</h4>
+  <div id="assignments-container"></div>
+
+  <button type="button" class="btn btn-success mb-3" onclick="addAssignment()">+ Add Assignment</button>
+
+  <button type="submit" class="btn btn-primary">Submit Schema</button>
+</form>
+</div>
+
+<script>
+    let assignmentCount = 0;
+
+ // Handle file input change and show editable filename inputs
+function handleFileInputChange(input) {
+  const container = input.nextElementSibling; // The div.file-names-list
+  container.innerHTML = ''; // Clear previous
+
+  Array.from(input.files).forEach((file, idx) => {
+    const div = document.createElement('div');
+    div.className = 'd-flex align-items-center mb-2';
+
+    div.innerHTML = `
+      <input type="text" class="form-control me-2" 
+             value="${file.name}" 
+             data-original-name="${file.name}"
+             maxlength="255" 
+             required>
+      <button type="button" class="btn btn-sm btn-danger">Remove</button>
+    `;
+
+    // Remove file entry on button click
+    div.querySelector('button').onclick = () => {
+      // Remove this file from the input.files by creating new FileList
+      removeFileFromInput(input, file);
+      div.remove();
+    };
+
+    container.appendChild(div);
+  });
+}
+
+// Helper to remove file from input.files (non-trivial, recreate FileList)
+function removeFileFromInput(input, fileToRemove) {
+  const dt = new DataTransfer();
+  Array.from(input.files).forEach(file => {
+    if (file !== fileToRemove) dt.items.add(file);
+  });
+  input.files = dt.files;
+}
+
+// Attach listeners dynamically to file inputs inside assignments container
+function attachFileInputsListeners(container) {
+  container.querySelectorAll('.assignment-files-input, .sample-files-input').forEach(input => {
+    input.onchange = () => handleFileInputChange(input);
+  });
+}
+
+// Update addAssignment function to call this after appending new assignment
+function addAssignment() {
+  const container = document.getElementById('assignments-container');
+  const idx = assignmentCount++;
+
+  const div = document.createElement('div');
+  div.className = 'assignment-block border rounded p-3 mb-3';
+  div.dataset.idx = idx;
+
+  div.innerHTML = `
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <h5>Assignment #${idx + 1}</h5>
+      <button type="button" class="btn btn-danger btn-sm" onclick="removeAssignment(this)">Delete</button>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Assignment Name</label>
+      <input type="text" name="assignment_name_${idx}" class="form-control" required>
+    </div>
+
+    <div class="row mb-3">
+      <div class="col-md-4">
+        <label class="form-label">Due Date</label>
+        <input type="date" name="assignment_due_${idx}" class="form-control" required>
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">Weight (%)</label>
+        <input type="number" name="assignment_weight_${idx}" min="0" max="100" step="0.01" class="form-control" required>
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Details</label>
+      <textarea name="assignment_detail_${idx}" class="form-control" rows="3"></textarea>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Assignment Files</label>
+      <input type="file" name="assignment_files_${idx}" class="form-control assignment-files-input" multiple>
+      <div class="file-names-list mt-2"></div>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Sample Files</label>
+      <input type="file" name="sample_files_${idx}" class="form-control sample-files-input" multiple>
+      <div class="file-names-list mt-2"></div>
+    </div>
+  `;
+
+  container.appendChild(div);
+  attachFileInputsListeners(div); // Attach listeners for new inputs
+}
+
+</script>
+
+    </div>
+  </div>
+</div>
+
+{% include 'footer.html' %}
