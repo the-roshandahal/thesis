@@ -137,6 +137,14 @@ def accept_application(request, application_id):
         application.status = 'accepted'
         application.save()
         messages.success(request, "Application accepted.")
+
+
+        for member in application.members.all():
+            Notification.objects.create(
+                user=member.user,  # Send notification to each member of the application
+                message=f"Your application to the project '{application.project.title}' has been accepted.",
+                url=reverse('project_detail', args=[application.project.id])  # Redirect to project detail page
+            )
     return redirect('supervisor_application')
 
 

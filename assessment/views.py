@@ -155,12 +155,23 @@ def edit_assessment(request,id):
 
 from django.utils import timezone
 from datetime import date
-
+from application.models import *
 def student_view_assignment(request):
-    schema = AssessmentSchema.objects.first()  # or your logic to get the schema
+    has_accepted_project = ApplicationMember.objects.filter(
+        user=request.user,
+        application__status='accepted'
+    ).exists()
     
-    if schema and hasattr(schema, 'assessments'):
-        today = date.today()  # Using date.today() instead of timezone.now().date() for simplicity
+    schema = AssessmentSchema.objects.first()
+    
+    context = {
+        'has_accepted_project': has_accepted_project,
+        'schema': schema if has_accepted_project else None,
+        'assessments_with_days': [],
+    }
+    
+    if has_accepted_project and schema and hasattr(schema, 'assessments'):
+        today = date.today()
         assessments_with_days = []
         
         for assessment in schema.assessments.all():
@@ -170,7 +181,7 @@ def student_view_assignment(request):
                 'title': assessment.title,
                 'description': assessment.description,
                 'weight': assessment.weight,
-                'submission_type' : assessment.submission_type,
+                'submission_type': assessment.submission_type,
                 'detail_files': assessment.detail_files.all(),
                 'sample_files': assessment.sample_files.all(),
             }
@@ -180,21 +191,9 @@ def student_view_assignment(request):
                 assessment_data['days_remaining'] = delta.days
                 assessment_data['days_absolute'] = abs(delta.days)
                 assessment_data['is_overdue'] = delta.days < 0
-            else:
-                assessment_data['days_remaining'] = None
-                assessment_data['days_absolute'] = None
-                assessment_data['is_overdue'] = False
                 
             assessments_with_days.append(assessment_data)
         
-        context = {
-            'schema': schema,
-            'assessments_with_days': assessments_with_days,
-        }
-    else:
-        context = {
-            'schema': schema,
-            'assessments_with_days': [],
-        }
+        context['assessments_with_days'] = assessments_with_days
 
     return render(request, 'assessment/student_view_assignment.html', context)

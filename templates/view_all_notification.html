@@ -1,0 +1,163 @@
+{% load static %}
+{% include 'header.html' %}
+
+<div class="main-content">
+    <div class="page-content">
+        <div class="container-fluid">
+            <!-- Page title and breadcrumb -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="page-title-box d-flex align-items-center justify-content-between">
+                        <h4 class="mb-0 font-size-18">Notifications</h4>
+                        <div class="page-title-right">
+                            <ol class="breadcrumb m-0">
+                                <li class="breadcrumb-item"><a href="javascript: void(0);">Dashboard</a></li>
+                                <li class="breadcrumb-item active">Notifications</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notifications content -->
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h4 class="card-title">Your Notifications</h4>
+                                <div>
+                                    <a href = "{% url 'mark_all_notifications_as_read' %}"><button class="btn btn-sm btn-outline-secondary">Mark all as read</button></a>
+                                </div>
+                            </div>
+                            
+                            <div class="simplebar-wrapper" style="max-height: 600px;">
+                                <div class="notification-list">
+                                    {% if notifications %}
+                                        {% for notification in notifications %}
+                                        <a href="{% url 'mark_notification_as_read_and_redirect' notification.id %}" class="notification-item {% if not notification.is_read %}unread{% endif %}">
+                                            <div class="d-flex align-items-start">
+                                                <div class="notification-icon bg-soft-primary rounded-circle me-3">
+                                                    <i class="mdi mdi-bell-outline font-size-18"></i>
+                                                </div>
+                                                <div class="flex-grow-1">
+                                                    <h6 class="mb-1">{{ notification.message }}</h6>
+                                                    <div class="text-muted">
+                                                        <small class="text-muted">{{ notification.created_at|timesince }} ago</small>
+                                                    </div>
+                                                </div>
+                                                {% if not notification.is_read %}
+                                                <div class="unread-indicator"></div>
+                                                {% endif %}
+                                            </div>
+                                        </a>
+                                        {% endfor %}
+                                    {% else %}
+                                        <div class="text-center py-5">
+                                            <i class="mdi mdi-bell-off-outline font-size-24 text-muted mb-3"></i>
+                                            <h5 class="text-muted">No notifications yet</h5>
+                                            <p class="text-muted mb-0">We'll notify you when something arrives</p>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            {% if notifications.has_other_pages %}
+                            <div class="row mt-4">
+                                <div class="col-sm-12 col-md-5">
+                                    <div class="dataTables_info">
+                                        Showing {{ notifications.start_index }} to {{ notifications.end_index }} of {{ notifications.paginator.count }} entries
+                                    </div>
+                                </div>
+                                <div class="col-sm-12 col-md-7">
+                                    <div class="dataTables_paginate paging_simple_numbers">
+                                        <ul class="pagination justify-content-end">
+                                            {% if notifications.has_previous %}
+                                                <li class="paginate_button page-item previous">
+                                                    <a href="?page={{ notifications.previous_page_number }}" class="page-link">Previous</a>
+                                                </li>
+                                            {% else %}
+                                                <li class="paginate_button page-item previous disabled">
+                                                    <a href="#" class="page-link">Previous</a>
+                                                </li>
+                                            {% endif %}
+                                            
+                                            {% for i in notifications.paginator.page_range %}
+                                                {% if notifications.number == i %}
+                                                    <li class="paginate_button page-item active">
+                                                        <a href="#" class="page-link">{{ i }}</a>
+                                                    </li>
+                                                {% else %}
+                                                    <li class="paginate_button page-item">
+                                                        <a href="?page={{ i }}" class="page-link">{{ i }}</a>
+                                                    </li>
+                                                {% endif %}
+                                            {% endfor %}
+                                            
+                                            {% if notifications.has_next %}
+                                                <li class="paginate_button page-item next">
+                                                    <a href="?page={{ notifications.next_page_number }}" class="page-link">Next</a>
+                                                </li>
+                                            {% else %}
+                                                <li class="paginate_button page-item next disabled">
+                                                    <a href="#" class="page-link">Next</a>
+                                                </li>
+                                            {% endif %}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .notification-list {
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    
+    .notification-item {
+        display: block;
+        padding: 16px;
+        border-bottom: 1px solid #f1f1f1;
+        transition: all 0.3s;
+        color: #495057;
+        text-decoration: none;
+    }
+    
+    .notification-item:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .notification-item.unread {
+        background-color: #f8faff;
+    }
+    
+    .notification-icon {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .unread-indicator {
+        width: 8px;
+        height: 8px;
+        background-color: #3b5de7;
+        border-radius: 50%;
+        margin-left: 10px;
+    }
+    
+    .notification-item .text-muted {
+        color: #6c757d !important;
+    }
+</style>
+
+{% include 'footer.html' %}

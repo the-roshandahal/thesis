@@ -62,9 +62,12 @@
                     {% if request.user.is_authenticated %}
                     <div class="dropdown d-inline-block">
                         <button type="button" class="btn header-item noti-icon waves-effect"
-                            id="page-header-notifications-dropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                id="page-header-notifications-dropdown" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="ri-notification-3-line"></i>
-                            <span class="noti-dot"></span>
+                            {% if unread_notifications.count > 0 %}
+                                <span class="noti-dot"></span> <!-- Show unread count -->
+                            {% endif %}
+
                         </button>
                         <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0"
                             aria-labelledby="page-header-notifications-dropdown">
@@ -74,33 +77,35 @@
                                         <h6 class="m-0"> Notifications </h6>
                                     </div>
                                     <div class="col-auto">
-                                        <a href="#!" class="small"> View All</a>
+                                        <a href="{% url 'view_all_notifications' %}" class="small"> View All</a>
                                     </div>
                                 </div>
                             </div>
                             <div data-simplebar style="max-height: 230px;">
-                                <a href="" class="text-reset notification-item">
-                                    <div class="d-flex">
-                                        <div class="avatar-xs me-3">
-                                            <span class="avatar-title bg-primary rounded-circle font-size-16">
-                                                <i class="ri-shopping-cart-line"></i>
-                                            </span>
-                                        </div>
-                                        <div class="flex-1">
-                                            <h6 class="mb-1">Your order is placed</h6>
-                                            <div class="font-size-12 text-muted">
-                                                <p class="mb-1">If several languages coalesce the grammar</p>
-                                                <p class="mb-0"><i class="mdi mdi-clock-outline"></i> 3 min ago</p>
+                                {% for notification in unread_notifications %}
+                                    <a href="{% url 'mark_notification_as_read_and_redirect' notification.id %}" class="text-reset notification-item {% if not notification.is_read %}bg-light{% endif %}" data-id="{{ notification.id }}">
+                                        <div class="d-flex">
+                                            <div class="avatar-xs me-3">
+                                                <span class="avatar-title bg-primary rounded-circle font-size-16">
+                                                    <i class="ri-shopping-cart-line"></i>
+                                                </span>
+                                            </div>
+                                            <div class="flex-1">
+                                                <h6 class="mb-1">{{ notification.message }}</h6>
+                                                <div class="font-size-12 text-muted">
+                                                    <p class="mb-1">If several languages coalesce the grammar</p>
+                                                    <p class="mb-0"><i class="mdi mdi-clock-outline"></i> {{ notification.created_at|timesince }} ago</p>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </a>
-                                
-                                
+                                    </a>
+                                {% empty %}
+                                    <p class="text-center">No notifications yet.</p>
+                                {% endfor %}
                             </div>
-                           
                         </div>
                     </div>
+
 
 
                     <div class="dropdown d-inline-block user-dropdown">
@@ -108,7 +113,7 @@
                             data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <img class="rounded-circle header-profile-user avatar-sm"
                                 src="{% static 'assets/images/users/avatar-2.jpg' %}" alt="Header Avatar">
-                            <span class="d-none d-xl-inline-block ms-1">{{request.user}}</span>
+                            <span class="d-none d-xl-inline-block ms-1">{{request.user.first_name}} {{request.user.last_name}}</span>
                             <i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i>
                         </button>
                         <div class="dropdown-menu dropdown-menu-end">
