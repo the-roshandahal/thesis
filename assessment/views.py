@@ -15,7 +15,7 @@ def assessment_schema(request):
         'schema': schema
     })
 
-    
+
 def create_assessment_schema(request):
     if AssessmentSchema.objects.exists():
         return redirect('assessment_schema')
@@ -170,6 +170,7 @@ def student_view_assignment(request):
                 'title': assessment.title,
                 'description': assessment.description,
                 'weight': assessment.weight,
+                'submission_type' : assessment.submission_type,
                 'detail_files': assessment.detail_files.all(),
                 'sample_files': assessment.sample_files.all(),
             }
