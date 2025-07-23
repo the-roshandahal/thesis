@@ -48,7 +48,6 @@
 <script>
     let assignmentCount = 0;
 
- // Handle file input change and show editable filename inputs
 function handleFileInputChange(input) {
   const container = input.nextElementSibling; // The div.file-names-list
   container.innerHTML = ''; // Clear previous
@@ -57,18 +56,23 @@ function handleFileInputChange(input) {
     const div = document.createElement('div');
     div.className = 'd-flex align-items-center mb-2';
 
+    // Get filename without extension
+    const fileNameWithoutExt = file.name.replace(/\.[^/.]+$/, "");
+
     div.innerHTML = `
-      <input type="text" class="form-control me-2" 
-             value="${file.name}" 
-             data-original-name="${file.name}"
+      <input type="text" 
+             name="${input.name}_name_${idx}" 
+             class="form-control me-2" 
+             value="${fileNameWithoutExt}" 
              maxlength="255" 
              required>
+      <span class="text-muted me-2">.${file.name.split('.').pop()}</span>
       <button type="button" class="btn btn-sm btn-danger">Remove</button>
+      <input type="hidden" name="${input.name}_ext_${idx}" value="${file.name.split('.').pop()}">
     `;
 
     // Remove file entry on button click
     div.querySelector('button').onclick = () => {
-      // Remove this file from the input.files by creating new FileList
       removeFileFromInput(input, file);
       div.remove();
     };
@@ -122,7 +126,15 @@ function addAssignment() {
         <label class="form-label">Weight (%)</label>
         <input type="number" name="assignment_weight_${idx}" min="0" max="100" step="0.01" class="form-control" required>
       </div>
+      <div class="col-md-4">
+         <label for="submission_type" class="form-label">Submission Type:</label>
+        <select class="form-control" name="submission_type_${idx}" id="submission_type" required>
+            <option value="individual">Individual</option>
+            <option value="group">Group</option>
+        </select>
+      </div>
     </div>
+
 
     <div class="mb-3">
       <label class="form-label">Details</label>

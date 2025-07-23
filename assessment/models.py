@@ -13,11 +13,13 @@ class AssessmentSchema(models.Model):
 
 
 class Assessment(models.Model):
+    
     schema = models.ForeignKey(AssessmentSchema, on_delete=models.CASCADE, related_name='assessments')
     title = models.CharField(max_length=100)
     description = models.TextField(blank=True)
     weight = models.PositiveIntegerField(help_text="Percentage weight for this assessment")
     due_date = models.DateField()
+    submission_type = models.CharField(max_length=50)
 
     def __str__(self):
         return f"{self.title} ({self.weight}%)"
