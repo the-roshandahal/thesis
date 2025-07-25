@@ -67,12 +67,28 @@
                                     </div>
                                     <hr>
                                     <div>
-                                        <!-- url 'attempt_assessment' assessment.obj.id -->
-                                        <a href="#" 
-                                            class="btn btn-primary btn-sm">
-                                            <i class="mdi mdi-pencil-outline me-1"></i> Attempt
-                                        </a>
-                                    </div>
+    {% if assessment.can_attempt %}
+        {% if assessment.has_submission %}
+            <a href="{% url 'view_submission' assessment.obj.id %}" 
+               class="btn btn-info btn-sm">
+               <i class="mdi mdi-eye-outline me-1"></i> View Submission
+            </a>
+            <button class="btn btn-success btn-sm" disabled>
+                <i class="mdi mdi-check-all me-1"></i> Attempted
+            </button>
+        {% else %}
+            <a href="{% url 'attempt_assessment' assessment.obj.id %}"
+               class="btn btn-primary btn-sm">
+               <i class="mdi mdi-pencil-outline me-1"></i> Attempt 
+            </a>
+        {% endif %}
+    {% else %}
+        <button class="btn btn-secondary btn-sm" disabled title="Only group leader can attempt">
+            <i class="mdi mdi-lock-outline me-1"></i> Attempt (Locked)
+        </button>
+        <p>Only leader will submit the group assessments</p>
+    {% endif %}
+</div>
                                 </div>
                             </div>
 

@@ -1,6 +1,6 @@
-
-from django.conf import settings
 from django.db import models
+from django.utils import timezone
+from django.conf import settings
 from projects.models import *
 class AssessmentSchema(models.Model):
     name = models.CharField(max_length=100)
@@ -55,15 +55,26 @@ class AssessmentSampleFile(models.Model):
 def submission_upload_path(instance, filename):
     return f"submissions/user_{instance.student.id}/assessment_{instance.assessment.id}/{filename}"
 
-from django.db import models
-from django.utils import timezone
+def student_submission_upload_path(instance, filename):
+    student = instance.submission.submitted_by  # traverse through submission
+    return f"submissions/{student.username}/{filename}"
+
+
 
 class StudentSubmission(models.Model):
     application = models.ForeignKey('application.Application', on_delete=models.CASCADE)
     assignment = models.ForeignKey('Assessment', on_delete=models.CASCADE)
-    file = models.FileField(upload_to='student_submissions/')
+    submitted_by = models.ForeignKey(User, on_delete= models.CASCADE)
     submitted_at = models.DateTimeField(default=timezone.now)
     attempt_number = models.PositiveIntegerField(default=1)
 
     def __str__(self):
-        return f"{self.application.student.user.username} - {self.assignment.title} (Attempt {self.attempt_number})"
+        return f"{self.assignment.title} (Attempt {self.attempt_number})"
+
+class SubmissionFile(models.Model):
+    submission = models.ForeignKey(StudentSubmission, on_delete=models.CASCADE, related_name='files')
+    file = models.FileField(upload_to=student_submission_upload_path)
+
+    def __str__(self):
+        return f"SubmissionFile #{self.id}"
+

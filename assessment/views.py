@@ -7,7 +7,9 @@ from django.core.files.base import ContentFile
 import os
 from .models import AssessmentSchema
 from django.utils.text import get_valid_filename
-
+from django.utils import timezone
+from datetime import date
+from application.models import *
 
 def assessment_schema(request):
     schema = AssessmentSchema.objects.first()  # Only one allowed
@@ -144,26 +146,20 @@ def edit_schema(request,id):
     pass
 
 
-
 def add_assessment(request,id):
     pass
 
 
 def edit_assessment(request,id):
     pass
-
-
-from django.utils import timezone
-from datetime import date
-from application.models import *
 def student_view_assignment(request):
     has_accepted_project = ApplicationMember.objects.filter(
         user=request.user,
         application__status='accepted'
     ).exists()
-    
+
     schema = AssessmentSchema.objects.first()
-    
+
     context = {
         'has_accepted_project': has_accepted_project,
         'schema': schema if has_accepted_project else None,
@@ -172,10 +168,27 @@ def student_view_assignment(request):
     
     if has_accepted_project and schema and hasattr(schema, 'assessments'):
         today = date.today()
+        member = ApplicationMember.objects.filter(
+            user=request.user,
+            application__status='accepted'
+        ).select_related('application').first()
+
+        is_leader = member.is_leader if member else False
+
+        # Get all submissions for this user at once
+        user_submissions = StudentSubmission.objects.filter(
+            submitted_by=request.user
+        ).select_related('assignment')
+
         assessments_with_days = []
         
-        for assessment in schema.assessments.all():
-            assessment_data = {
+        for assessment in schema.assessments.all().prefetch_related('detail_files', 'sample_files'):
+            delta = assessment.due_date - today if assessment.due_date else None
+            
+            # Check if user has submissions for this assessment
+            has_submission = any(sub.assignment_id == assessment.id for sub in user_submissions)
+            
+            assessments_with_days.append({
                 'obj': assessment,
                 'due_date': assessment.due_date,
                 'title': assessment.title,
@@ -184,16 +197,98 @@ def student_view_assignment(request):
                 'submission_type': assessment.submission_type,
                 'detail_files': assessment.detail_files.all(),
                 'sample_files': assessment.sample_files.all(),
-            }
-            
-            if assessment.due_date:
-                delta = assessment.due_date - today
-                assessment_data['days_remaining'] = delta.days
-                assessment_data['days_absolute'] = abs(delta.days)
-                assessment_data['is_overdue'] = delta.days < 0
-                
-            assessments_with_days.append(assessment_data)
-        
+                'days_remaining': delta.days if delta else None,
+                'days_absolute': abs(delta.days) if delta else None,
+                'is_overdue': delta.days < 0 if delta else False,
+                'can_attempt': (
+                    assessment.submission_type != 'group' or
+                    (assessment.submission_type == 'group' and is_leader)
+                ),
+                'has_submission': has_submission,  # New field
+            })
+
         context['assessments_with_days'] = assessments_with_days
 
     return render(request, 'assessment/student_view_assignment.html', context)
+
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from django.utils import timezone
+from .models import Assessment, StudentSubmission, SubmissionFile
+from application.models import Application  # Ensure this is correct
+from django.contrib.auth.decorators import login_required
+
+@login_required
+def attempt_assessment(request, id):
+    assignment = get_object_or_404(Assessment, id=id)
+    application = get_object_or_404(
+        Application.objects.filter(members__user=request.user, status='accepted')
+    )
+
+    if request.method == 'POST':
+        files = request.FILES.getlist('files')
+        if not files:
+            messages.error(request, "Please upload at least one file.")
+            return redirect(request.path)
+
+        # Count previous attempts
+        previous_attempts = StudentSubmission.objects.filter(
+            assignment=assignment, application=application).count()
+
+        # Create new submission
+        submission = StudentSubmission.objects.create(
+            application=application,
+            assignment=assignment,
+            submitted_by=request.user,
+            attempt_number=previous_attempts + 1
+        )
+
+        for f in files:
+            SubmissionFile.objects.create(submission=submission, file=f)
+
+        messages.success(request, "Assignment submitted successfully.")
+        return redirect('student_view_assignment')  # update with your actual view name
+
+    return render(request, 'assessment/attempt_assessment.html', {
+        'assignment': assignment
+    })
+
+
+import os
+from django.shortcuts import get_object_or_404, render, redirect
+from .models import Assessment, StudentSubmission  # adjust if needed
+import os
+
+def view_submission(request, assessment_id):
+    assessment = get_object_or_404(Assessment, id=assessment_id)
+
+   # Get all attempts ordered newest first
+    all_attempts = StudentSubmission.objects.filter(
+        assignment=assessment,
+        submitted_by=request.user
+    ).order_by('-submitted_at')
+    
+    # Get specific attempt if requested, otherwise latest
+    attempt_id = request.GET.get('attempt')
+    current_submission = (
+        get_object_or_404(all_attempts, id=attempt_id) 
+        if attempt_id 
+        else all_attempts.first()
+    )
+    print(current_submission.files.all())  # This should return a queryset of SubmissionFile objects
+
+    if not current_submission:
+        return redirect('attempt_assessment', assessment_id=assessment_id)
+
+
+    for file in current_submission.files.all():
+        file.basename = os.path.basename(file.file.name)
+
+
+    context = {
+        'assessment': assessment,
+        'submission': current_submission,
+        'all_attempts': all_attempts,
+    }
+    return render(request, 'assessment/view_submission.html', context)
