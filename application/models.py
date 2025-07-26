@@ -25,3 +25,7 @@ class ApplicationMember(models.Model):
 
     def __str__(self):
         return f"{self.user.email} - {'Leader' if self.is_leader else 'Member'}"
+
+
+
+#  i have updated and merged
