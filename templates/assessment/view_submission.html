@@ -1,0 +1,120 @@
+{% load static %}
+{% include 'header.html' %}
+
+<div class="main-content">
+
+    <div class="page-content">
+        <div class="container-fluid">
+            <!-- Main content here -->
+        
+<div class="container py-4">
+    <!-- Header with assessment title and back button -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="mb-1">{{ assessment.title }}</h3>
+            <p class="text-muted mb-0">Unlimited attempts allowed</p>
+        </div>
+        <a href="{% url 'student_view_assignment' %}" class="btn btn-outline-secondary">
+            <i class="mdi mdi-arrow-left me-1"></i> Back to Assessments
+        </a>
+    </div>
+
+    <div class="row">
+        <!-- Main submission content -->
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        Attempt #{{ submission.attempt_number }}
+                        <span class="badge ms-2 bg-{% if submission.grade %}success{% else %}warning{% endif %}">
+                            {% if submission.grade %}
+                                Graded: {{ submission.grade }}%
+                            {% else %}
+                                Pending Review
+                            {% endif %}
+                        </span>
+                    </h5>
+                    <small class="text-muted">
+                        {{ submission.submitted_at|date:"M d, Y H:i" }}
+                    </small>
+                </div>
+                
+                <div class="card-body">
+                    <h6 class="mb-3">Submitted Files:</h6>
+                    <div class="list-group mb-4">
+                        {% for file in submission.files.all %}
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div>
+                                <i class="mdi mdi-file-outline me-2"></i>
+                                {{ file.basename }} {{file.file.name}}
+                            </div>
+                            <a href="{{ file.file.url }}" class="btn btn-sm btn-outline-primary">
+                                <i class="mdi mdi-download me-1"></i> Download
+                            </a>
+                        </div>
+                    {% empty %}
+                        <p>No files found.</p>
+                    {% endfor %}
+
+                    </div>
+
+                    {% if submission.feedback %}
+                    <h6 class="mb-3">Feedback:</h6>
+                    <div class="alert alert-light">
+                        {{ submission.feedback|linebreaks }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Re-attempt button -->
+            <div class="d-grid gap-2">
+                <a href="{% url 'attempt_assessment' assessment.id %}" 
+                   class="btn btn-primary btn-lg">
+                   <i class="mdi mdi-reload me-1"></i> Submit New Attempt
+                </a>
+            </div>
+        </div>
+
+        <!-- Attempt history sidebar -->
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Your Attempts</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for attempt in all_attempts %}
+                        <a href="{% url 'view_submission' assessment.id %}?attempt={{ attempt.id }}"
+                           class="list-group-item list-group-item-action {% if attempt.id == submission.id %}active{% endif %}">
+                            <div class="d-flex justify-content-between">
+                                <strong>Attempt #{{ attempt.attempt_number }}</strong>
+                                <span>
+                                    {% if attempt.grade %}
+                                    <span class="badge bg-success">{{ attempt.grade }}%</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">Pending</span>
+                                    {% endif %}
+                                </span>
+                            </div>
+                            <small class="text-muted">
+                                {{ attempt.submitted_at|date:"M d, Y" }}
+                            </small>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+        </div>
+
+    </div>
+    <!-- End Page-content -->
+
+</div>
+<!-- end main content-->
+{% include 'footer.html' %}

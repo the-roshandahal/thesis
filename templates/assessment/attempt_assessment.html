@@ -1,0 +1,43 @@
+{% load static %}
+{% include 'header.html' %}
+
+<div class="main-content">
+
+    <div class="page-content">
+        <div class="container-fluid">
+            <!-- Main content here -->
+             
+
+
+            <div class="container mt-5">
+    <h3 class="mb-3">{{ assignment.title }}</h3>
+    <p>{{ assignment.description }}</p>
+    <p><strong>Due Date:</strong> {{ assignment.due_date }}</p>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="files" class="form-label">Upload Files</label>
+            <input type="file" name="files" multiple class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit Assignment</button>
+    </form>
+</div>
+
+
+
+
+
+
+
+
+
+
+        </div>
+
+    </div>
+    <!-- End Page-content -->
+
+</div>
+<!-- end main content-->
+{% include 'footer.html' %}

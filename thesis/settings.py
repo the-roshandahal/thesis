@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     'defaults',
     'accounts',
     'projects',
+    'application',
+    'assessment',
 ]
 
 MIDDLEWARE = [
@@ -66,6 +68,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'defaults.context_processors.notifications',
             ],
         },
     },
@@ -126,6 +129,10 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
 # (Optional) For production, you'll need to collect static files
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# settings.py
+MEDIA_URL = '/media/'  # URL prefix for media files
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # Path where files are stored
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field

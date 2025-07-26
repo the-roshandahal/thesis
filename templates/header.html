@@ -20,22 +20,22 @@
                 <div class="d-flex">
                     <!-- LOGO -->
                     <div class="navbar-brand-box">
-                        <a href="{% url 'home' %}" class="logo logo-dark">
+                        <a href="{% url 'homepage' %}" class="logo logo-dark">
                             <span class="logo-sm">
-                                <img src="{% static 'assets/images/logo-sm-dark.png' %}" alt="logo-sm-dark" height="24">
+                                <img src="{% static 'new-logo.png' %}" alt="logo-sm-dark" height="24">
                             </span>
                             <span class="logo-lg">
-                                <img src="{% static 'assets/images/logo-dark.png' %}" alt="logo-dark" height="22">
+                                <img src="{% static 'new-logo.png' %}" alt="logo-dark" height="22">
                             </span>
                         </a>
 
-                        <a href="{% url 'home' %}" class="logo logo-light">
+                        <a href="{% url 'homepage' %}" class="logo logo-light">
                             <span class="logo-sm">
-                                <img src="{% static 'assets/images/logo-sm-light.png' %}" alt="logo-sm-light"
+                                <img src="{% static 'new-logo.png' %}" alt="logo-sm-light"
                                     height="24">
                             </span>
                             <span class="logo-lg">
-                                <img src="{% static 'assets/images/logo-light.png' %}" alt="logo-light" height="22">
+                                <img src="{% static 'new-logo.png' %}" alt="logo-light" height="22">
                             </span>
                         </a>
                     </div>
@@ -59,12 +59,15 @@
 
                     
 
-                    
+                    {% if request.user.is_authenticated %}
                     <div class="dropdown d-inline-block">
                         <button type="button" class="btn header-item noti-icon waves-effect"
-                            id="page-header-notifications-dropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                id="page-header-notifications-dropdown" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="ri-notification-3-line"></i>
-                            <span class="noti-dot"></span>
+                            {% if unread_notifications.count > 0 %}
+                                <span class="noti-dot"></span> <!-- Show unread count -->
+                            {% endif %}
+
                         </button>
                         <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0"
                             aria-labelledby="page-header-notifications-dropdown">
@@ -74,33 +77,35 @@
                                         <h6 class="m-0"> Notifications </h6>
                                     </div>
                                     <div class="col-auto">
-                                        <a href="#!" class="small"> View All</a>
+                                        <a href="{% url 'view_all_notifications' %}" class="small"> View All</a>
                                     </div>
                                 </div>
                             </div>
                             <div data-simplebar style="max-height: 230px;">
-                                <a href="" class="text-reset notification-item">
-                                    <div class="d-flex">
-                                        <div class="avatar-xs me-3">
-                                            <span class="avatar-title bg-primary rounded-circle font-size-16">
-                                                <i class="ri-shopping-cart-line"></i>
-                                            </span>
-                                        </div>
-                                        <div class="flex-1">
-                                            <h6 class="mb-1">Your order is placed</h6>
-                                            <div class="font-size-12 text-muted">
-                                                <p class="mb-1">If several languages coalesce the grammar</p>
-                                                <p class="mb-0"><i class="mdi mdi-clock-outline"></i> 3 min ago</p>
+                                {% for notification in unread_notifications %}
+                                    <a href="{% url 'mark_notification_as_read_and_redirect' notification.id %}" class="text-reset notification-item {% if not notification.is_read %}bg-light{% endif %}" data-id="{{ notification.id }}">
+                                        <div class="d-flex">
+                                            <div class="avatar-xs me-3">
+                                                <span class="avatar-title bg-primary rounded-circle font-size-16">
+                                                    <i class="ri-shopping-cart-line"></i>
+                                                </span>
+                                            </div>
+                                            <div class="flex-1">
+                                                <h6 class="mb-1">{{ notification.message }}</h6>
+                                                <div class="font-size-12 text-muted">
+                                                    <p class="mb-1">If several languages coalesce the grammar</p>
+                                                    <p class="mb-0"><i class="mdi mdi-clock-outline"></i> {{ notification.created_at|timesince }} ago</p>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </a>
-                                
-                                
+                                    </a>
+                                {% empty %}
+                                    <p class="text-center">No notifications yet.</p>
+                                {% endfor %}
                             </div>
-                           
                         </div>
                     </div>
+
 
 
                     <div class="dropdown d-inline-block user-dropdown">
@@ -108,7 +113,7 @@
                             data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <img class="rounded-circle header-profile-user avatar-sm"
                                 src="{% static 'assets/images/users/avatar-2.jpg' %}" alt="Header Avatar">
-                            <span class="d-none d-xl-inline-block ms-1">{{request.user}}</span>
+                            <span class="d-none d-xl-inline-block ms-1">{{request.user.first_name}} {{request.user.last_name}}</span>
                             <i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i>
                         </button>
                         <div class="dropdown-menu dropdown-menu-end">
@@ -121,22 +126,41 @@
                                     class="align-middle">Logout</span></a>
                         </div>
                     </div>
-
+                    {% else %}
+                    <div class="dropdown d-inline-block">
+                        <div class="page-title-box align-self-center d-none d-md-block">
+                    <a href="{% url 'login' %}"><h4 class="page-title mb-0">Login</h4></a>
+                  </div>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         </header>
-
+        {% if request.user.is_authenticated %}
         <div class="topnav">
             <div class="container-fluid">
                 <nav class="navbar navbar-light navbar-expand-lg topnav-menu">
 
                     <div class="collapse navbar-collapse" id="topnav-menu-content">
                         <ul class="navbar-nav">
+                            {% if not request.user.is_staff and not request.user.is_superuser %}
+
                             <li class="nav-item">
                                 <a class="nav-link" href="{% url 'home' %}">
                                     <i class="uim uim-airplay"></i> Home
                                 </a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'student_projects' %}">
+                                    <i class="uim uim-airplay"></i> Projects
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'student_view_assignment' %}">
+                                    <i class="uim uim-airplay"></i> Assessments
+                                </a>
+                            </li>
+                            {% endif %}
                             {% if request.user.is_superuser %}
                             <li class="nav-item">
                                 <a class="nav-link" href="{% url 'student_admin' %}">
@@ -149,19 +173,21 @@
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="{% url 'supervisor_admin' %}">
+                                <a class="nav-link" href="{% url 'assessment_schema' %}">
                                     <i class="uim uim-airplay"></i> Assessment 
                                 </a>
                             </li>
                             {% endif %}
-                            {% if request.user.is_staff %}
+
+
+                            {% if request.user.is_staff and not request.user.is_superuser %}
                             <li class="nav-item">
                                 <a class="nav-link" href="{% url 'project_supervisor' %}">
                                     <i class="uim uim-airplay"></i> Projects
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="#">
+                                <a class="nav-link" href="{% url 'supervisor_application' %}">
                                     <i class="uim uim-airplay"></i> Applications
                                 </a>
                             </li>
@@ -176,3 +202,4 @@
                 </nav>
             </div>
         </div>
+        {% endif %}

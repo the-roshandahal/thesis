@@ -1,0 +1,71 @@
+{% load static %}
+{% include 'header.html' %}
+
+<div class="main-content">
+
+    <div class="page-content">
+        <div class="container-fluid">
+            <!-- Main content here -->
+             {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-primary alert-dismissible fade show" role="alert">
+                        {{ message|linebreaksbr  }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+
+            <div class="container mt-4">
+                <h2>Apply to Project: {{ project.title }}</h2>
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="application_type" class="form-label">Apply as:</label>
+                        <select class="form-control" name="application_type" id="application_type" required>
+                            <option value="">-- Select --</option>
+                            <option value="individual">Individual</option>
+                            <option value="group">Group</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3" id="group-emails" style="display: none;">
+                        <label for="group_emails" class="form-label">Group member emails (comma-separated):</label>
+                        <input type="text" name="group_emails" class="form-control">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="message" class="form-label">Why are you applying? (Brief Message)</label>
+                        <textarea class="form-control" name="message" rows="4" required></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Submit Application</button>
+                </form>
+            </div>
+
+            <script>
+                const typeSelect = document.getElementById('application_type');
+                typeSelect.addEventListener('change', function () {
+                    document.getElementById('group-emails').style.display = this.value === 'group' ? 'block' : 'none';
+                });
+            </script>
+
+
+
+
+
+
+
+
+
+
+
+
+        </div>
+
+    </div>
+    <!-- End Page-content -->
+
+</div>
+<!-- end main content-->
+{% include 'footer.html' %}
