@@ -64,17 +64,26 @@
                                             </span>
                                         </span>
                                         {% endif %}
+                                        <span class="text-muted">
+                                            <i class="mdi mdi-calendar-clock me-1"></i> 
+                                            Submit by: {{ assessment.submit_by|date:"M d, Y" }}
+                                        </span>
                                     </div>
                                     <hr>
                                     <div>
-    {% if assessment.can_attempt %}
-        {% if assessment.has_submission %}
-            <a href="{% url 'view_submission' assessment.obj.id %}" 
-               class="btn btn-info btn-sm">
-               <i class="mdi mdi-eye-outline me-1"></i> View Submission
-            </a>
-            <button class="btn btn-success btn-sm" disabled>
-                <i class="mdi mdi-check-all me-1"></i> Attempted
+   {% if assessment.can_attempt %}
+    {% if assessment.has_submission %}
+        <a href="{% url 'view_submission' assessment.obj.id %}" 
+           class="btn btn-info btn-sm">
+           <i class="mdi mdi-eye-outline me-1"></i> View Submission
+        </a>
+        <button class="btn btn-success btn-sm" disabled>
+            <i class="mdi mdi-check-all me-1"></i> Attempted
+        </button>
+    {% else %}
+        {% if assessment.is_submit_by_passed %}
+            <button class="btn btn-danger btn-sm" disabled title="Submission deadline has passed">
+                <i class="mdi mdi-alert-circle-outline me-1"></i> Submission Closed
             </button>
         {% else %}
             <a href="{% url 'attempt_assessment' assessment.obj.id %}"
@@ -82,12 +91,22 @@
                <i class="mdi mdi-pencil-outline me-1"></i> Attempt 
             </a>
         {% endif %}
+    {% endif %}
+{% else %}
+    {% if assessment.group_leader_submitted %}
+        <a href="{% url 'view_submission' assessment.leader_submission.id %}" 
+           class="btn btn-info btn-sm">
+           <i class="mdi mdi-eye-outline me-1"></i> View Group Submission
+        </a>
+        <p class="text-success">Group leader has submitted this assessment.</p>
     {% else %}
         <button class="btn btn-secondary btn-sm" disabled title="Only group leader can attempt">
             <i class="mdi mdi-lock-outline me-1"></i> Attempt (Locked)
         </button>
-        <p>Only leader will submit the group assessments</p>
+        <p>Only the group leader can submit group assessments.</p>
     {% endif %}
+{% endif %}
+
 </div>
                                 </div>
                             </div>

@@ -26,6 +26,7 @@ urlpatterns = [
     path('application/', include('application.urls')),
     path('accounts/', include('accounts.urls')),
     path('assessment/', include('assessment.urls')),
+    path('grading/', include('grading.urls')),
     path('', include('defaults.urls')),
 ]
 urlpatterns += staticfiles_urlpatterns()

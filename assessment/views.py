@@ -152,6 +152,13 @@ def add_assessment(request,id):
 
 def edit_assessment(request,id):
     pass
+
+
+from datetime import date
+from django.shortcuts import render
+from .models import AssessmentSchema, StudentSubmission, Assessment
+from application.models import ApplicationMember
+
 def student_view_assignment(request):
     has_accepted_project = ApplicationMember.objects.filter(
         user=request.user,
@@ -165,7 +172,7 @@ def student_view_assignment(request):
         'schema': schema if has_accepted_project else None,
         'assessments_with_days': [],
     }
-    
+
     if has_accepted_project and schema and hasattr(schema, 'assessments'):
         today = date.today()
         member = ApplicationMember.objects.filter(
@@ -174,24 +181,49 @@ def student_view_assignment(request):
         ).select_related('application').first()
 
         is_leader = member.is_leader if member else False
+        application = member.application if member else None
 
-        # Get all submissions for this user at once
+        # Get all submissions by this user
         user_submissions = StudentSubmission.objects.filter(
             submitted_by=request.user
         ).select_related('assignment')
 
+        # If group: get leader submission
+        group_leader = ApplicationMember.objects.filter(
+            application=application,
+            is_leader=True
+        ).first() if application else None
+
+        leader_submissions = StudentSubmission.objects.filter(
+            submitted_by=group_leader.user
+        ).select_related('assignment') if group_leader else []
+
         assessments_with_days = []
-        
+
         for assessment in schema.assessments.all().prefetch_related('detail_files', 'sample_files'):
             delta = assessment.due_date - today if assessment.due_date else None
-            
-            # Check if user has submissions for this assessment
+            submit_by_passed = assessment.submit_by < today if assessment.submit_by else False
+
+            # Did the current user submit?
             has_submission = any(sub.assignment_id == assessment.id for sub in user_submissions)
-            
+
+            # Did the group leader submit (relevant only if group and not leader)?
+            group_leader_submitted = (
+                assessment.submission_type == 'group' and
+                not is_leader and
+                any(sub.assignment_id == assessment.id for sub in leader_submissions)
+            )
+
+            leader_submission = next(
+                (sub for sub in leader_submissions if sub.assignment_id == assessment.id),
+                None
+            ) if group_leader_submitted else None
+
             assessments_with_days.append({
                 'obj': assessment,
                 'due_date': assessment.due_date,
                 'title': assessment.title,
+                'submit_by': assessment.submit_by,
                 'description': assessment.description,
                 'weight': assessment.weight,
                 'submission_type': assessment.submission_type,
@@ -200,11 +232,14 @@ def student_view_assignment(request):
                 'days_remaining': delta.days if delta else None,
                 'days_absolute': abs(delta.days) if delta else None,
                 'is_overdue': delta.days < 0 if delta else False,
+                'is_submit_by_passed': submit_by_passed,
                 'can_attempt': (
                     assessment.submission_type != 'group' or
                     (assessment.submission_type == 'group' and is_leader)
                 ),
-                'has_submission': has_submission,  # New field
+                'has_submission': has_submission,
+                'group_leader_submitted': group_leader_submitted,
+                'leader_submission': leader_submission,
             })
 
         context['assessments_with_days'] = assessments_with_days
@@ -257,38 +292,55 @@ def attempt_assessment(request, id):
 
 import os
 from django.shortcuts import get_object_or_404, render, redirect
-from .models import Assessment, StudentSubmission  # adjust if needed
-import os
+from .models import * # adjust if needed
 
 def view_submission(request, assessment_id):
     assessment = get_object_or_404(Assessment, id=assessment_id)
+    member = ApplicationMember.objects.filter(
+        user=request.user,
+        application__status='accepted'
+    ).select_related('application').first()
+    is_leader = member.is_leader if member else False
+    application = member.application if member else None
 
-   # Get all attempts ordered newest first
+    # Determine whose submissions to fetch
+    if assessment.submission_type == 'group' and not is_leader:
+        leader = ApplicationMember.objects.filter(application=application, is_leader=True).first()
+        submitted_user = leader.user if leader else request.user
+    else:
+        submitted_user = request.user
+
     all_attempts = StudentSubmission.objects.filter(
         assignment=assessment,
-        submitted_by=request.user
+        submitted_by=submitted_user
     ).order_by('-submitted_at')
-    
-    # Get specific attempt if requested, otherwise latest
-    attempt_id = request.GET.get('attempt')
-    current_submission = (
-        get_object_or_404(all_attempts, id=attempt_id) 
-        if attempt_id 
-        else all_attempts.first()
-    )
-    print(current_submission.files.all())  # This should return a queryset of SubmissionFile objects
 
+    attempt_id = request.GET.get('attempt')
+    current_submission = (get_object_or_404(all_attempts, id=attempt_id)
+                          if attempt_id else all_attempts.first())
     if not current_submission:
         return redirect('attempt_assessment', assessment_id=assessment_id)
-
 
     for file in current_submission.files.all():
         file.basename = os.path.basename(file.file.name)
 
+    # Deadline check
+    today = date.today()
+    is_submit_by_passed = assessment.submit_by < today if assessment.submit_by else False
+
+    # Group submission check
+    other_submission_exists = False
+    if assessment.submission_type == 'group' and not is_leader:
+        other_submission_exists = all_attempts.exists()
+
+    can_submit_new_attempt = not (is_submit_by_passed or other_submission_exists)
 
     context = {
         'assessment': assessment,
         'submission': current_submission,
         'all_attempts': all_attempts,
+        'can_submit_new_attempt': can_submit_new_attempt,
+        'detail_files': assessment.detail_files.all(),
+        'sample_files': assessment.sample_files.all(),
     }
     return render(request, 'assessment/view_submission.html', context)

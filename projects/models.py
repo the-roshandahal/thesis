@@ -32,6 +32,7 @@ class ProjectArea(models.Model):
         return self.name
 
 
+
 # models.py
 class ProjectFile(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='files')
