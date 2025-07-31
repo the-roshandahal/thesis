@@ -1,80 +1,83 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.db.models import Count, Avg
-from django.http import JsonResponse
-from assessment.models import StudentSubmission
+from django.db.models import Count, Avg, Q
+from assessment.models import Assessment, StudentSubmission
 from projects.models import Project
 from .forms import GradeSubmissionForm
 
 @login_required
-def grading_dashboard(request):
-    """Main grading dashboard showing all projects"""
-    projects = Project.objects.annotate(
-        total_applications=Count('applications'),
-        total_submissions=Count('applications__studentsubmission')
-    ).order_by('-created')
+def assessment_list(request):
+    """List all assessments that need grading"""
+    assessments = Assessment.objects.annotate(
+        total_submissions=Count('studentsubmission'),
+        graded_submissions=Count('studentsubmission', filter=Q(studentsubmission__grades_received__isnull=False))
+    ).order_by('-due_date')
 
     context = {
-        'projects': projects,
-        'title': 'Grading Dashboard'
+        'assessments': assessments,
+        'title': 'Assessments for Grading'
     }
-    return render(request, 'grading/grading.html', context)
+    return render(request, 'grading/assessment_list.html', context)
 
 @login_required
-def view_project_submissions(request, project_id):
-    """View all submissions for a specific project"""
-    project = get_object_or_404(Project, id=project_id)
+def assessment_detail(request, assessment_id):
+    """Show all submissions for a specific assessment"""
+    assessment = get_object_or_404(Assessment, id=assessment_id)
     submissions = StudentSubmission.objects.filter(
-        application__project=project
+        assignment=assessment
     ).select_related(
-        'assignment', 
         'submitted_by',
-        'application'
-    ).prefetch_related('files').order_by('-submitted_at')
+        'application__project'
+    ).order_by('-submitted_at')
 
     # Calculate average grade
     avg_grade = submissions.aggregate(Avg('grades_received'))['grades_received__avg']
+    
+    # Calculate grading progress
+    total_submissions = submissions.count()
+    graded_submissions = submissions.filter(grades_received__isnull=False).count()
+    grading_progress = (graded_submissions / total_submissions * 100) if total_submissions > 0 else 0
 
     context = {
-        'project': project,
+        'assessment': assessment,
         'submissions': submissions,
         'avg_grade': avg_grade,
-        'title': f'Submissions for {project.title}'
+        'total_submissions': total_submissions,
+        'graded_submissions': graded_submissions,
+        'grading_progress': grading_progress,
+        'title': f'Submissions for {assessment.title}'
     }
-    return render(request, 'grading/project_submissions.html', context)
+    return render(request, 'grading/assessment_detail.html', context)
 
 @login_required
+@login_required
 def grade_submission(request, submission_id):
-    """Grade an individual submission"""
     submission = get_object_or_404(
-        StudentSubmission.objects.select_related(
-            'application__project',
-            'assignment',
-            'submitted_by'
-        ), 
+        StudentSubmission.objects.select_related('assignment'),
         id=submission_id
     )
+    
+    # Ensure assessment exists
+    if not submission.assignment:
+        raise Http404("This submission has no associated assessment")
 
     if request.method == 'POST':
         form = GradeSubmissionForm(request.POST, instance=submission)
         if form.is_valid():
             form.save()
             messages.success(request, 'Grade submitted successfully!')
-            
-            # Redirect back to project submissions
-            return redirect('project_submissions', 
-                          project_id=submission.application.project.id)
+            return redirect('grading:assessment_detail', assessment_id=submission.assignment.id)
     else:
         form = GradeSubmissionForm(instance=submission)
-    print(submission.assignment.weight)
+
     context = {
         'submission': submission,
         'form': form,
+        'assessment': submission.assignment,  # Make sure this is included
         'title': f'Grading {submission.assignment.title}'
     }
     return render(request, 'grading/grade_submission.html', context)
-
 @login_required
 def submission_files(request, submission_id):
     """AJAX view for loading submission files in modal"""
