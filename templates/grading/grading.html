@@ -6,7 +6,48 @@
     <div class="page-content">
         <div class="container-fluid">
             <!-- Main content here -->
-             
+<div class="container-fluid">
+    <h2 class="mt-4">Grading Dashboard</h2>
+    
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Projects Overview</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover" id="dataTable">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Project Title</th>
+                            <th>Applications</th>
+                            <th>Submissions</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for project in projects %}
+                        <tr>
+                            <td>{{ project.title }}</td>
+                            <td>{{ project.total_applications }}</td>
+                            <td>{{ project.total_submissions }}</td>
+                            <td>
+                                <a href="{% url 'project_submissions' project.id %}" 
+                                   class="btn btn-sm btn-primary">
+                                    <i class="fas fa-eye"></i> View
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center">No projects available</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
 
 
             
