@@ -47,8 +47,8 @@
             <div class="card-header d-flex justify-content-between align-items-center">
               <h5 class="mb-0">
                 Attempt #{{ submission.attempt_number }}
-                <span class="badge ms-2 bg-{% if submission.grades_received %}success{% else %}warning{% endif %}">
-                  {% if submission.grades_received %}
+                <span class="badge ms-2 bg-{% if submission.published_status == 'published' %}success{% else %}warning{% endif %}">
+                  {% if submission.published_status == 'published' %}
                     Graded: {{ submission.grades_received }}%
                   {% else %}
                     Grade Pending
@@ -72,9 +72,11 @@
                 {% endfor %}
               </div>
 
+              {% if submission.published_status == 'published' %}
               {% if submission.feedback %}
                 <h6 class="mb-3">Feedback:</h6>
                 <div class="alert alert-light">{{ submission.feedback|linebreaks }}</div>
+              {% endif %}
               {% endif %}
             </div>
           </div>
@@ -103,7 +105,8 @@
                     <div class="d-flex justify-content-between">
                       <strong>Attempt #{{ attempt.attempt_number }}</strong>
                       <span>
-                        {% if attempt.grades_received %}
+                        
+                        {% if attempt.published_status == 'published' %}
                           <span class="badge bg-success">{{ attempt.grades_received }}/{{ attempt.assignment.weight }}</span>
                         {% else %}
                           <span class="badge bg-secondary">Pending/{{ attempt.assignment.weight }}</span>

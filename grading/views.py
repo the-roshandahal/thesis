@@ -39,12 +39,19 @@ def assessment_detail(request, assessment_id):
     graded_submissions = submissions.filter(grades_received__isnull=False).count()
     grading_progress = (graded_submissions / total_submissions * 100) if total_submissions > 0 else 0
 
+    published_status = 'unpublished'
+    for sub in submissions:
+        if sub.published_status == 'published':
+            published_status = 'published'
+
+
     context = {
         'assessment': assessment,
         'submissions': submissions,
         'avg_grade': avg_grade,
         'total_submissions': total_submissions,
         'graded_submissions': graded_submissions,
+        'published_status': published_status,
         'grading_progress': grading_progress,
         'title': f'Submissions for {assessment.title}'
     }

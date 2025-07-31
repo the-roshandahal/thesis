@@ -62,18 +62,31 @@ class AssessmentSampleFile(models.Model):
     def __str__(self):
         return self.name
 
+from django.utils import timezone
 
 class StudentSubmission(models.Model):
     application = models.ForeignKey('application.Application', on_delete=models.CASCADE)
     assignment = models.ForeignKey('Assessment', on_delete=models.CASCADE)
-    submitted_by = models.ForeignKey(User, on_delete= models.CASCADE)
+    submitted_by = models.ForeignKey(User, on_delete=models.CASCADE)
     submitted_at = models.DateTimeField(default=timezone.now)
     attempt_number = models.PositiveIntegerField(default=1)
-    grades_received = models.PositiveIntegerField (blank = True, null = True)
-    feedback = models.CharField (max_length=255, blank = True, null = True)
+    # submission_status = models.CharField(max_length=50, default="On time")
+    published_status = models.CharField(max_length=50, default="unpublished")
+    grades_received = models.PositiveIntegerField(blank=True, null=True)
+    feedback = models.CharField(max_length=255, blank=True, null=True)
+    is_late = models.BooleanField(default=False)  # New field to track late submissions
 
     def __str__(self):
         return f"{self.assignment.title} (Attempt {self.attempt_number})"
+
+    def save(self, *args, **kwargs):
+        # Check if submission is late
+        if not self.pk:  # Only for new submissions
+            if timezone.now().date() > self.assignment.due_date:
+                self.is_late = True
+        super().save(*args, **kwargs)
+
+
 
 
 class SubmissionFile(models.Model):

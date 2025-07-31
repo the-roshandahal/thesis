@@ -11,7 +11,7 @@
     <div class="card shadow mb-4">
         <div class="card-header py-3 bg-primary text-white">
             <div class="d-flex justify-content-between align-items-center">
-                <h4 class="m-0 font-weight-bold">
+                <h4 class="m-0 font-weight-bold text-white">
                     <i class="fas fa-clipboard-check mr-2"></i>
                     {{ assessment.title }}
                 </h4>
@@ -40,6 +40,13 @@
                         <p>{{ submissions.count }}</p>
                     </div>
                 </div>
+                {% if published_status == 'unpublished' %}
+                <div class="col-md-3">
+                    <button type="button" class="btn btn-primary waves-effect waves-light">Publish Grades</button>
+                </div>
+                {% else %}
+                Published
+                {% endif %}
             </div>
         </div>
     </div>
@@ -80,9 +87,9 @@
                             </td>
                             <td>
                                 {% if submission.is_late %}
-                                <span class="badge badge-danger">Late</span>
+                                    <span class="badge bg-danger">Late</span>
                                 {% else %}
-                                <span class="badge badge-success">On Time</span>
+                                    <span class="badge bg-success">On Time</span>
                                 {% endif %}
                             </td>
                             <td>
