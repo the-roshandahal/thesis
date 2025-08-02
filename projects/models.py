@@ -4,7 +4,6 @@ from accounts.models import *
 from django.utils import timezone
 
 
-# Create your models here.
 class Project(models.Model):
     PROJECT_TYPES = [
         ('Research', 'Research'),
@@ -33,7 +32,6 @@ class ProjectArea(models.Model):
 
 
 
-# models.py
 class ProjectFile(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='files')
     file = models.FileField(upload_to='project_files/%Y/%m/%d/')  # Organized storage
