@@ -52,12 +52,19 @@ def create_assessment_schema(request):
             for idx in assignment_indices:
                 name = request.POST.get(f'assignment_name_{idx}')
                 due_date = parse_date(request.POST.get(f'assignment_due_{idx}'))
+                submit_by = parse_date(request.POST.get(f'assignment_due_{idx}'))
                 submission_type = request.POST.get(f'submission_type_{idx}')
                 weight_raw = request.POST.get(f'assignment_weight_{idx}')
                 details = request.POST.get(f'assignment_detail_{idx}', '')
 
                 # Validate required fields
                 if not name or not due_date or not weight_raw:
+                    messages.error(request, f"Missing required fields for assignment #{idx}")
+                    schema.delete()  # rollback schema creation
+                    return render(request, 'assessment/create_schema.html')
+                
+                # Validate required fields
+                if not name or not submit_by or not weight_raw:
                     messages.error(request, f"Missing required fields for assignment #{idx}")
                     schema.delete()  # rollback schema creation
                     return render(request, 'assessment/create_schema.html')
@@ -74,6 +81,7 @@ def create_assessment_schema(request):
                     schema=schema,
                     title=name,
                     due_date=due_date,
+                    submit_by=submit_by,
                     weight=weight,
                     description=details,
                     submission_type=submission_type
