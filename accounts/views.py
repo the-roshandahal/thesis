@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.contrib.auth import login as auth_login
 from django.contrib.auth.hashers import check_password, make_password
 from .models import Admin, Supervisor, Student, User
+from django.contrib.auth.decorators import login_required
 
 def login(request):
     if request.user.is_authenticated:
@@ -92,6 +93,7 @@ def add_student(request):
             last_name=last_name,
             is_staff=False,
             is_superuser=False,
+            role='student',
             password=make_password(password),
         )
         Student.objects.create(
@@ -135,6 +137,7 @@ def add_supervisor(request):
             last_name=last_name,
             is_staff=True,
             is_superuser=False,
+            role='supervisor',
             password=make_password(password),
         )
         Supervisor.objects.create(
@@ -147,3 +150,69 @@ def add_supervisor(request):
         return redirect('supervisor_admin')
 
     return render(request, 'accounts/add_supervisor.html')
+
+@login_required
+def view_profile(request):
+    user = request.user
+    print('DEBUG:', user, user.is_authenticated, getattr(user, 'role', None))
+    context = {'user': user}
+    if user.role == 'student':
+        profile = Student.objects.get(user=user)
+        context['profile'] = profile
+        return render(request, 'accounts/view_profile.html', context)
+    elif user.role == 'supervisor':
+        profile = Supervisor.objects.get(user=user)
+        context['profile'] = profile
+        return render(request, 'accounts/view_profile.html', context)
+    elif user.role == 'admin':
+        try:
+            profile = Admin.objects.get(user=user)
+            context['profile'] = profile
+        except Admin.DoesNotExist:
+            # If admin profile doesn't exist, create one
+            profile = Admin.objects.create(user=user, staff_id=f"ADM{user.id:04d}")
+            context['profile'] = profile
+        return render(request, 'accounts/view_profile.html', context)
+    else:
+        messages.error(request, 'Profile viewing is not available for this user type.')
+        return redirect('home')
+
+@login_required
+def edit_profile(request):
+    user = request.user
+    context = {'user': user}
+    
+    if user.role == 'student':
+        profile = Student.objects.get(user=user)
+        context['profile'] = profile
+    elif user.role == 'supervisor':
+        profile = Supervisor.objects.get(user=user)
+        context['profile'] = profile
+    elif user.role == 'admin':
+        try:
+            profile = Admin.objects.get(user=user)
+            context['profile'] = profile
+        except Admin.DoesNotExist:
+            # If admin profile doesn't exist, create one
+            profile = Admin.objects.create(user=user, staff_id=f"ADM{user.id:04d}")
+            context['profile'] = profile
+    else:
+        messages.error(request, 'Profile editing is not available for this user type.')
+        return redirect('home')
+    
+    if request.method == 'POST':
+        # Update user fields
+        user.first_name = request.POST.get('first_name')
+        user.last_name = request.POST.get('last_name')
+        user.address = request.POST.get('address')
+        user.save()
+        
+        # Update profile-specific fields
+        if user.role in ['student', 'supervisor']:
+            profile.department = request.POST.get('department')
+            profile.save()
+        
+        messages.success(request, 'Profile updated successfully.')
+        return redirect('view_profile')
+    
+    return render(request, 'accounts/edit_profile.html', context)
