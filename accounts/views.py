@@ -6,6 +6,15 @@ from django.contrib.auth.hashers import check_password, make_password
 from .models import Admin, Supervisor, Student, User
 from django.contrib.auth.decorators import login_required
 
+def get_user_type(user):
+    """Get user type based on staff and superuser flags"""
+    if user.is_superuser:
+        return 'admin'
+    elif user.is_staff:
+        return 'supervisor'
+    else:
+        return 'student'
+
 def login(request):
     if request.user.is_authenticated:
         if request.user.is_superuser:
@@ -14,7 +23,7 @@ def login(request):
         elif request.user.is_staff:
             return render( request,'supervisor_dashboard.html')  
         else:
-            return redirect('home') 
+            return redirect('home')
     else:
         if request.method == 'POST':
             email = request.POST.get('email')
@@ -93,7 +102,6 @@ def add_student(request):
             last_name=last_name,
             is_staff=False,
             is_superuser=False,
-            role='student',
             password=make_password(password),
         )
         Student.objects.create(
@@ -137,7 +145,6 @@ def add_supervisor(request):
             last_name=last_name,
             is_staff=True,
             is_superuser=False,
-            role='supervisor',
             password=make_password(password),
         )
         Supervisor.objects.create(
@@ -154,17 +161,19 @@ def add_supervisor(request):
 @login_required
 def view_profile(request):
     user = request.user
-    print('DEBUG:', user, user.is_authenticated, getattr(user, 'role', None))
+    user_type = get_user_type(user)
+    print('DEBUG:', user, user.is_authenticated, user_type)
     context = {'user': user}
-    if user.role == 'student':
+    
+    if user_type == 'student':
         profile = Student.objects.get(user=user)
         context['profile'] = profile
         return render(request, 'accounts/view_profile.html', context)
-    elif user.role == 'supervisor':
+    elif user_type == 'supervisor':
         profile = Supervisor.objects.get(user=user)
         context['profile'] = profile
         return render(request, 'accounts/view_profile.html', context)
-    elif user.role == 'admin':
+    elif user_type == 'admin':
         try:
             profile = Admin.objects.get(user=user)
             context['profile'] = profile
@@ -180,15 +189,16 @@ def view_profile(request):
 @login_required
 def edit_profile(request):
     user = request.user
+    user_type = get_user_type(user)
     context = {'user': user}
     
-    if user.role == 'student':
+    if user_type == 'student':
         profile = Student.objects.get(user=user)
         context['profile'] = profile
-    elif user.role == 'supervisor':
+    elif user_type == 'supervisor':
         profile = Supervisor.objects.get(user=user)
         context['profile'] = profile
-    elif user.role == 'admin':
+    elif user_type == 'admin':
         try:
             profile = Admin.objects.get(user=user)
             context['profile'] = profile
@@ -208,7 +218,7 @@ def edit_profile(request):
         user.save()
         
         # Update profile-specific fields
-        if user.role in ['student', 'supervisor']:
+        if user_type in ['student', 'supervisor']:
             profile.department = request.POST.get('department')
             profile.save()
         

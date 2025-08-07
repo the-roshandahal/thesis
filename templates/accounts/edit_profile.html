@@ -24,7 +24,7 @@
               <label for="address" class="form-label">Address</label>
               <input type="text" class="form-control" id="address" name="address" value="{{ user.address }}" />
             </div>
-            {% if user.role in 'student,supervisor' and profile.department is not None %}
+            {% if not user.is_superuser and profile.department is not None %}
             <div class="mb-3">
               <label for="department" class="form-label">Department</label>
               <input type="text" class="form-control" id="department" name="department" value="{{ profile.department }}" />

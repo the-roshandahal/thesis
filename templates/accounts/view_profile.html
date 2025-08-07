@@ -20,13 +20,13 @@
             {% if profile.department is not None %}
             <dt class="col-sm-4">Department</dt>
             <dd class="col-sm-8">{{ profile.department|default:'-' }}</dd>
-            {% endif %} {% if user.role == 'student' %}
+            {% endif %} {% if not user.is_staff and not user.is_superuser %}
             <dt class="col-sm-4">Student ID</dt>
             <dd class="col-sm-8">{{ profile.student_id }}</dd>
-            {% elif user.role == 'supervisor' %}
+            {% elif user.is_staff and not user.is_superuser %}
             <dt class="col-sm-4">Staff ID</dt>
             <dd class="col-sm-8">{{ profile.staff_id }}</dd>
-            {% elif user.role == 'admin' %}
+            {% elif user.is_superuser %}
             <dt class="col-sm-4">Staff ID</dt>
             <dd class="col-sm-8">{{ profile.staff_id }}</dd>
             {% endif %}
