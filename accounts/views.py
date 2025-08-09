@@ -4,6 +4,16 @@ from django.contrib import messages
 from django.contrib.auth import login as auth_login
 from django.contrib.auth.hashers import check_password, make_password
 from .models import Admin, Supervisor, Student, User
+from django.contrib.auth.decorators import login_required
+
+def get_user_type(user):
+    """Get user type based on staff and superuser flags"""
+    if user.is_superuser:
+        return 'admin'
+    elif user.is_staff:
+        return 'supervisor'
+    else:
+        return 'student'
 
 def login(request):
     if request.user.is_authenticated:
@@ -13,7 +23,7 @@ def login(request):
         elif request.user.is_staff:
             return render( request,'supervisor_dashboard.html')  
         else:
-            return redirect('home') 
+            return redirect('home')
     else:
         if request.method == 'POST':
             email = request.POST.get('email')
@@ -147,3 +157,72 @@ def add_supervisor(request):
         return redirect('supervisor_admin')
 
     return render(request, 'accounts/add_supervisor.html')
+
+@login_required
+def view_profile(request):
+    user = request.user
+    user_type = get_user_type(user)
+    print('DEBUG:', user, user.is_authenticated, user_type)
+    context = {'user': user}
+    
+    if user_type == 'student':
+        profile = Student.objects.get(user=user)
+        context['profile'] = profile
+        return render(request, 'accounts/view_profile.html', context)
+    elif user_type == 'supervisor':
+        profile = Supervisor.objects.get(user=user)
+        context['profile'] = profile
+        return render(request, 'accounts/view_profile.html', context)
+    elif user_type == 'admin':
+        try:
+            profile = Admin.objects.get(user=user)
+            context['profile'] = profile
+        except Admin.DoesNotExist:
+            # If admin profile doesn't exist, create one
+            profile = Admin.objects.create(user=user, staff_id=f"ADM{user.id:04d}")
+            context['profile'] = profile
+        return render(request, 'accounts/view_profile.html', context)
+    else:
+        messages.error(request, 'Profile viewing is not available for this user type.')
+        return redirect('home')
+
+@login_required
+def edit_profile(request):
+    user = request.user
+    user_type = get_user_type(user)
+    context = {'user': user}
+    
+    if user_type == 'student':
+        profile = Student.objects.get(user=user)
+        context['profile'] = profile
+    elif user_type == 'supervisor':
+        profile = Supervisor.objects.get(user=user)
+        context['profile'] = profile
+    elif user_type == 'admin':
+        try:
+            profile = Admin.objects.get(user=user)
+            context['profile'] = profile
+        except Admin.DoesNotExist:
+            # If admin profile doesn't exist, create one
+            profile = Admin.objects.create(user=user, staff_id=f"ADM{user.id:04d}")
+            context['profile'] = profile
+    else:
+        messages.error(request, 'Profile editing is not available for this user type.')
+        return redirect('home')
+    
+    if request.method == 'POST':
+        # Update user fields
+        user.first_name = request.POST.get('first_name')
+        user.last_name = request.POST.get('last_name')
+        user.address = request.POST.get('address')
+        user.save()
+        
+        # Update profile-specific fields
+        if user_type in ['student', 'supervisor']:
+            profile.department = request.POST.get('department')
+            profile.save()
+        
+        messages.success(request, 'Profile updated successfully.')
+        return redirect('view_profile')
+    
+    return render(request, 'accounts/edit_profile.html', context)
