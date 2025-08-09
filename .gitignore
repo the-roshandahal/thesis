@@ -58,8 +58,6 @@ coverage.xml
 # Django stuff:
 *.log
 local_settings.py
-db.sqlite3
-db.sqlite3-journal
 
 # Flask stuff:
 instance/
@@ -131,11 +129,9 @@ dmypy.json
 # Django specific
 *.log
 local_settings.py
-db.sqlite3
-db.sqlite3-journal
 
 # Django media files
-media/
+# media/
 
 # Django static files (if collected)
 staticfiles/

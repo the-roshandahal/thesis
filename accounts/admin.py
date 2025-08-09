@@ -3,17 +3,17 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from .models import *
 
 class CustomUserAdmin(BaseUserAdmin):
-    list_display = ('username', 'email', 'first_name', 'last_name', 'role', 'is_staff', 'is_superuser')
-    list_filter = ('role', 'is_staff', 'is_superuser', 'is_active')
+    list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff', 'is_superuser')
+    list_filter = ('is_staff', 'is_superuser', 'is_active')
     search_fields = ('username', 'email', 'first_name', 'last_name')
     ordering = ('username',)
     
     fieldsets = BaseUserAdmin.fieldsets + (
-        ('Custom Fields', {'fields': ('role', 'address')}),
+        ('Custom Fields', {'fields': ('address',)}),
     )
     
     add_fieldsets = BaseUserAdmin.add_fieldsets + (
-        ('Custom Fields', {'fields': ('role', 'address')}),
+        ('Custom Fields', {'fields': ('address',)}),
     )
 
 class StudentAdmin(admin.ModelAdmin):
