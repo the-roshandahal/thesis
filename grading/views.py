@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Count, Avg, Q
+from django.http import Http404, JsonResponse
 from assessment.models import Assessment, StudentSubmission
 from projects.models import Project
 from .forms import GradeSubmissionForm
@@ -58,7 +59,6 @@ def assessment_detail(request, assessment_id):
     return render(request, 'grading/assessment_detail.html', context)
 
 @login_required
-@login_required
 def grade_submission(request, submission_id):
     submission = get_object_or_404(
         StudentSubmission.objects.select_related('assignment'),
@@ -85,6 +85,8 @@ def grade_submission(request, submission_id):
         'title': f'Grading {submission.assignment.title}'
     }
     return render(request, 'grading/grade_submission.html', context)
+
+#AJAX view for loading submission files in modal
 @login_required
 def submission_files(request, submission_id):
     """AJAX view for loading submission files in modal"""
