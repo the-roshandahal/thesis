@@ -85,6 +85,8 @@ def grade_submission(request, submission_id):
         'title': f'Grading {submission.assignment.title}'
     }
     return render(request, 'grading/grade_submission.html', context)
+
+#AJAX view for loading submission files in modal
 @login_required
 def submission_files(request, submission_id):
     """AJAX view for loading submission files in modal"""
