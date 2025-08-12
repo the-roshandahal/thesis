@@ -1,36 +1,113 @@
-{% extends 'base.html' %} {% block content %}
-<div class="container mt-5">
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5">
   <div class="row justify-content-center">
-    <div class="col-md-8">
-      <div class="card">
-        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-          <h4>My Profile</h4>
-          <a href="{% url 'edit_profile' %}" class="btn btn-light btn-sm">Edit Profile</a>
+    <div class="col-lg-8">
+      <div class="card shadow-lg border-0">
+        <!-- Card Header -->
+        <div class="card-header bg-primary text-white py-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h4 class="mb-0 text-white">My Profile</h4>
+              <small class="opacity-75">View your account details</small>
+            </div>
+            <a href="{% url 'edit_profile' %}" class="btn btn-light btn-sm">
+              <i class="bi bi-pencil-square me-1"></i> Edit Profile
+            </a>
+          </div>
         </div>
-        <div class="card-body">
-          <dl class="row">
-            <dt class="col-sm-4">First Name</dt>
-            <dd class="col-sm-8">{{ user.first_name }}</dd>
-            <dt class="col-sm-4">Last Name</dt>
-            <dd class="col-sm-8">{{ user.last_name }}</dd>
-            <dt class="col-sm-4">Email</dt>
-            <dd class="col-sm-8">{{ user.email }}</dd>
-            <dt class="col-sm-4">Address</dt>
-            <dd class="col-sm-8">{{ user.address|default:'-' }}</dd>
-            {% if profile.department is not None %}
-            <dt class="col-sm-4">Department</dt>
-            <dd class="col-sm-8">{{ profile.department|default:'-' }}</dd>
-            {% endif %} {% if not user.is_staff and not user.is_superuser %}
-            <dt class="col-sm-4">Student ID</dt>
-            <dd class="col-sm-8">{{ profile.student_id }}</dd>
-            {% elif user.is_staff and not user.is_superuser %}
-            <dt class="col-sm-4">Staff ID</dt>
-            <dd class="col-sm-8">{{ profile.staff_id }}</dd>
-            {% elif user.is_superuser %}
-            <dt class="col-sm-4">Staff ID</dt>
-            <dd class="col-sm-8">{{ profile.staff_id }}</dd>
-            {% endif %}
-          </dl>
+        
+        <!-- Messages -->
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show m-3 mb-0 rounded">
+          <i class="bi {% if message.tags == 'success' %}bi-check-circle-fill{% else %}bi-exclamation-triangle-fill{% endif %} me-2"></i>
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+
+        <!-- Card Body -->
+        <div class="card-body p-4">
+          <div class="row">
+            <!-- Profile Picture Column -->
+            <div class="col-md-4 text-center mb-4 mb-md-0">
+              <div class="position-relative d-inline-block">
+                <img src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}https://via.placeholder.com/150{% endif %}" 
+                     class="img-thumbnail rounded-circle shadow" 
+                     style="width: 150px; height: 150px; object-fit: cover;"
+                     alt="Profile Picture">
+               
+              </div>
+              <h5 class="mt-3 mb-0">{{ user.get_full_name|default:user.username }}</h5>
+              <p class="text-muted mb-0">
+                {% if user.is_superuser %}
+                <span class="badge bg-danger">Administrator</span>
+                {% elif user.is_staff %}
+                <span class="badge bg-info">Staff</span>
+                {% else %}
+                <span class="badge bg-success">Student</span>
+                {% endif %}
+              </p>
+            </div>
+            
+            <!-- Profile Details Column -->
+            <div class="col-md-8">
+              <div class="table-responsive">
+                <table class="table table-borderless">
+                  <tbody>
+                    <tr>
+                      <th class="ps-0" style="width: 35%"><i class="bi bi-person-lines-fill text-primary me-2"></i>First Name</th>
+                      <td>{{ user.first_name|default:"-" }}</td>
+                    </tr>
+                    <tr>
+                      <th class="ps-0"><i class="bi bi-person-lines-fill text-primary me-2"></i>Last Name</th>
+                      <td>{{ user.last_name|default:"-" }}</td>
+                    </tr>
+                    <tr>
+                      <th class="ps-0"><i class="bi bi-envelope-fill text-primary me-2"></i>Email</th>
+                      <td>{{ user.email }}</td>
+                    </tr>
+                    <tr>
+                      <th class="ps-0"><i class="bi bi-geo-alt-fill text-primary me-2"></i>Address</th>
+                      <td>{{ user.address|default:"-" }}</td>
+                    </tr>
+                    {% if profile.department is not None %}
+                    <tr>
+                      <th class="ps-0"><i class="bi bi-building-fill text-primary me-2"></i>Department</th>
+                      <td>{{ profile.department|default:"-" }}</td>
+                    </tr>
+                    {% endif %}
+                    {% if not user.is_staff and not user.is_superuser %}
+                    <tr>
+                      <th class="ps-0"><i class="bi bi-credit-card-fill text-primary me-2"></i>Student ID</th>
+                      <td>{{ profile.student_id }}</td>
+                    </tr>
+                    {% elif user.is_staff or user.is_superuser %}
+                    <tr>
+                      <th class="ps-0"><i class="bi bi-credit-card-2-front-fill text-primary me-2"></i>Staff ID</th>
+                      <td>{{ profile.staff_id }}</td>
+                    </tr>
+                    {% endif %}
+                    <tr>
+                      <th class="ps-0"><i class="bi bi-telephone-fill text-primary me-2"></i>Contact</th>
+                      <td>{{ user.contact|default:"-" }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Card Footer -->
+        <div class="card-footer bg-light py-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <small class="text-muted">Last updated: {{ user.updated_at|date:"F j, Y" }}</small>
+            <a href="{% url 'change_password' %}" class="btn btn-outline-secondary btn-sm">
+              <i class="bi bi-shield-lock me-1"></i> Change Password
+            </a>
+          </div>
         </div>
       </div>
     </div>

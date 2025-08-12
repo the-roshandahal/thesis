@@ -1,10 +1,14 @@
 from django.utils import timezone
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect,get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import login as auth_login
 from django.contrib.auth.hashers import check_password, make_password
 from .models import Admin, Supervisor, Student, User
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import update_session_auth_hash
+
+
+
 
 def get_user_type(user):
     """Get user type based on staff and superuser flags"""
@@ -19,7 +23,6 @@ def login(request):
     if request.user.is_authenticated:
         if request.user.is_superuser:
             return render( request,'admin_dashboard.html')  
-            # return redirect('admin:index')  
         elif request.user.is_staff:
             return render( request,'supervisor_dashboard.html')  
         else:
@@ -57,8 +60,6 @@ def login(request):
                     request.session['user_type'] = user_type
                     user.last_login = timezone.now()
                     user.save()
-                    print('user found:', user.email)
-                    print('redirecting to home...')
                     return redirect('home')
                 else:
                     messages.error(request, 'Incorrect password.')
@@ -190,39 +191,68 @@ def view_profile(request):
 def edit_profile(request):
     user = request.user
     user_type = get_user_type(user)
-    context = {'user': user}
-    
+
+    # Get or create profile based on user type
     if user_type == 'student':
-        profile = Student.objects.get(user=user)
-        context['profile'] = profile
+        profile = get_object_or_404(Student, user=user)
     elif user_type == 'supervisor':
-        profile = Supervisor.objects.get(user=user)
-        context['profile'] = profile
+        profile = get_object_or_404(Supervisor, user=user)
     elif user_type == 'admin':
-        try:
-            profile = Admin.objects.get(user=user)
-            context['profile'] = profile
-        except Admin.DoesNotExist:
-            # If admin profile doesn't exist, create one
-            profile = Admin.objects.create(user=user, staff_id=f"ADM{user.id:04d}")
-            context['profile'] = profile
+        profile, created = Admin.objects.get_or_create(
+            user=user,
+            defaults={'staff_id': f"ADM{user.id:04d}"}
+        )
     else:
         messages.error(request, 'Profile editing is not available for this user type.')
         return redirect('home')
-    
+
     if request.method == 'POST':
-        # Update user fields
-        user.first_name = request.POST.get('first_name')
-        user.last_name = request.POST.get('last_name')
-        user.address = request.POST.get('address')
+        # Editable user fields
+        user.username = request.POST.get('username', user.username)
+        user.email = request.POST.get('email', user.email)
+        user.first_name = request.POST.get('first_name', user.first_name)
+        user.last_name = request.POST.get('last_name', user.last_name)
+        user.address = request.POST.get('address', user.address)
+        user.contact = request.POST.get('contact', user.contact)
+
+        # Handle profile picture upload
+        if 'profile_picture' in request.FILES:
+            user.profile_picture = request.FILES['profile_picture']
+
         user.save()
-        
-        # Update profile-specific fields
-        if user_type in ['student', 'supervisor']:
-            profile.department = request.POST.get('department')
-            profile.save()
-        
+
+        # department and staff_id are read-only — not updated here
+        profile.save()
+
         messages.success(request, 'Profile updated successfully.')
         return redirect('view_profile')
-    
-    return render(request, 'accounts/edit_profile.html', context)
+
+    return render(request, 'accounts/edit_profile.html', {
+        'user': user,
+        'profile': profile,
+        'user_type': user_type
+    })
+
+
+
+@login_required
+def change_password(request):
+    if request.method == 'POST':
+        current_password = request.POST.get('current_password')
+        new_password = request.POST.get('new_password')
+        confirm_password = request.POST.get('confirm_password')
+
+        if not request.user.check_password(current_password):
+            messages.error(request, 'Current password is incorrect.')
+        elif new_password != confirm_password:
+            messages.error(request, 'New password and confirm password do not match.')
+        elif len(new_password) < 8:
+            messages.error(request, 'New password must be at least 8 characters long.')
+        else:
+            request.user.set_password(new_password)
+            request.user.save()
+            update_session_auth_hash(request, request.user)  # Keeps user logged in
+            messages.success(request, 'Your password has been changed successfully.')
+            return redirect('view_profile')
+
+    return render(request, 'accounts/change_password.html')

@@ -16,6 +16,7 @@ from django.contrib.auth.decorators import login_required
 def home(request):
 
     if request.user.is_superuser:
+        return render(request, 'admin_dashboard.html')
         return redirect('admin:index')  # Default Django admin dashboard
 
     elif request.user.is_staff:
