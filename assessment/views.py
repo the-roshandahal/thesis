@@ -15,16 +15,16 @@ from django.shortcuts import get_object_or_404
 from functools import wraps
 from .permissions import (
     assessment_view_required, 
-    assessment_manage_required,
-    admin_required,
-    supervisor_or_admin_required
+    assessment_manage_required
 )
 
 @assessment_view_required
 def assessment_schema(request):
     schema = AssessmentSchema.objects.first()  # Only one allowed
     return render(request, 'assessment/assessment_schema.html', {
-        'schema': schema
+        'schema': schema,
+        'user_is_supervisor': request.user.is_staff and not request.user.is_superuser,
+        'user_is_admin': request.user.is_superuser,
     })
 
 @assessment_manage_required

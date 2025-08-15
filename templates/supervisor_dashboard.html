@@ -1,29 +1,463 @@
+{% extends 'base_dashboard.html' %}
 {% load static %}
-{% include 'header.html' %}
 
-<div class="main-content">
+{% block title %}Supervisor Dashboard - Thesis Management System{% endblock %}
 
-    <div class="page-content">
-        <div class="container-fluid">
-            <!-- Main content here -->
+{% block sidebar_menu %}
+    {% include 'supervisor_sidebar.html' %}
+{% endblock %}
 
-
-
-
-
-
-
-
-
-
-
-
-
+{% block content %}
+  <!-- Page Title -->
+  <div class="row">
+    <div class="col-12">
+      <div class="page-title-box d-flex align-items-center justify-content-between">
+        <h4 class="mb-0">Supervisor Dashboard</h4>
+        <div class="page-title-right">
+          <ol class="breadcrumb m-0">
+            <li class="breadcrumb-item"><a href="javascript: void(0);">Dashboard</a></li>
+            <li class="breadcrumb-item active">Overview</li>
+          </ol>
         </div>
-
+      </div>
     </div>
-    <!-- End Page-content -->
+  </div>
 
+  <!-- Welcome Message -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card bg-primary bg-opacity-10 border-0">
+        <div class="card-body">
+          <div class="d-flex align-items-center">
+            <div class="avatar-sm bg-primary rounded-circle flex-shrink-0">
+              <span class="avatar-title">
+                <i class="mdi mdi-account-tie font-size-24 text-white"></i>
+              </span>
+            </div>
+            <div class="flex-grow-1 ms-3">
+              <h5 class="mb-1">Welcome back, {{ supervisor.user.first_name }} {{ supervisor.user.last_name }}!</h5>
+              <p class="mb-0 text-muted">Here's an overview of your projects and applications</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+      <!-- Statistics Cards -->
+      <div class="row">
+        <div class="col-xl-3 col-md-6">
+          <div class="card mini-stats-wid">
+            <div class="card-body">
+              <div class="d-flex">
+                <div class="flex-grow-1">
+                  <p class="text-muted fw-medium">Total Projects</p>
+                  <h4 class="mb-0">{{ total_projects }}</h4>
+                </div>
+                <div class="flex-shrink-0 align-self-center">
+                  <div class="avatar-sm rounded-circle bg-primary bg-opacity-10">
+                    <span class="avatar-title">
+                      <i class="mdi mdi-folder-multiple font-size-24 text-primary"></i>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+          <div class="card mini-stats-wid">
+            <div class="card-body">
+              <div class="d-flex">
+                <div class="flex-grow-1">
+                  <p class="text-muted fw-medium">Total Applications</p>
+                  <h4 class="mb-0">{{ total_applications }}</h4>
+                </div>
+                <div class="flex-shrink-0 align-self-center">
+                  <div class="avatar-sm rounded-circle bg-info bg-opacity-10">
+                    <span class="avatar-title">
+                      <i class="mdi mdi-file-document-multiple font-size-24 text-info"></i>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+          <div class="card mini-stats-wid">
+            <div class="card-body">
+              <div class="d-flex">
+                <div class="flex-grow-1">
+                  <p class="text-muted fw-medium">Accepted Applications</p>
+                  <h4 class="mb-0">{{ accepted_applications }}</h4>
+                </div>
+                <div class="flex-shrink-0 align-self-center">
+                  <div class="avatar-sm rounded-circle bg-success bg-opacity-10">
+                    <span class="avatar-title">
+                      <i class="mdi mdi-check-circle font-size-24 text-success"></i>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+          <div class="card mini-stats-wid">
+            <div class="card-body">
+              <div class="d-flex">
+                <div class="flex-grow-1">
+                  <p class="text-muted fw-medium">Pending Applications</p>
+                  <h4 class="mb-0">{{ pending_applications }}</h4>
+                </div>
+                <div class="flex-shrink-0 align-self-center">
+                  <div class="avatar-sm rounded-circle bg-warning bg-opacity-10">
+                    <span class="avatar-title">
+                      <i class="mdi mdi-clock font-size-24 text-warning"></i>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts Row -->
+      <div class="row">
+        <div class="col-xl-8">
+          <div class="card">
+            <div class="card-header">
+              <h4 class="card-title mb-0">
+                <i class="mdi mdi-chart-line me-2"></i>Application Trends (Last 6 Months)
+              </h4>
+            </div>
+            <div class="card-body">
+              <div id="applications-chart" style="height: 300px"></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-4">
+          <div class="card">
+            <div class="card-header">
+              <h4 class="card-title mb-0">
+                <i class="mdi mdi-chart-pie me-2"></i>Project Status Distribution
+              </h4>
+            </div>
+            <div class="card-body">
+              <div id="project-status-chart" style="height: 300px"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Additional Statistics Row -->
+      <div class="row">
+        <div class="col-xl-4">
+          <div class="card">
+            <div class="card-header">
+              <h4 class="card-title mb-0">
+                <i class="mdi mdi-clipboard-check me-2"></i>Assessment Overview
+              </h4>
+            </div>
+            <div class="card-body">
+              <div class="d-flex align-items-center mb-3">
+                <div class="avatar-sm bg-light rounded-circle flex-shrink-0">
+                  <span class="avatar-title text-primary">
+                    <i class="mdi mdi-file-document font-size-20"></i>
+                  </span>
+                </div>
+                <div class="flex-grow-1 ms-3">
+                  <h6 class="mb-0">Total Assessments</h6>
+                  <p class="text-muted mb-0">{{ total_assessments }}</p>
+                </div>
+              </div>
+              <div class="d-flex align-items-center">
+                <div class="avatar-sm bg-light rounded-circle flex-shrink-0">
+                  <span class="avatar-title text-success">
+                    <i class="mdi mdi-check font-size-20"></i>
+                  </span>
+                </div>
+                <div class="flex-grow-1 ms-3">
+                  <h6 class="mb-0">Completed Submissions</h6>
+                  <p class="text-muted mb-0">{{ completed_submissions }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-4">
+          <div class="card">
+            <div class="card-header">
+              <h4 class="card-title mb-0">
+                <i class="mdi mdi-clock-outline me-2"></i>Recent Activities
+              </h4>
+            </div>
+            <div class="card-body">
+              <div class="timeline-alt pb-0">
+                {% for activity in recent_activities %}
+                <div class="timeline-item">
+                  <i class="mdi mdi-circle bg-info-lighten text-info timeline-icon"></i>
+                  <div class="timeline-item-info">
+                    <a href="#" class="text-info fw-bold mb-1 d-block">{{ activity.title }}</a>
+                    <small>{{ activity.timestamp|timesince }} ago</small>
+                    <p class="mb-0">{{ activity.description }}</p>
+                  </div>
+                </div>
+                {% empty %}
+                <div class="text-center text-muted">
+                  <i class="mdi mdi-information-outline font-size-24"></i>
+                  <p class="mt-2">No recent activities</p>
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-4">
+          <div class="card">
+            <div class="card-header">
+              <h4 class="card-title mb-0">
+                <i class="mdi mdi-lightning-bolt me-2"></i>Quick Actions
+              </h4>
+            </div>
+            <div class="card-body">
+              <div class="d-grid gap-2">
+                <a href="{% url 'add_project' %}" class="btn btn-primary">
+                  <i class="mdi mdi-folder-plus me-2"></i>Add New Project
+                </a>
+                <a href="{% url 'project_supervisor' %}" class="btn btn-success">
+                  <i class="mdi mdi-folder-multiple me-2"></i>View My Projects
+                </a>
+                <a href="{% url 'assessment_schema' %}" class="btn btn-info">
+                  <i class="mdi mdi-file-document me-2"></i>View Assessments
+                </a>
+                <a href="{% url 'edit_profile' %}" class="btn btn-warning">
+                  <i class="mdi mdi-account-edit me-2"></i>Edit Profile
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Data Tables Row -->
+      <div class="row">
+        <div class="col-xl-6">
+          <div class="card">
+            <div class="card-header">
+              <h4 class="card-title mb-0">
+                <i class="mdi mdi-file-document-multiple me-2"></i>Recent Applications
+              </h4>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-centered table-nowrap mb-0">
+                  <thead>
+                    <tr>
+                      <th>
+                        <i class="mdi mdi-folder me-1"></i>Project
+                      </th>
+                      <th>
+                        <i class="mdi mdi-tag me-1"></i>Type
+                      </th>
+                      <th>
+                        <i class="mdi mdi-information me-1"></i>Status
+                      </th>
+                      <th>
+                        <i class="mdi mdi-calendar me-1"></i>Date
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for application in recent_applications %}
+                    <tr>
+                      <td>
+                        <div class="d-flex align-items-center">
+                          <div class="avatar-sm bg-light rounded-circle flex-shrink-0">
+                            <span class="avatar-title text-primary">
+                              <i class="mdi mdi-folder font-size-16"></i>
+                            </span>
+                          </div>
+                          <div class="flex-grow-1 ms-3">
+                            <p class="mb-0 fw-medium">{{ application.project.title|truncatechars:25 }}</p>
+                            <small class="text-muted">{{ application.project.project_type }}</small>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <span class="badge bg-light text-dark">
+                          <i class="mdi mdi-tag me-1"></i>{{ application.application_type|title }}
+                        </span>
+                      </td>
+                      <td>
+                        {% if application.status == 'applied' %}
+                        <span class="badge bg-warning">
+                          <i class="mdi mdi-clock me-1"></i>Applied
+                        </span>
+                        {% elif application.status == 'accepted' %}
+                        <span class="badge bg-success">
+                          <i class="mdi mdi-check me-1"></i>Accepted
+                        </span>
+                        {% elif application.status == 'declined' %}
+                        <span class="badge bg-danger">
+                          <i class="mdi mdi-close me-1"></i>Declined
+                        </span>
+                        {% else %}
+                        <span class="badge bg-secondary">
+                          <i class="mdi mdi-help me-1"></i>{{ application.status|title }}
+                        </span>
+                        {% endif %}
+                      </td>
+                      <td>
+                        <i class="mdi mdi-calendar-clock me-1"></i>{{ application.applied_at|date:"M d, Y" }}
+                      </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                      <td colspan="4" class="text-center text-muted">
+                        <i class="mdi mdi-inbox-outline me-2"></i>No applications found
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-6">
+          <div class="card">
+            <div class="card-header">
+              <h4 class="card-title mb-0">
+                <i class="mdi mdi-folder-multiple me-2"></i>My Projects
+              </h4>
+            </div>
+            <div class="card-body">
+              {% if supervisor_projects %}
+              <div class="list-group list-group-flush">
+                {% for project in supervisor_projects %}
+                <div class="list-group-item border-0 px-0">
+                  <div class="d-flex align-items-center">
+                    <div class="avatar-sm bg-light rounded-circle flex-shrink-0">
+                      <span class="avatar-title text-primary">
+                        <i class="mdi mdi-folder font-size-16"></i>
+                      </span>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                      <h6 class="mb-1">{{ project.title|truncatechars:30 }}</h6>
+                      <p class="text-muted mb-0">{{ project.description|truncatechars:50 }}</p>
+                      <small class="text-muted">
+                        <i class="mdi mdi-calendar me-1"></i>
+                        {{ project.created_at|date:"M d, Y" }}
+                      </small>
+                    </div>
+                    <div class="flex-shrink-0">
+                      {% if project.availability == 'available' %}
+                      <span class="badge bg-success">
+                        <i class="mdi mdi-check-circle me-1"></i>Available
+                      </span>
+                      {% else %}
+                      <span class="badge bg-danger">
+                        <i class="mdi mdi-close-circle me-1"></i>Unavailable
+                      </span>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+              {% else %}
+              <div class="text-center text-muted">
+                <i class="mdi mdi-folder-outline font-size-24"></i>
+                <p class="mt-2">No projects created yet</p>
+                <a href="{% url 'add_project' %}" class="btn btn-primary btn-sm">
+                  <i class="mdi mdi-plus me-1"></i>Create Your First Project
+                </a>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
-<!-- end main content-->
-{% include 'footer.html' %}
+
+{% endblock %}
+
+{% block extra_js %}
+<!-- Chart.js and ApexCharts -->
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+<script>
+  // Applications Over Time Chart
+  var applicationsOptions = {
+      series: [{
+          name: 'Applications',
+          data: [{% for month in monthly_applications %}{{ month.count }}{% if not forloop.last %}, {% endif %}{% endfor %}]
+      }],
+      chart: {
+          type: 'area',
+          height: 300,
+          toolbar: {
+              show: false
+          }
+      },
+      dataLabels: {
+          enabled: false
+      },
+      stroke: {
+          curve: 'smooth',
+          width: 3
+      },
+      colors: ['#34c38f'],
+      fill: {
+          type: 'gradient',
+          gradient: {
+              shadeIntensity: 1,
+              opacityFrom: 0.7,
+              opacityTo: 0.2,
+              stops: [0, 90, 100]
+          }
+      },
+      xaxis: {
+          categories: [{% for month in monthly_applications %}'{{ month.month }}'{% if not forloop.last %}, {% endif %}{% endfor %}]
+      },
+      tooltip: {
+          x: {
+              format: 'MM'
+          },
+      },
+  };
+
+  var applicationsChart = new ApexCharts(document.querySelector("#applications-chart"), applicationsOptions);
+  applicationsChart.render();
+
+  // Project Status Distribution Pie Chart
+  var projectStatusOptions = {
+      series: [{% for status, count in project_status_data.items %}{{ count }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+      chart: {
+          type: 'pie',
+          height: 300
+      },
+      labels: [{% for status, count in project_status_data.items %}'{{ status|title }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+      colors: ['#34c38f', '#f1b44c', '#f46a6a', '#50a5f1'],
+      responsive: [{
+          breakpoint: 480,
+          options: {
+              chart: {
+                  width: 200
+              },
+              legend: {
+                  position: 'bottom'
+              }
+          }
+      }]
+  };
+
+  var projectStatusChart = new ApexCharts(document.querySelector("#project-status-chart"), projectStatusOptions);
+  projectStatusChart.render();
+</script>
+{% endblock %}

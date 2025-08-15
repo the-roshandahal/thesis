@@ -1,108 +1,134 @@
-{% extends 'base.html' %}
+{% extends 'base_dashboard.html' %} {% load static %} {% block title %}Edit Profile - Thesis Management System{% endblock %} {% block sidebar_menu %} {% if user_is_supervisor %} {% include 'supervisor_sidebar.html' %} {% elif user_is_admin %} {% include 'admin_sidebar.html' %} {% else %}
+<!-- Student sidebar or no sidebar -->
+{% endif %} {% endblock %} {% block content %}
+<!-- Page Title -->
+<div class="row">
+  <div class="col-12">
+    <div class="page-title-box d-flex align-items-center justify-content-between">
+      <h4 class="mb-0">Edit Profile</h4>
+      <div class="page-title-right">
+        <ol class="breadcrumb m-0">
+          {% if user_is_supervisor %}
+          <li class="breadcrumb-item"><a href="{% url 'supervisor_dashboard' %}">Dashboard</a></li>
+          {% elif user_is_admin %}
+          <li class="breadcrumb-item"><a href="{% url 'admin_dashboard' %}">Dashboard</a></li>
+          {% endif %}
+          <li class="breadcrumb-item active">Edit Profile</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</div>
 
-{% block content %}
-<div class="container py-5">
-  <div class="row justify-content-center">
-    <div class="col-lg-8">
-      <div class="card shadow-lg">
-        <div class="card-header bg-primary text-white py-3">
-          <div class="d-flex justify-content-between align-items-center">
-            <h4 class="mb-0 text-white"><i class="bi bi-person-gear me-2"></i>Edit Profile</h4>
-            <a href="{% url 'view_profile' %}" class="btn btn-sm btn-light">
-              <i class="bi bi-arrow-left me-1"></i> Back to Profile
-            </a>
-          </div>
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card shadow-lg">
+      <div class="card-header bg-primary text-white py-3">
+        <div class="d-flex justify-content-between align-items-center">
+          <h4 class="mb-0 text-white"><i class="mdi mdi-account-edit me-2"></i>Edit Profile</h4>
+          {% if user_is_supervisor %}
+          <a href="{% url 'supervisor_dashboard' %}" class="btn btn-sm btn-light"> <i class="mdi mdi-arrow-left me-1"></i> Back to Dashboard </a>
+          {% elif user_is_admin %}
+          <a href="{% url 'admin_dashboard' %}" class="btn btn-sm btn-light"> <i class="mdi mdi-arrow-left me-1"></i> Back to Dashboard </a>
+          {% endif %}
         </div>
-        
-        <div class="card-body p-4">
-          {% for message in messages %}
-          <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
-            {{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-          </div>
-          {% endfor %}
+      </div>
 
-          <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
-            {% csrf_token %}
-            
-            <div class="row g-3">
-              <div class="col-md-6">
-                <label for="username" class="form-label">Username</label>
-                <div class="input-group">
-                  <span class="input-group-text"><i class="bi bi-person-fill"></i></span>
-                  <input type="text" id="username" name="username" class="form-control" value="{{ user.username }}" required>
-                </div>
+      <div class="card-body p-4">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+
+        <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+          {% csrf_token %}
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label for="username" class="form-label"> <i class="mdi mdi-account me-1"></i>Username </label>
+              <div class="input-group">
+                <span class="input-group-text">
+                  <i class="mdi mdi-account"></i>
+                </span>
+                <input type="text" id="username" name="username" class="form-control" value="{{ user.username }}" required />
               </div>
-              
-              <div class="col-md-6">
-                <label for="email" class="form-label">Email</label>
-                <div class="input-group">
-                  <span class="input-group-text"><i class="bi bi-envelope-fill"></i></span>
-                  <input type="email" id="email" name="email" class="form-control" value="{{ user.email }}" required>
-                </div>
+            </div>
+
+            <div class="col-md-6">
+              <label for="email" class="form-label"> <i class="mdi mdi-email me-1"></i>Email </label>
+              <div class="input-group">
+                <span class="input-group-text">
+                  <i class="mdi mdi-email"></i>
+                </span>
+                <input type="email" id="email" name="email" class="form-control" value="{{ user.email }}" required />
               </div>
-              
-              <div class="col-md-6">
-                <label for="first_name" class="form-label">First Name</label>
-                <div class="input-group">
-                  <span class="input-group-text"><i class="bi bi-person-vcard"></i></span>
-                  <input type="text" id="first_name" name="first_name" class="form-control" value="{{ user.first_name }}">
-                </div>
+            </div>
+
+            <div class="col-md-6">
+              <label for="first_name" class="form-label"> <i class="mdi mdi-account me-1"></i>First Name </label>
+              <div class="input-group">
+                <span class="input-group-text">
+                  <i class="mdi mdi-account"></i>
+                </span>
+                <input type="text" id="first_name" name="first_name" class="form-control" value="{{ user.first_name }}" />
               </div>
-              
-              <div class="col-md-6">
-                <label for="last_name" class="form-label">Last Name</label>
-                <div class="input-group">
-                  <span class="input-group-text"><i class="bi bi-person-vcard-fill"></i></span>
-                  <input type="text" id="last_name" name="last_name" class="form-control" value="{{ user.last_name }}">
-                </div>
+            </div>
+
+            <div class="col-md-6">
+              <label for="last_name" class="form-label"> <i class="mdi mdi-account me-1"></i>Last Name </label>
+              <div class="input-group">
+                <span class="input-group-text">
+                  <i class="mdi mdi-account"></i>
+                </span>
+                <input type="text" id="last_name" name="last_name" class="form-control" value="{{ user.last_name }}" />
               </div>
-              
-              <div class="col-md-6">
-                <label for="address" class="form-label">Address</label>
-                <div class="input-group">
-                  <span class="input-group-text"><i class="bi bi-house-door-fill"></i></span>
-                  <input type="text" id="address" name="address" class="form-control" value="{{ user.address }}">
-                </div>
+            </div>
+
+            <div class="col-md-6">
+              <label for="address" class="form-label"> <i class="mdi mdi-home me-1"></i>Address </label>
+              <div class="input-group">
+                <span class="input-group-text">
+                  <i class="mdi mdi-home"></i>
+                </span>
+                <input type="text" id="address" name="address" class="form-control" value="{{ user.address }}" />
               </div>
-              
-              <div class="col-md-6">
-                <label for="contact" class="form-label">Contact</label>
-                <div class="input-group">
-                  <span class="input-group-text"><i class="bi bi-telephone-fill"></i></span>
-                  <input type="text" id="contact" name="contact" class="form-control" value="{{ user.contact }}">
-                </div>
+            </div>
+
+            <div class="col-md-6">
+              <label for="contact" class="form-label"> <i class="mdi mdi-phone me-1"></i>Contact </label>
+              <div class="input-group">
+                <span class="input-group-text">
+                  <i class="mdi mdi-phone"></i>
+                </span>
+                <input type="text" id="contact" name="contact" class="form-control" value="{{ user.contact }}" />
               </div>
-              
-              <div class="col-12">
-                <label class="form-label">Profile Picture</label>
-                <div class="d-flex align-items-center mb-3">
-                  {% if user.profile_picture %}
-                  <div class="me-3">
-                    <img src="{{ user.profile_picture.url }}" alt="Profile Picture" 
-                         class="img-thumbnail rounded-circle" style="width: 80px; height: 80px; object-fit: cover;">
-                  </div>
-                  {% endif %}
-                  <div class="flex-grow-1">
-                    <input type="file" name="profile_picture" class="form-control">
-                    <div class="form-text">Choose a new image to update your profile picture</div>
-                  </div>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label"> <i class="mdi mdi-image me-1"></i>Profile Picture </label>
+              <div class="d-flex align-items-center mb-3">
+                {% if user.profile_picture %}
+                <div class="me-3">
+                  <img src="{{ user.profile_picture.url }}" alt="Profile Picture" class="img-thumbnail rounded-circle" style="width: 80px; height: 80px; object-fit: cover" />
                 </div>
-              </div>
-              
-              <div class="col-12 mt-4">
-                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                  <button type="reset" class="btn btn-outline-secondary me-md-2">
-                    <i class="bi bi-arrow-counterclockwise me-1"></i> Reset
-                  </button>
-                  <button type="submit" class="btn btn-primary">
-                    <i class="bi bi-save-fill me-1"></i> Save Changes
-                  </button>
+                {% endif %}
+                <div class="flex-grow-1">
+                  <input type="file" name="profile_picture" class="form-control" />
+                  <div class="form-text">Choose a new image to update your profile picture</div>
                 </div>
               </div>
             </div>
-          </form>
-        </div>
+
+            <div class="col-12 mt-4">
+              <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <button type="reset" class="btn btn-outline-secondary me-md-2"><i class="mdi mdi-refresh me-1"></i> Reset</button>
+                <button type="submit" class="btn btn-primary"><i class="mdi mdi-content-save me-1"></i> Save Changes</button>
+              </div>
+            </div>
+          </div>
+        </form>
       </div>
     </div>
   </div>

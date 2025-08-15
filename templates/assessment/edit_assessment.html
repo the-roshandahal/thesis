@@ -1,86 +1,115 @@
-{% load static %} {% include 'header.html' %}
+{% extends 'base_dashboard.html' %}
+{% load static %}
 
-<div class="main-content">
-  <div class="page-content">
-    <div class="container-fluid">
-      {% if messages %} {% for message in messages %}
-      <div class="alert alert-primary alert-dismissible fade show" role="alert">
-        {{ message }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-      </div>
-      {% endfor %} {% endif %}
+{% block title %}Edit Assessment - Thesis Management System{% endblock %}
 
-      <div class="container mt-4">
-        <h3>Edit Assessment for: {{ schema.name }}</h3>
-        <p class="text-muted">Current total of other assessments: <strong>{{ existing_other_total }}%</strong>. New total must be exactly 100%.</p>
+{% block sidebar_menu %}
+    {% if request.user.is_staff and not request.user.is_superuser %}
+        {% include 'supervisor_sidebar.html' %}
+    {% elif request.user.is_superuser %}
+        {% include 'admin_sidebar.html' %}
+    {% else %}
+        <!-- Student sidebar or no sidebar -->
+    {% endif %}
+{% endblock %}
 
-        <form method="POST" enctype="multipart/form-data">
-          {% csrf_token %}
-
-          <div class="row mb-3">
-            <div class="col-md-6">
-              <label class="form-label">Assignment Name</label>
-              <input type="text" name="assignment_name" class="form-control" value="{{ assignment.title }}" required />
-            </div>
-            <div class="col-md-3">
-              <label class="form-label">Due Date</label>
-              <input type="date" name="assignment_due" class="form-control" value="{{ assignment.due_date|date:'Y-m-d' }}" required />
-            </div>
-            <div class="col-md-3">
-              <label class="form-label">Submit By</label>
-              <input type="date" name="assignment_submit_by" class="form-control" value="{{ assignment.submit_by|date:'Y-m-d' }}" required />
-            </div>
-          </div>
-
-          <div class="row mb-3">
-            <div class="col-md-3">
-              <label class="form-label">Weight (%)</label>
-              <input type="number" name="assignment_weight" class="form-control" min="0" max="100" step="1" value="{{ assignment.weight }}" required />
-              <small class="text-muted">Other total is {{ existing_other_total }}%. This assignment must make the total 100%.</small>
-            </div>
-            <div class="col-md-3">
-              <label class="form-label">Submission Type</label>
-              <select name="submission_type" class="form-control" required>
-                <option value="individual" {% if assignment.submission_type == 'individual' %}selected{% endif %}>Individual</option>
-                <option value="group" {% if assignment.submission_type == 'group' %}selected{% endif %}>Group</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label">Description</label>
-            <textarea name="assignment_detail" class="form-control" rows="3">{{ assignment.description }}</textarea>
-          </div>
-
-          <div class="row mb-3">
-            <div class="col-md-6">
-              <label class="form-label">Add Detail Files</label>
-              <input type="file" name="assignment_files" class="form-control" multiple />
-              <div class="mt-2">
-                {% for file in assignment.detail_files.all %}
-                <small class="text-muted d-block">Existing: {{ file.name }}</small>
-                {% endfor %}
-              </div>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Add Sample Files</label>
-              <input type="file" name="sample_files" class="form-control" multiple />
-              <div class="mt-2">
-                {% for file in assignment.sample_files.all %}
-                <small class="text-muted d-block">Existing: {{ file.name }}</small>
-                {% endfor %}
-              </div>
-            </div>
-          </div>
-
-          <div class="d-flex gap-2">
-            <button type="submit" class="btn btn-primary">Save Changes</button>
-            <a href="{% url 'assessment_schema' %}" class="btn btn-secondary">Cancel</a>
-          </div>
-        </form>
+{% block content %}
+  <!-- Page Title -->
+  <div class="row">
+    <div class="col-12">
+      <div class="page-title-box d-flex align-items-center justify-content-between">
+        <h4 class="mb-0">Edit Assessment</h4>
+        <div class="page-title-right">
+          <ol class="breadcrumb m-0">
+            {% if request.user.is_staff and not request.user.is_superuser %}
+              <li class="breadcrumb-item"><a href="{% url 'supervisor_dashboard' %}">Dashboard</a></li>
+            {% elif request.user.is_superuser %}
+              <li class="breadcrumb-item"><a href="{% url 'admin_dashboard' %}">Dashboard</a></li>
+            {% endif %}
+            <li class="breadcrumb-item"><a href="{% url 'assessment_schema' %}">Assessment Schema</a></li>
+            <li class="breadcrumb-item active">Edit Assessment</li>
+          </ol>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
-{% include 'footer.html' %}
+  {% if messages %} 
+    {% for message in messages %}
+    <div class="alert alert-primary alert-dismissible fade show" role="alert">
+      {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %} 
+  {% endif %}
+
+  <div class="container mt-4">
+    <h3>Edit Assessment for: {{ schema.name }}</h3>
+    <p class="text-muted">Current total of other assessments: <strong>{{ existing_other_total }}%</strong>. New total must be exactly 100%.</p>
+
+    <form method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <label class="form-label">Assignment Name</label>
+          <input type="text" name="assignment_name" class="form-control" value="{{ assignment.title }}" required />
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Due Date</label>
+          <input type="date" name="assignment_due" class="form-control" value="{{ assignment.due_date|date:'Y-m-d' }}" required />
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Submit By</label>
+          <input type="date" name="assignment_submit_by" class="form-control" value="{{ assignment.submit_by|date:'Y-m-d' }}" required />
+        </div>
+      </div>
+
+      <div class="row mb-3">
+        <div class="col-md-3">
+          <label class="form-label">Weight (%)</label>
+          <input type="number" name="assignment_weight" class="form-control" min="0" max="100" step="1" value="{{ assignment.weight }}" required />
+          <small class="text-muted">Other total is {{ existing_other_total }}%. This assignment must make the total 100%.</small>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Submission Type</label>
+          <select name="submission_type" class="form-control" required>
+            <option value="individual" {% if assignment.submission_type == 'individual' %}selected{% endif %}>Individual</option>
+            <option value="group" {% if assignment.submission_type == 'group' %}selected{% endif %}>Group</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Description</label>
+        <textarea name="assignment_detail" class="form-control" rows="3">{{ assignment.description }}</textarea>
+      </div>
+
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <label class="form-label">Add Detail Files</label>
+          <input type="file" name="assignment_files" class="form-control" multiple />
+          <div class="mt-2">
+            {% for file in assignment.detail_files.all %}
+            <small class="text-muted d-block">Existing: {{ file.name }}</small>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Add Sample Files</label>
+          <input type="file" name="sample_files" class="form-control" multiple />
+          <div class="mt-2">
+            {% for file in assessment.sample_files.all %}
+            <small class="text-muted d-block">Existing: {{ file.name }}</small>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+        <a href="{% url 'assessment_schema' %}" class="btn btn-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+{% endblock %}

@@ -17,7 +17,9 @@ def assessment_list(request):
 
     context = {
         'assessments': assessments,
-        'title': 'Assessments for Grading'
+        'title': 'Assessments for Grading',
+        'user_is_supervisor': request.user.is_staff and not request.user.is_superuser,
+        'user_is_admin': request.user.is_superuser,
     }
     return render(request, 'grading/assessment_list.html', context)
 
@@ -54,7 +56,9 @@ def assessment_detail(request, assessment_id):
         'graded_submissions': graded_submissions,
         'published_status': published_status,
         'grading_progress': grading_progress,
-        'title': f'Submissions for {assessment.title}'
+        'title': f'Submissions for {assessment.title}',
+        'user_is_supervisor': request.user.is_staff and not request.user.is_superuser,
+        'user_is_admin': request.user.is_superuser,
     }
     return render(request, 'grading/assessment_detail.html', context)
 
@@ -82,7 +86,9 @@ def grade_submission(request, submission_id):
         'submission': submission,
         'form': form,
         'assessment': submission.assignment,  # Make sure this is included
-        'title': f'Grading {submission.assignment.title}'
+        'title': f'Grading {submission.assignment.title}',
+        'user_is_supervisor': request.user.is_staff and not request.user.is_superuser,
+        'user_is_admin': request.user.is_superuser,
     }
     return render(request, 'grading/grade_submission.html', context)
 

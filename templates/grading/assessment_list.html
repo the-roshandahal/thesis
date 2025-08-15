@@ -1,75 +1,60 @@
-{% load static %}
-{% include 'header.html' %}
-
-<div class="main-content">
-
-    <div class="page-content">
-        <div class="container-fluid">
-            <!-- Main content here -->
-             
-<div class="container-fluid">
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h4 class="m-0 font-weight-bold text-primary">
-                <i class="fas fa-clipboard-list mr-2"></i>Assessments
-            </h4>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-bordered table-hover">
-                    <thead class="thead-dark">
-                        <tr>
-                            <th>Assessment</th>
-                            <th>Due Date</th>
-                            <th>Total Marks</th>
-                            <th>Type</th>
-                            <th>Submissions</th>
-                            <th>Graded</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for assessment in assessments %}
-                        <tr>
-                            <td>{{ assessment.title }}</td>
-                            <td>{{ assessment.due_date|date:"M d, Y" }}</td>
-                            <td>{{ assessment.weight }}%</td>
-                            <td>{{ assessment.submission_type }}</td>
-                            <td>{{ assessment.total_submissions }}</td>
-                            <td>{{ assessment.graded_submissions }}</td>
-                            <td>
-                                <a href="{% url 'grading:assessment_detail' assessment.id %}" 
-                                   class="btn btn-sm btn-primary">
-                                    <i class="fas fa-eye"></i> View
-                                </a>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
+{% extends 'base_dashboard.html' %} {% load static %} {% block title %}Assessment List - Thesis Management System{% endblock %} {% block sidebar_menu %} {% if user_is_supervisor %} {% include 'supervisor_sidebar.html' %} {% elif user_is_admin %} {% include 'admin_sidebar.html' %} {% else %}
+<!-- Student sidebar or no sidebar -->
+{% endif %} {% endblock %} {% block content %}
+<!-- Page Title -->
+<div class="row">
+  <div class="col-12">
+    <div class="page-title-box d-flex align-items-center justify-content-between">
+      <h4 class="mb-0">Assessments</h4>
+      <div class="page-title-right">
+        <ol class="breadcrumb m-0">
+          {% if user_is_supervisor %}
+          <li class="breadcrumb-item"><a href="{% url 'supervisor_dashboard' %}">Dashboard</a></li>
+          {% elif user_is_admin %}
+          <li class="breadcrumb-item"><a href="{% url 'admin_dashboard' %}">Dashboard</a></li>
+          {% endif %}
+          <li class="breadcrumb-item active">Assessments</li>
+        </ol>
+      </div>
     </div>
+  </div>
 </div>
-             
 
-
-            
-
-
-
-
-
-
-
-
-
-
-        </div>
-
+<div class="card shadow-sm">
+  <div class="card-header py-3">
+    <h4 class="m-0 font-weight-bold text-primary"><i class="mdi mdi-clipboard-list me-2"></i>Assessments</h4>
+  </div>
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-bordered table-hover">
+        <thead class="thead-dark">
+          <tr>
+            <th>Assessment</th>
+            <th>Due Date</th>
+            <th>Total Marks</th>
+            <th>Type</th>
+            <th>Submissions</th>
+            <th>Graded</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for assessment in assessments %}
+          <tr>
+            <td>{{ assessment.title }}</td>
+            <td>{{ assessment.due_date|date:"M d, Y" }}</td>
+            <td>{{ assessment.weight }}%</td>
+            <td>{{ assessment.submission_type }}</td>
+            <td>{{ assessment.total_submissions }}</td>
+            <td>{{ assessment.graded_submissions }}</td>
+            <td>
+              <a href="{% url 'grading:assessment_detail' assessment.id %}" class="btn btn-sm btn-primary"> <i class="mdi mdi-eye me-1"></i> View </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
-    <!-- End Page-content -->
-
+  </div>
 </div>
-<!-- end main content-->
-{% include 'footer.html' %}
+{% endblock %}

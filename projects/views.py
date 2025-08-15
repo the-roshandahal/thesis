@@ -11,9 +11,11 @@ from application.models import ApplicationMember
 def project_supervisor(request):
     projects = Project.objects.filter(supervisor=request.user)
     context = {
-        'projects':projects
+        'projects': projects,
+        'user_is_supervisor': request.user.is_staff and not request.user.is_superuser,
+        'user_is_admin': request.user.is_superuser,
     }
-    return render(request, 'projects/project_supervisor.html',context)
+    return render(request, 'projects/project_supervisor.html', context)
 
 
 def validate_pdf(file):
@@ -106,13 +108,23 @@ def add_project(request):
             return redirect('project_supervisor')
 
         except ValidationError as e:
-            return render(request, 'projects/add_project.html', {'error': str(e)})
+            return render(request, 'projects/add_project.html', {
+                'error': str(e),
+                'user_is_supervisor': request.user.is_staff and not request.user.is_superuser,
+                'user_is_admin': request.user.is_superuser,
+            })
         except Exception as e:
             print(f"Unexpected error: {str(e)}")
-            return render(request, 'projects/add_project.html', 
-                          {'error': 'An unexpected error occurred. Please try again.'})
+            return render(request, 'projects/add_project.html', {
+                'error': 'An unexpected error occurred. Please try again.',
+                'user_is_supervisor': request.user.is_staff and not request.user.is_superuser,
+                'user_is_admin': request.user.is_superuser,
+            })
 
-    return render(request, 'projects/add_project.html')
+    return render(request, 'projects/add_project.html', {
+        'user_is_supervisor': request.user.is_staff and not request.user.is_superuser,
+        'user_is_admin': request.user.is_superuser,
+    })
 
 
 
@@ -128,6 +140,8 @@ def project_detail(request, project_id):
     return render(request, "projects/project_details.html", {
         "project": project,
         "has_applied": has_applied,
+        "user_is_supervisor": request.user.is_staff and not request.user.is_superuser,
+        "user_is_admin": request.user.is_superuser,
     })
 
 
@@ -229,17 +243,23 @@ def edit_project(request, project_id):
         except ValidationError as e:
             return render(request, 'projects/edit_project.html', {
                 'project': project,
-                'error': str(e)
+                'error': str(e),
+                'user_is_supervisor': request.user.is_staff and not request.user.is_superuser,
+                'user_is_admin': request.user.is_superuser,
             })
         except Exception as e:
             print(f"Unexpected error: {str(e)}")
             return render(request, 'projects/edit_project.html', {
                 'project': project,
-                'error': 'An unexpected error occurred. Please try again.'
+                'error': 'An unexpected error occurred. Please try again.',
+                'user_is_supervisor': request.user.is_staff and not request.user.is_superuser,
+                'user_is_admin': request.user.is_superuser,
             })
 
     return render(request, 'projects/edit_project.html', {
-        'project': project
+        'project': project,
+        'user_is_supervisor': request.user.is_staff and not request.user.is_superuser,
+        'user_is_admin': request.user.is_superuser,
     })
 
 
@@ -262,6 +282,8 @@ def delete_file(request, file_id):
 def student_projects(request):
     projects = Project.objects.all()
     context = {
-        'projects' : projects,
+        'projects': projects,
+        'user_is_supervisor': request.user.is_staff and not request.user.is_superuser,
+        'user_is_admin': request.user.is_superuser,
     }
-    return render(request,'projects/student_projects.html', context)
+    return render(request, 'projects/student_projects.html', context)

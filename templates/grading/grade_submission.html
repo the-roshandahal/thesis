@@ -1,182 +1,159 @@
-{% load static %}
-{% include 'header.html' %}
-
-<div class="main-content">
-    <div class="page-content">
-        <div class="container-fluid">
-            <div class="row justify-content-center">
-                <div class="col-lg-10">
-                    <!-- Grading Card -->
-                    <div class="card shadow-lg border-0">
-                        <div class="card-header bg-primary text-white py-3">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <h4 class="mb-0 text-white">
-                                    <i class="fas fa-graduation-cap mr-2"></i>
-                                    Grade Submission: {{ submission.assignment.title }}
-                                </h4>
-                                <span class="badge badge-light">
-                                    Attempt #{{ submission.attempt_number }}
-                                </span>
-                            </div>
-                        </div>
-                        
-                        <div class="card-body p-4">
-                            <div class="row">
-                                <!-- Student Information Column -->
-                                <div class="col-md-5 border-right pr-md-4">
-                                    <div class="student-info-section mb-4">
-                                        <h5 class="section-title text-primary mb-3">
-                                            Student Information
-                                        </h5>
-                                        <div class="pl-3">
-                                            <div class="info-item mb-2">
-                                                <strong>Name:</strong> 
-                                                <span class="float-right">
-                                                    {{ submission.submitted_by.get_full_name|default:submission.submitted_by.username }}
-                                                </span>
-                                            </div>
-                                            <div class="info-item mb-2">
-                                                <strong>Email:</strong>
-                                                <span class="float-right text-break">
-                                                    {{ submission.submitted_by.email }}
-                                                </span>
-                                            </div>
-                                            <div class="info-item">
-                                                <strong>Submitted:</strong>
-                                                <span class="float-right">
-                                                    {{ submission.submitted_at|date:"M d, Y H:i" }}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="files-section">
-                                        <h5 class="section-title text-primary mb-3">
-                                            Submission Files
-                                        </h5>
-                                        {% if submission.files.exists %}
-                                        <div class="file-list pl-3">
-                                            {% for file in submission.files.all %}
-                                            <div class="file-item mb-2 p-2 bg-light rounded">
-                                                <div class="d-flex justify-content-between align-items-center">
-                                                    <span class="file-name text-truncate mr-2">
-                                                        <i class="fas fa-file mr-2"></i>
-                                                        {{ file.file.name|slice:"20:" }}
-                                                    </span>
-                                                    <a href="{{ file.file.url }}" 
-                                                       target="_blank" 
-                                                       class="btn btn-sm btn-outline-primary">
-                                                        <i class="fas fa-download"></i>
-                                                    </a>
-                                                </div>
-                                            </div>
-                                            {% endfor %}
-                                        </div>
-                                        {% else %}
-                                        <div class="alert alert-light mt-2">
-                                            No files submitted
-                                        </div>
-                                        {% endif %}
-                                    </div>
-                                </div>
-
-                                <!-- Grading Form Column -->
-                                <div class="col-md-7 pl-md-4">
-                                    <h5 class="section-title text-primary mb-3">
-                                        <i class="fas fa-edit mr-2"></i>Grading Form
-                                    </h5>
-                                    
-                                    <form method="post" class="grading-form" id="gradeForm">
-                                        {% csrf_token %}
-                                        
-                                        <!-- Grade Input -->
-                                        <div class="form-group">
-                                            <div class="d-flex justify-content-between align-items-center mb-1">
-                                                <label for="id_grades_received">Grade</label>
-                                                <span class="badge badge-pill badge-info">
-                                                    Max: {{ submission.assignment.weight }}
-                                                </span>
-                                            </div>
-                                            <div class="input-group">
-                                                <input type="number" 
-                                                       name="grades_received" 
-                                                       id="id_grades_received"
-                                                       class="form-control" 
-                                                       value="{{ form.grades_received.value|default:'' }}"
-                                                       min="0" 
-                                                       max="{{ submission.assignment.weight }}"
-                                                       step="0.1"
-                                                       required>
-                                                <div class="input-group-append">
-                                                    <span class="input-group-text">/ {{ submission.assignment.weight }}</span>
-                                                </div>
-                                            </div>
-                                            <small class="form-text text-muted">
-                                                Enter grade between 0 and {{ submission.assignment.weight }}
-                                            </small>
-                                        </div>
-
-                                        <!-- Feedback Input -->
-                                        <div class="form-group mt-4">
-                                            <label for="id_feedback">Feedback</label>
-                                            <textarea name="feedback" 
-                                                      id="id_feedback" 
-                                                      class="form-control" 
-                                                      rows="5">{{ form.feedback.value|default:'' }}</textarea>
-                                        </div>
-
-                                        <!-- Action Buttons -->
-                                        <div class="form-actions mt-4 pt-3 border-top">
-                                            <button type="submit" class="btn btn-success px-4">
-                                                Save Grade
-                                            </button>
-                                            
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+{% extends 'base_dashboard.html' %} {% load static %} {% block title %}Grade Submission - Thesis Management System{% endblock %} {% block sidebar_menu %} {% if user_is_supervisor %} {% include 'supervisor_sidebar.html' %} {% elif user_is_admin %} {% include 'admin_sidebar.html' %} {% else %}
+<!-- Student sidebar or no sidebar -->
+{% endif %} {% endblock %} {% block content %}
+<!-- Page Title -->
+<div class="row">
+  <div class="col-12">
+    <div class="page-title-box d-flex align-items-center justify-content-between">
+      <h4 class="mb-0">Grade Submission</h4>
+      <div class="page-title-right">
+        <ol class="breadcrumb m-0">
+          {% if user_is_supervisor %}
+          <li class="breadcrumb-item"><a href="{% url 'supervisor_dashboard' %}">Dashboard</a></li>
+          {% elif user_is_admin %}
+          <li class="breadcrumb-item"><a href="{% url 'admin_dashboard' %}">Dashboard</a></li>
+          {% endif %}
+          <li class="breadcrumb-item"><a href="{% url 'grading:grading' %}">Grading</a></li>
+          <li class="breadcrumb-item active">{{ submission.assignment.title|truncatechars:30 }}</li>
+        </ol>
+      </div>
     </div>
+  </div>
 </div>
 
+<div class="row justify-content-center">
+  <div class="col-lg-10">
+    <!-- Grading Card -->
+    <div class="card shadow-lg border-0">
+      <div class="card-header bg-primary text-white py-3">
+        <div class="d-flex justify-content-between align-items-center">
+          <h4 class="mb-0 text-white">
+            <i class="mdi mdi-graduation-cap me-2"></i>
+            Grade Submission: {{ submission.assignment.title }}
+          </h4>
+          <span class="badge badge-light"> Attempt #{{ submission.attempt_number }} </span>
+        </div>
+      </div>
+
+      <div class="card-body p-4">
+        <div class="row">
+          <!-- Student Information Column -->
+          <div class="col-md-5 border-right pr-md-4">
+            <div class="student-info-section mb-4">
+              <h5 class="section-title text-primary mb-3"><i class="mdi mdi-account me-2"></i>Student Information</h5>
+              <div class="pl-3">
+                <div class="info-item mb-2">
+                  <strong>Name:</strong>
+                  <span class="float-right"> {{ submission.submitted_by.get_full_name|default:submission.submitted_by.username }} </span>
+                </div>
+                <div class="info-item mb-2">
+                  <strong>Email:</strong>
+                  <span class="float-right text-break"> {{ submission.submitted_by.email }} </span>
+                </div>
+                <div class="info-item">
+                  <strong>Submitted:</strong>
+                  <span class="float-right"> {{ submission.submitted_at|date:"M d, Y H:i" }} </span>
+                </div>
+              </div>
+            </div>
+
+            <div class="files-section">
+              <h5 class="section-title text-primary mb-3"><i class="mdi mdi-file-document me-2"></i>Submission Files</h5>
+              {% if submission.files.exists %}
+              <div class="file-list pl-3">
+                {% for file in submission.files.all %}
+                <div class="file-item mb-2 p-2 bg-light rounded">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <span class="file-name text-truncate me-2">
+                      <i class="mdi mdi-file me-2"></i>
+                      {{ file.file.name|slice:"20:" }}
+                    </span>
+                    <a href="{{ file.file.url }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                      <i class="mdi mdi-download"></i>
+                    </a>
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+              {% else %}
+              <div class="alert alert-light mt-2">No files submitted</div>
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- Grading Form Column -->
+          <div class="col-md-7 pl-md-4">
+            <h5 class="section-title text-primary mb-3"><i class="mdi mdi-pencil me-2"></i>Grading Form</h5>
+
+            <form method="post" class="grading-form" id="gradeForm">
+              {% csrf_token %}
+
+              <!-- Grade Input -->
+              <div class="form-group">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <label for="id_grades_received">Grade</label>
+                  <span class="badge badge-pill badge-info"> Max: {{ submission.assignment.weight }} </span>
+                </div>
+                <div class="input-group">
+                  <input type="number" class="form-control" id="id_grades_received" name="grades_received" min="0" max="{{ submission.assignment.weight }}" step="0.1" value="{{ submission.grades_received|default:'' }}" required />
+                  <div class="input-group-append">
+                    <span class="input-group-text">/ {{ submission.assignment.weight }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Feedback Input -->
+              <div class="form-group">
+                <label for="id_feedback">Feedback</label>
+                <textarea class="form-control" id="id_feedback" name="feedback" rows="4" placeholder="Provide constructive feedback for the student...">{{ submission.feedback|default:'' }}</textarea>
+              </div>
+
+              <!-- Submit Button -->
+              <div class="form-group mt-4">
+                <button type="submit" class="btn btn-primary btn-lg"><i class="mdi mdi-content-save me-2"></i>Save Grade</button>
+                <a href="{% url 'project_submissions' submission.assignment.schema.id %}" class="btn btn-secondary btn-lg ml-2"> <i class="mdi mdi-arrow-left me-2"></i>Back to Submissions </a>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
 <style>
-    .section-title {
-        font-size: 1.1rem;
-        font-weight: 600;
-        border-bottom: 2px solid #f0f0f0;
-        padding-bottom: 0.5rem;
-    }
-    
-    .info-item {
-        padding: 0.5rem 0;
-        border-bottom: 1px dashed #eee;
-    }
-    
-    .file-item:hover {
-        background-color: #f8f9fa !important;
-    }
-    
-    #id_grades_received:invalid {
-        border-color: #dc3545;
-    }
+  .section-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 0.5rem;
+  }
+
+  .info-item {
+    padding: 0.5rem 0;
+    border-bottom: 1px dashed #eee;
+  }
+
+  .file-item:hover {
+    background-color: #f8f9fa !important;
+  }
+
+  #id_grades_received:invalid {
+    border-color: #dc3545;
+  }
 </style>
 
 <script>
-document.getElementById('gradeForm').addEventListener('submit', function(e) {
-    const gradeInput = document.getElementById('id_grades_received');
-    const maxGrade = {{ submission.assignment.weight }};
-    const enteredGrade = parseFloat(gradeInput.value);
-    
-    if (enteredGrade > maxGrade) {
-        e.preventDefault();
-        alert(`Grade cannot exceed ${maxGrade}`);
-        gradeInput.focus();
-    }
-});
-</script>
+  document.getElementById('gradeForm').addEventListener('submit', function(e) {
+      const gradeInput = document.getElementById('id_grades_received');
+      const maxGrade = {{ submission.assignment.weight }};
+      const enteredGrade = parseFloat(gradeInput.value);
 
-{% include 'footer.html' %}
+      if (enteredGrade > maxGrade) {
+          e.preventDefault();
+          alert(`Grade cannot exceed ${maxGrade}`);
+          gradeInput.focus();
+      }
+  });
+</script>
