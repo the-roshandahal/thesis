@@ -387,8 +387,99 @@ def add_assessment(request, id):
     })
 
 
-def edit_assessment(request,id):
-    pass
+def edit_assessment(request, id):
+    assignment = get_object_or_404(Assessment, id=id)
+    schema = assignment.schema
+
+    if request.method == 'POST':
+        try:
+            name = request.POST.get('assignment_name')
+            due_date = parse_date(request.POST.get('assignment_due'))
+            submit_by = parse_date(request.POST.get('assignment_submit_by'))
+            submission_type = request.POST.get('submission_type')
+            weight_raw = request.POST.get('assignment_weight')
+            details = request.POST.get('assignment_detail', '')
+
+            if not name or not due_date or not submit_by or not weight_raw:
+                messages.error(request, "Please fill all required fields.")
+                return render(request, 'assessment/edit_assessment.html', {
+                    'schema': schema,
+                    'assignment': assignment,
+                    'existing_other_total': sum(a.weight for a in schema.assessments.exclude(id=assignment.id)),
+                })
+
+            try:
+                weight = float(weight_raw)
+            except (TypeError, ValueError):
+                messages.error(request, "Weight must be a number.")
+                return render(request, 'assessment/edit_assessment.html', {
+                    'schema': schema,
+                    'assignment': assignment,
+                    'existing_other_total': sum(a.weight for a in schema.assessments.exclude(id=assignment.id)),
+                })
+
+            existing_other_total = sum(a.weight for a in schema.assessments.exclude(id=assignment.id))
+            new_total = existing_other_total + weight
+            if round(new_total, 2) != 100.0:
+                messages.error(request, f"Total weight must be exactly 100%. Current other total is {existing_other_total}%, new total would be {new_total}%.")
+                return render(request, 'assessment/edit_assessment.html', {
+                    'schema': schema,
+                    'assignment': assignment,
+                    'existing_other_total': existing_other_total,
+                })
+
+            with transaction.atomic():
+                assignment.title = name
+                assignment.due_date = due_date
+                assignment.submit_by = submit_by
+                assignment.weight = int(weight)
+                assignment.description = details
+                assignment.submission_type = submission_type
+                assignment.save()
+
+                def process_uploaded_files(file_key, base_path, model_class):
+                    if file_key in request.FILES:
+                        for i, file in enumerate(request.FILES.getlist(file_key)):
+                            custom_base = request.POST.get(f'{file_key}_name_{i}', '') or os.path.splitext(file.name)[0]
+                            original_ext = os.path.splitext(file.name)[1]
+                            custom_name = get_valid_filename(f"{custom_base}{original_ext}")
+                            file_path = f"{base_path}/schema_{schema.id}/assessment_{assignment.id}/{custom_name}"
+
+                            base_name, ext = os.path.splitext(custom_name)
+                            counter = 1
+                            while default_storage.exists(file_path):
+                                custom_name = f"{base_name}_{counter}{ext}"
+                                file_path = f"{base_path}/schema_{schema.id}/assessment_{assignment.id}/{custom_name}"
+                                counter += 1
+
+                            default_storage.save(file_path, file)
+                            model_class.objects.create(
+                                assessment=assignment,
+                                name=custom_name,
+                                file=file_path,
+                            )
+
+                # Append new files (does not delete existing)
+                process_uploaded_files('assignment_files', 'assessment_details/details', AssessmentDetailFile)
+                process_uploaded_files('sample_files', 'assessment_samples/samples', AssessmentSampleFile)
+
+            messages.success(request, "Assessment updated successfully!")
+            return redirect('assessment_schema')
+
+        except Exception as e:
+            messages.error(request, f"Error updating assessment: {str(e)}")
+            return render(request, 'assessment/edit_assessment.html', {
+                'schema': schema,
+                'assignment': assignment,
+                'existing_other_total': sum(a.weight for a in schema.assessments.exclude(id=assignment.id)),
+            })
+
+    # GET
+    return render(request, 'assessment/edit_assessment.html', {
+        'schema': schema,
+        'assignment': assignment,
+        'existing_other_total': sum(a.weight for a in schema.assessments.exclude(id=assignment.id)),
+    })
 
 
 from datetime import date
