@@ -8,7 +8,7 @@ urlpatterns = [
     path('add_assessment/<int:id>', views.add_assessment, name='add_assessment'),
     path('edit_assessment/<int:id>', views.edit_assessment, name='edit_assessment'),
     path('delete_assessment/<int:id>/', views.delete_assessment, name='delete_assessment'),
-    path('student_view_assignment', views.student_view_assignment, name='student_view_assignment'),
+    path('student_view_assignment/', views.student_view_assignment, name='student_view_assignment'),
     path('attempt_assessment/<int:id>', views.attempt_assessment, name='attempt_assessment'),
     path('view_submission/<int:assessment_id>/', views.view_submission, name='view_submission'),
     # Add other URLs if needed

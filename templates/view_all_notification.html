@@ -517,18 +517,7 @@
   </head>
   <body>
     <!-- Navigation -->
-    <nav class="navbar">
-      <div class="container">
-        <a href="{% url 'homepage' %}" class="navbar-brand"> <i class="fas fa-graduation-cap me-2"></i>KOI TMS </a>
-        <ul class="navbar-nav ms-auto">
-          <li><a href="{% url 'homepage' %}" class="nav-link">Home</a></li>
-          <li><a href="{% url 'student_dashboard' %}" class="nav-link">Dashboard</a></li>
-          <li><a href="{% url 'student_projects' %}" class="nav-link">Browse Projects</a></li>
-          <li><a href="{% url 'view_all_notifications' %}" class="nav-link">Notifications</a></li>
-          <li><a href="{% url 'logout' %}" class="btn-logout">Logout</a></li>
-        </ul>
-      </div>
-    </nav>
+    {% include 'student_navigation.html' %}
 
     <div class="page-container">
       <!-- Page Header -->

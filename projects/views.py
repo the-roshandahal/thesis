@@ -149,7 +149,13 @@ def project_detail(request, project_id):
             has_applied = True
             application_status = user_application.application.status
 
-    return render(request, "projects/project_details.html", {
+    # Choose template based on user type
+    if request.user.is_superuser or request.user.is_staff:
+        template_name = "projects/project_details.html"
+    else:
+        template_name = "projects/student_project_detail.html"
+
+    return render(request, template_name, {
         "project": project,
         "has_applied": has_applied,
         "user_application": user_application,

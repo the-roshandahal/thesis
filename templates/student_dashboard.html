@@ -406,55 +406,6 @@
         margin-bottom: 20px;
       }
 
-      .navbar {
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(10px);
-        border-bottom: 1px solid var(--border-color);
-        padding: 16px 0;
-      }
-
-      .navbar-brand {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: var(--primary-color);
-        text-decoration: none;
-      }
-
-      .navbar-nav {
-        display: flex;
-        gap: 20px;
-        list-style: none;
-        margin: 0;
-        padding: 0;
-      }
-
-      .nav-link {
-        color: var(--text-dark);
-        text-decoration: none;
-        font-weight: 500;
-        transition: color 0.3s ease;
-      }
-
-      .nav-link:hover {
-        color: var(--primary-color);
-      }
-
-      .btn-logout {
-        background: var(--danger-color);
-        color: white;
-        padding: 8px 16px;
-        border-radius: 8px;
-        text-decoration: none;
-        font-weight: 500;
-        transition: all 0.3s ease;
-      }
-
-      .btn-logout:hover {
-        background: #b91c1c;
-        color: white;
-        transform: translateY(-1px);
-      }
-
       @media (max-width: 768px) {
         .dashboard-container {
           margin: 10px;
@@ -532,17 +483,7 @@
   </head>
   <body>
     <!-- Navigation -->
-    <nav class="navbar">
-      <div class="container">
-        <a href="{% url 'homepage' %}" class="navbar-brand"> <i class="fas fa-graduation-cap me-2"></i>KOI TMS </a>
-        <ul class="navbar-nav ms-auto">
-          <li><a href="{% url 'homepage' %}" class="nav-link">Home</a></li>
-          <li><a href="{% url 'student_projects' %}" class="nav-link">Browse Projects</a></li>
-          <li><a href="{% url 'view_all_notifications' %}" class="nav-link">Notifications</a></li>
-          <li><a href="{% url 'logout' %}" class="btn-logout">Logout</a></li>
-        </ul>
-      </div>
-    </nav>
+    {% include 'student_navigation.html' %}
 
     <div class="dashboard-container">
       <!-- Dashboard Header -->
