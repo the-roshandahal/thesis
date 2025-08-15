@@ -1,102 +1,87 @@
-{% load static %}
-{% include 'header.html' %}
-
-<div class="main-content">
-
-    <div class="page-content">
-        <div class="container-fluid">
-            <!-- Main content here -->
-             <div class="row">
-                            <div class="col-xl-12">
-                                <div class="card">
-                                    <div class="card-body">
-                                        <h5 class="card-title">Add Student</h5>
-                                        {% if messages %}
-                                            {% for message in messages %}
-                                                <div class="alert alert-primary alert-dismissible fade show" role="alert">
-                                                    {{ message }}
-                                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                                </div>
-                                            {% endfor %}
-                                        {% endif %}
-                                        <form method="POST" action="{% url 'add_student' %}">  
-                                            {% csrf_token %}
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <div class="form-floating mb-3">
-                                                        <input type="text" name="first_name" class="form-control" id="floatingFirstnameInput" placeholder="Enter Your First Name">
-                                                        <label for="floatingFirstnameInput">First Name</label>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="form-floating mb-3">
-                                                        <input type="text" name="last_name" class="form-control" id="floatingLastnameInput" placeholder="Enter Your Last Name">
-                                                        <label for="floatingLastnameInput">Last Name</label>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <div class="form-floating mb-3">
-                                                        <input type="email"  name="email" class="form-control" id="floatingemailInput" placeholder="Enter Email address">
-                                                        <label for="floatingemailInput">Email address</label>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="form-floating mb-3">
-                                                        <select name="department" class="form-select" id="floatingSelectGrid" aria-label="Floating label select example">
-                                                            <option selected value="IT">IT</option>
-                                                            <option value="business">Business</option>
-                                                            <option value="others">Others</option>
-                                                        </select>
-                                                        <label for="floatingSelectGrid">Select Department</label>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <div class="form-floating mb-3">
-                                                        <input type="password" name="password" class="form-control" id="floatingPassword" placeholder="Enter Your First Name">
-                                                        <label for="floatingPassword">Password</label>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="form-floating mb-3">
-                                                        <input type="password" name="password2" class="form-control" id="floatingPassword" placeholder="Enter Your Last Name">
-                                                        <label for="floatingPassword">Confirm Password</label>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <button type="submit" class="btn btn-primary w-md">Submit</button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                    <!-- end card body -->
-                                </div>
-                                <!-- end card -->
-                            </div>
-                            <!-- end col -->
-                        </div>
-                        <!-- end row -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-        </div>
-
+{% extends 'base_dashboard.html' %} {% load static %} {% block title %}Add Student - Thesis Management System{% endblock %} {% block sidebar_menu %} {% include 'admin_sidebar.html' %} {% endblock %} {% block content %}
+<!-- Page Title -->
+<div class="row">
+  <div class="col-12">
+    <div class="page-title-box d-flex align-items-center justify-content-between">
+      <h4 class="mb-0">Add Student</h4>
+      <div class="page-title-right">
+        <ol class="breadcrumb m-0">
+          <li class="breadcrumb-item"><a href="{% url 'admin_dashboard' %}">Dashboard</a></li>
+          <li class="breadcrumb-item"><a href="{% url 'student_admin' %}">Students</a></li>
+          <li class="breadcrumb-item active">Add Student</li>
+        </ol>
+      </div>
     </div>
-    <!-- End Page-content -->
-
+  </div>
 </div>
-<!-- end main content-->
-{% include 'footer.html' %}
+
+<div class="row">
+  <div class="col-xl-12">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title"><i class="mdi mdi-account-plus me-2"></i>Add Student</h5>
+        {% if messages %} {% for message in messages %}
+        <div class="alert alert-primary alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %} {% endif %}
+
+        <form method="POST" action="{% url 'add_student' %}">
+          {% csrf_token %}
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-floating mb-3">
+                <input type="text" name="first_name" class="form-control" id="floatingFirstnameInput" placeholder="Enter Your First Name" />
+                <label for="floatingFirstnameInput"> <i class="mdi mdi-account me-1"></i>First Name </label>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-floating mb-3">
+                <input type="text" name="last_name" class="form-control" id="floatingLastnameInput" placeholder="Enter Your Last Name" />
+                <label for="floatingLastnameInput"> <i class="mdi mdi-account me-1"></i>Last Name </label>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-floating mb-3">
+                <input type="email" name="email" class="form-control" id="floatingemailInput" placeholder="Enter Email address" />
+                <label for="floatingemailInput"> <i class="mdi mdi-email me-1"></i>Email address </label>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-floating mb-3">
+                <select name="department" class="form-select" id="floatingSelectGrid" aria-label="Floating label select example">
+                  <option selected value="IT">IT</option>
+                  <option value="business">Business</option>
+                  <option value="others">Others</option>
+                </select>
+                <label for="floatingSelectGrid"> <i class="mdi mdi-domain me-1"></i>Select Department </label>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-floating mb-3">
+                <input type="password" name="password" class="form-control" id="floatingPassword" placeholder="Enter Your First Name" />
+                <label for="floatingPassword"> <i class="mdi mdi-lock me-1"></i>Password </label>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-floating mb-3">
+                <input type="password" name="password2" class="form-control" id="floatingPassword" placeholder="Enter Your Last Name" />
+                <label for="floatingPassword"> <i class="mdi mdi-lock-check me-1"></i>Confirm Password </label>
+              </div>
+            </div>
+          </div>
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary w-md"><i class="mdi mdi-content-save me-1"></i>Submit</button>
+            <a href="{% url 'student_admin' %}" class="btn btn-secondary"> <i class="mdi mdi-close me-1"></i>Cancel </a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

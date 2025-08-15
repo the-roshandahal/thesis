@@ -1,100 +1,86 @@
-{% load static %}
-{% include 'header.html' %}
+{% extends 'base_dashboard.html' %} {% load static %} {% block title %}Supervisors - Thesis Management System{% endblock %} {% block sidebar_menu %} {% include 'admin_sidebar.html' %} {% endblock %} {% block content %}
+<!-- Page Title -->
+<div class="row">
+  <div class="col-12">
+    <div class="page-title-box d-flex align-items-center justify-content-between">
+      <h4 class="mb-0">Supervisors</h4>
+      <div class="page-title-right">
+        <ol class="breadcrumb m-0">
+          <li class="breadcrumb-item"><a href="{% url 'admin_dashboard' %}">Dashboard</a></li>
+          <li class="breadcrumb-item active">Supervisors</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</div>
 
-<div class="main-content">
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-body">
+        {% if messages %} {% for message in messages %}
+        <div class="alert alert-primary alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %} {% endif %}
 
-    <div class="page-content">
-        <div class="container-fluid">
-            <!-- Main content here -->
-              <div class="row">
-                            <div class="col-12">
-                                <div class="card">
-                                    <div class="card-body">
-                                        {% if messages %}
-                                            {% for message in messages %}
-                                                <div class="alert alert-primary alert-dismissible fade show" role="alert">
-                                                    {{ message }}
-                                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                                </div>
-                                            {% endfor %}
-                                        {% endif %}
-                                        <div class="row mb-2">
-                                            <div class="col-md-6">
-                                                <div class="form-inline float-md-start mb-3">
-                                                    <h4 class="card-title">Supervisors</h4>
-                                                    <p class="card-title-desc">View and Manage Supervisors</p>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="mb-3 float-end">
-                                                    <a href="{% url 'add_supervisor' %}" class="btn btn-primary">
-                                                        <i class="mdi mdi-plus me-1"></i> Add Supervisor
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <table id="datatable" class="table table-bordered dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
-                                            <thead>
-                                            <tr>
-                                                <th>Name</th>
-                                                <th>Supervisor ID</th>
-                                                <th>Email</th>
-                                                <th>Date Created</th>
-                                                <th>Last Login</th>
-                                                <th>Action</th>
-                                            </tr>
-                                            </thead>
-        
-        
-                                            <tbody>
-                                                {% for supervisor in supervisors %}
-
-                                                <tr>
-                                                    <td>
-                                                        <img src="{% static 'assets/images/users/avatar-2.jpg' %}" alt="" class="avatar-xs rounded-circle me-2">
-                                                        <a href="#" class="text-body">{{supervisor.user.first_name}} {{supervisor.user.last_name}}</a>
-                                                    </td>
-                                                    <td>{{supervisor.staff_id}}</td>
-                                                    <td>{{supervisor.user.email}}</td>
-                                                    <td>{{ supervisor.user.date_joined|date:"Y-m-d H:i" }}</td>
-                                                    <td>{% if supervisor.user.last_login %} {{ supervisor.user.last_login|date:"Y-m-d H:i" }}{% else %} Never {% endif %}</td>
-                                                    <td>
-                                                        <ul class="list-inline mb-0">
-                                                            <li class="list-inline-item">
-                                                                <a href="javascript:void(0);" class="px-2 text-primary"><i class="ri-pencil-line font-size-18"></i></a>
-                                                            </li>
-                                                            <li class="list-inline-item">
-                                                                <a href="javascript:void(0);" class="px-2 text-danger"><i class="ri-delete-bin-line font-size-18"></i></a>
-                                                            </li>
-                                                        </ul>
-                                                    </td>
-                                                </tr>
-                                                {% endfor %}
-                                            </tbody>
-                                        </table>
-        
-                                    </div>
-                                </div>
-                            </div> <!-- end col -->
-                        </div> <!-- end row -->
-
-
-
-
-
-
-
-
-
-
-
-
-
+        <div class="row mb-2">
+          <div class="col-md-6">
+            <div class="form-inline float-md-start mb-3">
+              <h4 class="card-title"><i class="mdi mdi-account-tie me-2"></i>Supervisors</h4>
+              <p class="card-title-desc">View and Manage Supervisors</p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3 float-end">
+              <a href="{% url 'add_supervisor' %}" class="btn btn-primary"> <i class="mdi mdi-plus me-1"></i> Add Supervisor </a>
+            </div>
+          </div>
         </div>
 
+        <table id="datatable" class="table table-bordered dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Supervisor ID</th>
+              <th>Email</th>
+              <th>Date Created</th>
+              <th>Last Login</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for supervisor in supervisors %}
+            <tr>
+              <td>
+                <img src="{% static 'assets/images/users/avatar-2.jpg' %}" alt="" class="avatar-xs rounded-circle me-2" />
+                <a href="#" class="text-body">{{supervisor.user.first_name}} {{supervisor.user.last_name}}</a>
+              </td>
+              <td>{{supervisor.staff_id}}</td>
+              <td>{{supervisor.user.email}}</td>
+              <td>{{ supervisor.user.date_joined|date:"Y-m-d H:i" }}</td>
+              <td>{% if supervisor.user.last_login %} {{ supervisor.user.last_login|date:"Y-m-d H:i" }}{% else %} Never {% endif %}</td>
+              <td>
+                <ul class="list-inline mb-0">
+                  <li class="list-inline-item">
+                    <a href="javascript:void(0);" class="px-2 text-primary">
+                      <i class="mdi mdi-pencil me-1"></i>
+                    </a>
+                  </li>
+                  <li class="list-inline-item">
+                    <a href="javascript:void(0);" class="px-2 text-danger">
+                      <i class="mdi mdi-delete me-1"></i>
+                    </a>
+                  </li>
+                </ul>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     </div>
-    <!-- End Page-content -->
-
+  </div>
 </div>
-<!-- end main content-->
-{% include 'footer.html' %}
+{% endblock %}
