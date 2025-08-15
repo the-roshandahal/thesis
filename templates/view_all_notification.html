@@ -534,15 +534,15 @@
           <div class="notifications-stats">
             <div class="stat-item">
               <i class="fas fa-bell"></i>
-              <span class="stat-text">Total: {{ notifications|length }}</span>
+              <span class="stat-text">Total: {{ total_notifications }}</span>
             </div>
             <div class="stat-item">
               <i class="fas fa-envelope-open"></i>
-              <span class="stat-text">Read: {{ notifications|dictsort:"is_read"|length }}</span>
+              <span class="stat-text">Read: {{ read_notifications }}</span>
             </div>
             <div class="stat-item">
               <i class="fas fa-envelope"></i>
-              <span class="stat-text">Unread: {{ notifications|dictsort:"is_read"|length }}</span>
+              <span class="stat-text">Unread: {{ unread_notifications }}</span>
             </div>
           </div>
         </div>

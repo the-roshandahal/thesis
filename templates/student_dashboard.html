@@ -221,6 +221,323 @@
         margin-bottom: 40px;
       }
 
+      /* Progress Section Styles */
+      .progress-section {
+        margin-bottom: 40px;
+      }
+
+      .progress-overview {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 24px;
+        margin-bottom: 24px;
+      }
+
+      .progress-card {
+        background: var(--bg-white);
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        border: 1px solid var(--border-color);
+      }
+
+      .progress-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      .progress-header h4 {
+        color: var(--text-dark);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .grade-display {
+        text-align: right;
+      }
+
+      .grade-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        display: block;
+      }
+
+      .grade-label {
+        color: var(--text-light);
+        font-size: 0.9rem;
+      }
+
+      .progress-bar-container {
+        margin-bottom: 16px;
+      }
+
+      .progress-bar {
+        width: 100%;
+        height: 12px;
+        background: var(--bg-light);
+        border-radius: 6px;
+        overflow: hidden;
+        margin-bottom: 8px;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+        border-radius: 6px;
+        transition: width 0.8s ease;
+      }
+
+      .progress-text {
+        color: var(--text-light);
+        font-size: 0.9rem;
+      }
+
+      .progress-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+      }
+
+      .stat-item {
+        text-align: center;
+        padding: 16px;
+        background: var(--bg-light);
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+      }
+
+      .stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 4px;
+      }
+
+      .stat-label {
+        color: var(--text-light);
+        font-size: 0.85rem;
+        font-weight: 500;
+      }
+
+      /* Deadlines Grid Styles */
+      .deadlines-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+        margin-bottom: 40px;
+      }
+
+      .deadline-card {
+        background: var(--bg-white);
+        border-radius: 16px;
+        padding: 20px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        border: 1px solid var(--border-color);
+        transition: all 0.3s ease;
+      }
+
+      .deadline-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+      }
+
+      .deadline-card.urgent {
+        border-color: var(--danger-color);
+        background: rgba(220, 38, 38, 0.02);
+      }
+
+      .deadline-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 16px;
+      }
+
+      .deadline-header h5 {
+        margin: 0;
+        color: var(--text-dark);
+        font-weight: 600;
+        flex: 1;
+        margin-right: 12px;
+      }
+
+      .deadline-badge {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        white-space: nowrap;
+      }
+
+      .deadline-badge.urgent {
+        background: rgba(220, 38, 38, 0.1);
+        color: var(--danger-color);
+      }
+
+      .deadline-badge.warning {
+        background: rgba(202, 138, 4, 0.1);
+        color: var(--warning-color);
+      }
+
+      .deadline-badge.normal {
+        background: rgba(37, 99, 235, 0.1);
+        color: var(--primary-color);
+      }
+
+      .deadline-details {
+        margin-bottom: 16px;
+      }
+
+      .deadline-actions {
+        text-align: center;
+      }
+
+      /* Submissions Grid Styles */
+      .submissions-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 20px;
+        margin-bottom: 40px;
+      }
+
+      .submission-card {
+        background: var(--bg-white);
+        border-radius: 16px;
+        padding: 20px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        border: 1px solid var(--border-color);
+        transition: all 0.3s ease;
+      }
+
+      .submission-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+      }
+
+      .submission-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 16px;
+      }
+
+      .submission-header h5 {
+        margin: 0;
+        color: var(--text-dark);
+        font-weight: 600;
+        flex: 1;
+        margin-right: 12px;
+      }
+
+      .submission-status {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .submission-status.graded {
+        background: rgba(22, 163, 74, 0.1);
+        color: var(--success-color);
+      }
+
+      .submission-status.submitted {
+        background: rgba(8, 145, 178, 0.1);
+        color: var(--info-color);
+      }
+
+      .submission-details {
+        margin-bottom: 16px;
+      }
+
+      .late-submission-warning {
+        background: rgba(202, 138, 4, 0.1);
+        color: var(--warning-color);
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 12px;
+      }
+
+      /* Notifications Grid Styles */
+      .notifications-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 20px;
+        margin-bottom: 40px;
+      }
+
+      .notification-card {
+        background: var(--bg-white);
+        border-radius: 16px;
+        padding: 20px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        border: 1px solid var(--border-color);
+        transition: all 0.3s ease;
+      }
+
+      .notification-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+      }
+
+      .notification-card.unread {
+        border-left: 4px solid var(--primary-color);
+        background: rgba(37, 99, 235, 0.02);
+      }
+
+      .notification-header {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 16px;
+      }
+
+      .notification-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        flex-shrink: 0;
+      }
+
+      .notification-icon i {
+        color: var(--primary-color);
+      }
+
+      .notification-content {
+        flex: 1;
+      }
+
+      .notification-message {
+        color: var(--text-dark);
+        margin-bottom: 8px;
+        line-height: 1.5;
+      }
+
+      .notification-time {
+        color: var(--text-light);
+        font-size: 0.85rem;
+      }
+
+      .notification-actions {
+        text-align: center;
+      }
+
       .application-card {
         background: var(--bg-white);
         border-radius: 16px;
@@ -435,6 +752,42 @@
           flex-direction: column;
           text-align: center;
         }
+
+        .progress-overview {
+          grid-template-columns: 1fr;
+          gap: 16px;
+        }
+
+        .progress-stats {
+          grid-template-columns: repeat(3, 1fr);
+          gap: 12px;
+        }
+
+        .deadlines-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .submissions-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .deadline-header {
+          flex-direction: column;
+          gap: 8px;
+        }
+
+        .deadline-header h5 {
+          margin-right: 0;
+        }
+
+        .submission-header {
+          flex-direction: column;
+          gap: 8px;
+        }
+
+        .submission-header h5 {
+          margin-right: 0;
+        }
       }
 
       .floating-shapes {
@@ -531,18 +884,177 @@
             <div class="stat-icon warning">
               <i class="fas fa-clock"></i>
             </div>
-            <div class="stat-number">{{ applications|dictsort:"status"|length }}</div>
-            <div class="stat-label">Pending Reviews</div>
+            <div class="stat-number">{{ upcoming_deadlines|length }}</div>
+            <div class="stat-label">Upcoming Deadlines</div>
           </div>
 
           <div class="stat-card">
             <div class="stat-icon info">
-              <i class="fas fa-file-alt"></i>
+              <i class="fas fa-chart-line"></i>
             </div>
-            <div class="stat-number">0</div>
-            <div class="stat-label">Submissions</div>
+            <div class="stat-number">{{ overall_progress|floatformat:0 }}%</div>
+            <div class="stat-label">Overall Progress</div>
           </div>
         </div>
+
+        <!-- Grades and Progress Section -->
+        {% if accepted_application and assessments %}
+        <div class="section-title">
+          <i class="fas fa-graduation-cap"></i>
+          Academic Progress & Grades
+        </div>
+
+        <div class="progress-section">
+          <div class="progress-overview">
+            <div class="progress-card">
+              <div class="progress-header">
+                <h4><i class="fas fa-trophy"></i> Current Grade</h4>
+                <div class="grade-display">
+                  {% if average_grade > 0 %}
+                  <span class="grade-number">{{ average_grade|floatformat:1 }}</span>
+                  <span class="grade-label">/ 100</span>
+                  {% else %}
+                  <span class="grade-number">--</span>
+                  <span class="grade-label">No grades yet</span>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="progress-bar-container">
+                <div class="progress-bar">
+                  <div class="progress-fill" style="width: {{ average_grade }}%"></div>
+                </div>
+                <span class="progress-text">{{ completed_assessments }} of {{ assessments|length }} assessments completed</span>
+              </div>
+            </div>
+
+            <div class="progress-stats">
+              <div class="stat-item">
+                <div class="stat-value">{{ completed_assessments }}</div>
+                <div class="stat-label">Completed</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-value">{{ assessments|length|add:"-"|add:completed_assessments }}</div>
+                <div class="stat-label">Remaining</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-value">{{ total_grade }}</div>
+                <div class="stat-label">Total Points</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Upcoming Deadlines -->
+        {% if upcoming_deadlines %}
+        <div class="section-title">
+          <i class="fas fa-calendar-exclamation"></i>
+          Upcoming Deadlines
+        </div>
+
+        <div class="deadlines-grid">
+          {% for assessment in upcoming_deadlines %}
+          <div class="deadline-card {% if assessment.due_date == today %}urgent{% endif %}">
+            <div class="deadline-header">
+              <h5>{{ assessment.title }}</h5>
+              <span class="deadline-badge {% if assessment.due_date == today %}urgent{% elif assessment.days_remaining <= 3 %}warning{% else %}normal{% endif %}"> {% if assessment.due_date == today %} Due Today! {% else %} {{ assessment.due_date|timeuntil }} left {% endif %} </span>
+            </div>
+            <div class="deadline-details">
+              <div class="detail-item">
+                <i class="fas fa-weight-hanging"></i>
+                <span>Weight: {{ assessment.weight }}%</span>
+              </div>
+              <div class="detail-item">
+                <i class="fas fa-calendar"></i>
+                <span>Due: {{ assessment.due_date|date:"M d, Y" }}</span>
+              </div>
+              <div class="detail-item">
+                <i class="fas fa-file-alt"></i>
+                <span>{{ assessment.submission_type }}</span>
+              </div>
+            </div>
+            <div class="deadline-actions">
+              <a href="{% url 'attempt_assessment' assessment.id %}" class="btn-action btn-primary"> <i class="fas fa-edit"></i> Submit Work </a>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Recent Submissions -->
+        {% if submissions %}
+        <div class="section-title">
+          <i class="fas fa-upload"></i>
+          Recent Submissions
+        </div>
+
+        <div class="submissions-grid">
+          {% for submission in submissions %}
+          <div class="submission-card">
+            <div class="submission-header">
+              <h5>{{ submission.assignment.title }}</h5>
+              <span class="submission-status {% if submission.grades_received is not None %}graded{% else %}submitted{% endif %}">
+                {% if submission.grades_received is not None %}
+                <i class="fas fa-check-circle"></i> Graded {% else %} <i class="fas fa-clock"></i> Pending {% endif %}
+              </span>
+            </div>
+            <div class="submission-details">
+              <div class="detail-item">
+                <i class="fas fa-calendar"></i>
+                <span>Submitted: {{ submission.submitted_at|date:"M d, Y" }}</span>
+              </div>
+              <div class="detail-item">
+                <i class="fas fa-redo"></i>
+                <span>Attempt: {{ submission.attempt_number }}</span>
+              </div>
+              {% if submission.grades_received is not None %}
+              <div class="detail-item">
+                <i class="fas fa-star"></i>
+                <span>Grade: {{ submission.grades_received }}/100</span>
+              </div>
+              {% endif %} {% if submission.feedback %}
+              <div class="detail-item">
+                <i class="fas fa-comment"></i>
+                <span>Feedback: {{ submission.feedback|truncatechars:50 }}</span>
+              </div>
+              {% endif %}
+            </div>
+            {% if submission.is_late %}
+            <div class="late-submission-warning">
+              <i class="fas fa-exclamation-triangle"></i>
+              <span>Late Submission</span>
+            </div>
+            {% endif %}
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %} {% endif %}
+
+        <!-- Recent Notifications -->
+        {% if recent_notifications %}
+        <div class="section-title">
+          <i class="fas fa-bell"></i>
+          Recent Notifications
+        </div>
+
+        <div class="notifications-grid">
+          {% for notification in recent_notifications %}
+          <div class="notification-card {% if not notification.is_read %}unread{% endif %}">
+            <div class="notification-header">
+              <div class="notification-icon">
+                <i class="fas fa-{% if 'accepted' in notification.message.lower %}check-circle{% elif 'rejected' in notification.message.lower %}times-circle{% elif 'reminder' in notification.message.lower %}exclamation-triangle{% else %}info-circle{% endif %}"></i>
+              </div>
+              <div class="notification-content">
+                <p class="notification-message">{{ notification.message|truncatechars:100 }}</p>
+                <span class="notification-time">{{ notification.created_at|timesince }} ago</span>
+              </div>
+            </div>
+            <div class="notification-actions">
+              <a href="{% url 'mark_notification_as_read_and_redirect' notification.id %}" class="btn-action btn-outline"> <i class="fas fa-eye"></i> View Details </a>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
 
         <!-- Project Applications Section -->
         <div class="section-title">
