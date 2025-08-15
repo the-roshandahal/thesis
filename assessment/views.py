@@ -5,11 +5,12 @@ from django.utils.dateparse import parse_date
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 import os
-from .models import AssessmentSchema
 from django.utils.text import get_valid_filename
 from django.utils import timezone
 from datetime import date
 from application.models import *
+from django.db import transaction
+
 
 def assessment_schema(request):
     schema = AssessmentSchema.objects.first()  # Only one allowed
@@ -48,23 +49,33 @@ def create_assessment_schema(request):
                     assignment_indices.add(idx)
             assignment_indices = sorted(assignment_indices, key=int)
 
+            # Validate total weight first
+            total_weight = 0.0
+            for idx in assignment_indices:
+                weight_raw = request.POST.get(f'assignment_weight_{idx}')
+                try:
+                    total_weight += float(weight_raw)
+                except (TypeError, ValueError):
+                    messages.error(request, f"Invalid weight for assignment #{idx}")
+                    schema.delete()
+                    return render(request, 'assessment/create_schema.html')
+
+            if round(total_weight, 2) != 100.0:
+                messages.error(request, f"Total weight must be exactly 100%. Currently {total_weight}%.")
+                schema.delete()
+                return render(request, 'assessment/create_schema.html')
+
             # Process each assignment
             for idx in assignment_indices:
                 name = request.POST.get(f'assignment_name_{idx}')
                 due_date = parse_date(request.POST.get(f'assignment_due_{idx}'))
-                submit_by = parse_date(request.POST.get(f'assignment_due_{idx}'))
+                submit_by = parse_date(request.POST.get(f'assignment_submit_by_{idx}'))
                 submission_type = request.POST.get(f'submission_type_{idx}')
                 weight_raw = request.POST.get(f'assignment_weight_{idx}')
                 details = request.POST.get(f'assignment_detail_{idx}', '')
 
                 # Validate required fields
-                if not name or not due_date or not weight_raw:
-                    messages.error(request, f"Missing required fields for assignment #{idx}")
-                    schema.delete()  # rollback schema creation
-                    return render(request, 'assessment/create_schema.html')
-                
-                # Validate required fields
-                if not name or not submit_by or not weight_raw:
+                if not name or not due_date or not submit_by or not weight_raw:
                     messages.error(request, f"Missing required fields for assignment #{idx}")
                     schema.delete()  # rollback schema creation
                     return render(request, 'assessment/create_schema.html')
@@ -150,12 +161,230 @@ def create_assessment_schema(request):
     return render(request, 'assessment/create_schema.html')
 
 
-def edit_schema(request,id):
-    pass
+def edit_schema(request, id):
+    try:
+        schema = AssessmentSchema.objects.get(id=id)
+    except AssessmentSchema.DoesNotExist:
+        messages.error(request, "Assessment schema not found.")
+        return redirect('assessment_schema')
+    
+    if request.method == "POST":
+        try:
+            # Read, but do NOT persist yet
+            schema_name = request.POST.get('schema_name')
+            start_date = parse_date(request.POST.get('schema_start_date'))
+            end_date = parse_date(request.POST.get('schema_end_date'))
+
+            if not schema_name or not start_date or not end_date:
+                messages.error(request, "Please fill in all schema fields correctly.")
+                return render(request, 'assessment/edit_schema.html', {'schema': schema})
+
+            # Identify assignment indices dynamically
+            assignment_indices = set()
+            for key in request.POST.keys():
+                if key.startswith('assignment_name_'):
+                    idx = key.split('_')[-1]
+                    assignment_indices.add(idx)
+            assignment_indices = sorted(assignment_indices, key=int)
+
+            # Validate total weight and collect clean assignments (no side-effects yet)
+            total_weight = 0.0
+            assignments_to_create = []
+            for idx in assignment_indices:
+                name = request.POST.get(f'assignment_name_{idx}')
+                due_date = parse_date(request.POST.get(f'assignment_due_{idx}'))
+                submit_by = parse_date(request.POST.get(f'assignment_submit_by_{idx}'))
+                submission_type = request.POST.get(f'submission_type_{idx}')
+                weight_raw = request.POST.get(f'assignment_weight_{idx}')
+                details = request.POST.get(f'assignment_detail_{idx}', '')
+
+                if not name or not due_date or not submit_by or not weight_raw:
+                    messages.error(request, f"Missing required fields for assignment #{idx}")
+                    return render(request, 'assessment/edit_schema.html', {'schema': schema})
+
+                try:
+                    weight = float(weight_raw)
+                except (TypeError, ValueError):
+                    messages.error(request, f"Invalid weight for assignment #{idx}")
+                    return render(request, 'assessment/edit_schema.html', {'schema': schema})
+
+                total_weight += weight
+                assignments_to_create.append({
+                    'name': name,
+                    'due_date': due_date,
+                    'submit_by': submit_by,
+                    'submission_type': submission_type,
+                    'weight': weight,
+                    'details': details,
+                    'idx': idx,
+                })
+
+            if round(total_weight, 2) != 100.0:
+                messages.error(request, f"Total weight must be exactly 100%. Currently {total_weight}%.")
+                return render(request, 'assessment/edit_schema.html', {'schema': schema})
+
+            # All validations passed -> persist atomically
+            with transaction.atomic():
+                # Update schema
+                schema.name = schema_name
+                schema.start_date = start_date
+                schema.end_date = end_date
+                schema.save()
+
+                # Replace assessments
+                schema.assessments.all().delete()
+
+                for item in assignments_to_create:
+                    assignment = Assessment.objects.create(
+                        schema=schema,
+                        title=item['name'],
+                        due_date=item['due_date'],
+                        submit_by=item['submit_by'],
+                        weight=item['weight'],
+                        description=item['details'],
+                        submission_type=item['submission_type']
+                    )
+
+                    # Helper for files
+                    def process_uploaded_files(file_key, base_path, model_class):
+                        if file_key in request.FILES:
+                            for i, file in enumerate(request.FILES.getlist(file_key)):
+                                custom_base = request.POST.get(f'{file_key}_name_{i}', '') or os.path.splitext(file.name)[0]
+                                original_ext = os.path.splitext(file.name)[1]
+                                custom_name = get_valid_filename(f"{custom_base}{original_ext}")
+                                file_path = f"{base_path}/schema_{schema.id}/assessment_{assignment.id}/{custom_name}"
+
+                                base_name, ext = os.path.splitext(custom_name)
+                                counter = 1
+                                while default_storage.exists(file_path):
+                                    custom_name = f"{base_name}_{counter}{ext}"
+                                    file_path = f"{base_path}/schema_{schema.id}/assessment_{assignment.id}/{custom_name}"
+                                    counter += 1
+
+                                default_storage.save(file_path, file)
+                                model_class.objects.create(
+                                    assessment=assignment,
+                                    name=custom_name,
+                                    file=file_path,
+                                )
+
+                    # Files per assignment index
+                    idx = item['idx']
+                    process_uploaded_files(
+                        file_key=f'assignment_files_{idx}',
+                        base_path='assessment_details/details',
+                        model_class=AssessmentDetailFile,
+                    )
+                    process_uploaded_files(
+                        file_key=f'sample_files_{idx}',
+                        base_path='assessment_samples/samples',
+                        model_class=AssessmentSampleFile,
+                    )
+
+            messages.success(request, "Assessment schema updated successfully!")
+            return redirect('assessment_schema')
+
+        except Exception as e:
+            messages.error(request, f"Error updating schema: {str(e)}")
+            return render(request, 'assessment/edit_schema.html', {'schema': schema})
+    
+    # GET request - display the edit form
+    return render(request, 'assessment/edit_schema.html', {'schema': schema})
 
 
-def add_assessment(request,id):
-    pass
+def add_assessment(request, id):
+    # Add a single assessment to an existing schema
+    try:
+        schema = AssessmentSchema.objects.get(id=id)
+    except AssessmentSchema.DoesNotExist:
+        messages.error(request, "Assessment schema not found.")
+        return redirect('assessment_schema')
+
+    if request.method == 'POST':
+        try:
+            name = request.POST.get('assignment_name')
+            due_date = parse_date(request.POST.get('assignment_due'))
+            submit_by = parse_date(request.POST.get('assignment_submit_by'))
+            submission_type = request.POST.get('submission_type')
+            weight_raw = request.POST.get('assignment_weight')
+            details = request.POST.get('assignment_detail', '')
+
+            if not name or not due_date or not submit_by or not weight_raw:
+                messages.error(request, "Please fill all required fields.")
+                return render(request, 'assessment/add_assessment.html', {
+                    'schema': schema,
+                    'existing_total': sum(a.weight for a in schema.assessments.all()),
+                })
+
+            try:
+                weight = float(weight_raw)
+            except (TypeError, ValueError):
+                messages.error(request, "Weight must be a number.")
+                return render(request, 'assessment/add_assessment.html', {
+                    'schema': schema,
+                    'existing_total': sum(a.weight for a in schema.assessments.all()),
+                })
+
+            existing_total = sum(a.weight for a in schema.assessments.all())
+            new_total = existing_total + weight
+            if round(new_total, 2) != 100.0:
+                messages.error(request, f"Total weight must be exactly 100%. Current total is {existing_total}%, new total would be {new_total}%.")
+                return render(request, 'assessment/add_assessment.html', {
+                    'schema': schema,
+                    'existing_total': existing_total,
+                })
+
+            with transaction.atomic():
+                assignment = Assessment.objects.create(
+                    schema=schema,
+                    title=name,
+                    due_date=due_date,
+                    submit_by=submit_by,
+                    weight=int(weight),
+                    description=details,
+                    submission_type=submission_type,
+                )
+
+                def process_uploaded_files(file_key, base_path, model_class):
+                    if file_key in request.FILES:
+                        for i, file in enumerate(request.FILES.getlist(file_key)):
+                            custom_base = request.POST.get(f'{file_key}_name_{i}', '') or os.path.splitext(file.name)[0]
+                            original_ext = os.path.splitext(file.name)[1]
+                            custom_name = get_valid_filename(f"{custom_base}{original_ext}")
+                            file_path = f"{base_path}/schema_{schema.id}/assessment_{assignment.id}/{custom_name}"
+
+                            base_name, ext = os.path.splitext(custom_name)
+                            counter = 1
+                            while default_storage.exists(file_path):
+                                custom_name = f"{base_name}_{counter}{ext}"
+                                file_path = f"{base_path}/schema_{schema.id}/assessment_{assignment.id}/{custom_name}"
+                                counter += 1
+
+                            default_storage.save(file_path, file)
+                            model_class.objects.create(
+                                assessment=assignment,
+                                name=custom_name,
+                                file=file_path,
+                            )
+
+                process_uploaded_files('assignment_files', 'assessment_details/details', AssessmentDetailFile)
+                process_uploaded_files('sample_files', 'assessment_samples/samples', AssessmentSampleFile)
+
+            messages.success(request, "Assessment added successfully!")
+            return redirect('assessment_schema')
+
+        except Exception as e:
+            messages.error(request, f"Error adding assessment: {str(e)}")
+            return render(request, 'assessment/add_assessment.html', {
+                'schema': schema,
+                'existing_total': sum(a.weight for a in schema.assessments.all()),
+            })
+
+    # GET
+    return render(request, 'assessment/add_assessment.html', {
+        'schema': schema,
+        'existing_total': sum(a.weight for a in schema.assessments.all()),
+    })
 
 
 def edit_assessment(request,id):
