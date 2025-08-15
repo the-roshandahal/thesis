@@ -132,14 +132,27 @@ def add_project(request):
 def project_detail(request, project_id):
     project = get_object_or_404(Project, id=project_id)
 
-    has_applied = ApplicationMember.objects.filter(
-        user=request.user,
-        application__status__in=["applied", "accepted"]
-    ).exists()
+    # Get detailed application information for the current user
+    user_application = None
+    has_applied = False
+    application_status = None
+    
+    if not request.user.is_superuser and not request.user.is_staff:
+        # Only check for students
+        user_application = ApplicationMember.objects.filter(
+            user=request.user,
+            application__status__in=["applied", "accepted"]
+        ).select_related('application').first()
+        
+        if user_application:
+            has_applied = True
+            application_status = user_application.application.status
 
     return render(request, "projects/project_details.html", {
         "project": project,
         "has_applied": has_applied,
+        "user_application": user_application,
+        "application_status": application_status,
         "user_is_supervisor": request.user.is_staff and not request.user.is_superuser,
         "user_is_admin": request.user.is_superuser,
     })
