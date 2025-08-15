@@ -22,7 +22,7 @@ def get_user_type(user):
 def login(request):
     if request.user.is_authenticated:
         if request.user.is_superuser:
-            return render( request,'admin_dashboard.html')  
+            return admin_dashboard(request)
         elif request.user.is_staff:
             return render( request,'supervisor_dashboard.html')  
         else:
@@ -256,3 +256,89 @@ def change_password(request):
             return redirect('view_profile')
 
     return render(request, 'accounts/change_password.html')
+
+
+def admin_dashboard(request):
+    """Comprehensive admin dashboard with statistics and charts data"""
+    from django.db.models import Count, Q
+    from django.utils import timezone
+    from datetime import datetime, timedelta
+    from projects.models import Project
+    from application.models import Application
+    from assessment.models import AssessmentSchema, Assessment, StudentSubmission
+    
+    # Basic counts
+    total_students = Student.objects.count()
+    total_supervisors = Supervisor.objects.count()
+    total_projects = Project.objects.count()
+    total_applications = Application.objects.count()
+    
+    # Application status distribution
+    status_counts = Application.objects.values('status').annotate(count=Count('id'))
+    status_data = {item['status']: item['count'] for item in status_counts}
+    
+    # Department statistics
+    department_stats = Student.objects.values('department').annotate(count=Count('id')).order_by('-count')
+    
+    # Recent applications (last 5)
+    recent_applications = Application.objects.select_related(
+        'project'
+    ).order_by('-applied_at')[:5]
+    
+    # Recent activities (simulated for now)
+    recent_activities = [
+        {
+            'title': 'New Student Registration',
+            'description': 'Student John Doe registered in Computer Science department',
+            'timestamp': timezone.now() - timedelta(hours=2)
+        },
+        {
+            'title': 'Project Application Submitted',
+            'description': 'Application submitted for AI Project by Student Jane Smith',
+            'timestamp': timezone.now() - timedelta(hours=4)
+        },
+        {
+            'title': 'Assessment Created',
+            'description': 'New assessment schema created for Semester 2024',
+            'timestamp': timezone.now() - timedelta(hours=6)
+        },
+        {
+            'title': 'Supervisor Added',
+            'description': 'Dr. Johnson added as new project supervisor',
+            'timestamp': timezone.now() - timedelta(hours=8)
+        }
+    ]
+    
+    # Monthly application trends (last 12 months)
+    monthly_applications = []
+    for i in range(12):
+        month_start = timezone.now().replace(day=1) - timedelta(days=30*i)
+        month_end = month_start.replace(day=28) + timedelta(days=4)
+        month_end = month_end.replace(day=1) - timedelta(days=1)
+        
+        count = Application.objects.filter(
+            applied_at__gte=month_start,
+            applied_at__lte=month_end
+        ).count()
+        
+        monthly_applications.append({
+            'month': month_start.strftime('%b'),
+            'count': count
+        })
+    
+    # Reverse to show oldest to newest
+    monthly_applications.reverse()
+    
+    context = {
+        'total_students': total_students,
+        'total_supervisors': total_supervisors,
+        'total_projects': total_projects,
+        'total_applications': total_applications,
+        'status_data': status_data,
+        'department_stats': department_stats,
+        'recent_applications': recent_applications,
+        'recent_activities': recent_activities,
+        'monthly_applications': monthly_applications,
+    }
+    
+    return render(request, 'admin_dashboard.html', context)

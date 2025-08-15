@@ -1,103 +1,387 @@
-{% load static %}
-{% include 'header.html' %}
+{% load static %} {% include 'header.html' %}
 
 <div class="main-content">
-
-    <div class="page-content">
-        <div class="container-fluid">
-            <!-- Main content here -->
-            <div class="row">
-                            <div class="col-xl-3 col-md-6">
-                                <div class="card">
-                                    <div class="card-body">
-                                        <div class="d-flex align-items-center">
-                                            <div class="avatar-md flex-shrink-0">
-                                                <span class="avatar-title bg-subtle-primary text-primary rounded fs-2">
-                                                    <i class="uim uim-airplay"></i>
-                                                </span>
-                                            </div>
-                                            <div class="flex-grow-1 overflow-hidden ms-4">
-                                                <p class="text-muted text-truncate font-size-15 mb-2"> Total Students</p>
-                                                <h3 class="fs-4 flex-grow-1 mb-3">34,123.20</h3>
-                                            </div>
-                                            
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-xl-3 col-md-6">
-                                <div class="card">
-                                    <div class="card-body">
-                                        <div class="d-flex align-items-center">
-                                            <div class="avatar-md flex-shrink-0">
-                                                <span class="avatar-title bg-subtle-primary text-primary rounded fs-2">
-                                                    <i class="uim uim-airplay"></i>
-                                                </span>
-                                            </div>
-                                            <div class="flex-grow-1 overflow-hidden ms-4">
-                                                <p class="text-muted text-truncate font-size-15 mb-2"> Total Supervisors</p>
-                                                <h3 class="fs-4 flex-grow-1 mb-3">34,123.20</h3>
-                                            </div>
-                                            
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-xl-3 col-md-6">
-                                <div class="card">
-                                    <div class="card-body">
-                                        <div class="d-flex align-items-center">
-                                            <div class="avatar-md flex-shrink-0">
-                                                <span class="avatar-title bg-subtle-primary text-primary rounded fs-2">
-                                                    <i class="uim uim-airplay"></i>
-                                                </span>
-                                            </div>
-                                            <div class="flex-grow-1 overflow-hidden ms-4">
-                                                <p class="text-muted text-truncate font-size-15 mb-2"> Total Projects</p>
-                                                <h3 class="fs-4 flex-grow-1 mb-3">34,123.20</h3>
-                                            </div>
-                                            
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-xl-3 col-md-6">
-                                <div class="card">
-                                    <div class="card-body">
-                                        <div class="d-flex align-items-center">
-                                            <div class="avatar-md flex-shrink-0">
-                                                <span class="avatar-title bg-subtle-primary text-primary rounded fs-2">
-                                                    <i class="uim uim-airplay"></i>
-                                                </span>
-                                            </div>
-                                            <div class="flex-grow-1 overflow-hidden ms-4">
-                                                <p class="text-muted text-truncate font-size-15 mb-2"> Total Applications</p>
-                                                <h3 class="fs-4 flex-grow-1 mb-3">34,123.20</h3>
-                                            </div>
-                                            
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
-
-
-
-
-
-
-
-
-
-
-
-
+  <div class="page-content">
+    <div class="container-fluid">
+      <!-- Page Title -->
+      <div class="row">
+        <div class="col-12">
+          <div class="page-title-box d-flex align-items-center justify-content-between">
+            <h4 class="mb-0">Admin Dashboard</h4>
+            <div class="page-title-right">
+              <ol class="breadcrumb m-0">
+                <li class="breadcrumb-item"><a href="javascript: void(0);">Dashboard</a></li>
+                <li class="breadcrumb-item active">Overview</li>
+              </ol>
+            </div>
+          </div>
         </div>
+      </div>
 
+      <!-- Statistics Cards -->
+      <div class="row">
+        <div class="col-xl-3 col-md-6">
+          <div class="card mini-stats-wid">
+            <div class="card-body">
+              <div class="d-flex">
+                <div class="flex-grow-1">
+                  <p class="text-muted fw-medium">Total Students</p>
+                  <h4 class="mb-0">{{ total_students|default:"0" }}</h4>
+                </div>
+                <div class="flex-shrink-0 align-self-center">
+                  <div class="avatar-sm rounded-circle bg-primary bg-opacity-10">
+                    <span class="avatar-title">
+                      <i class="mdi mdi-account-group font-size-24 text-primary"></i>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+          <div class="card mini-stats-wid">
+            <div class="card-body">
+              <div class="d-flex">
+                <div class="flex-grow-1">
+                  <p class="text-muted fw-medium">Total Supervisors</p>
+                  <h4 class="mb-0">{{ total_supervisors|default:"0" }}</h4>
+                </div>
+                <div class="flex-shrink-0 align-self-center">
+                  <div class="avatar-sm rounded-circle bg-success bg-opacity-10">
+                    <span class="avatar-title">
+                      <i class="mdi mdi-account-tie font-size-24 text-success"></i>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+          <div class="card mini-stats-wid">
+            <div class="card-body">
+              <div class="d-flex">
+                <div class="flex-grow-1">
+                  <p class="text-muted fw-medium">Total Projects</p>
+                  <h4 class="mb-0">{{ total_projects|default:"0" }}</h4>
+                </div>
+                <div class="flex-shrink-0 align-self-center">
+                  <div class="avatar-sm rounded-circle bg-warning bg-opacity-10">
+                    <span class="avatar-title">
+                      <i class="mdi mdi-folder-multiple font-size-24 text-warning"></i>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+          <div class="card mini-stats-wid">
+            <div class="card-body">
+              <div class="d-flex">
+                <div class="flex-grow-1">
+                  <p class="text-muted fw-medium">Total Applications</p>
+                  <h4 class="mb-0">{{ total_applications|default:"0" }}</h4>
+                </div>
+                <div class="flex-shrink-0 align-self-center">
+                  <div class="avatar-sm rounded-circle bg-info bg-opacity-10">
+                    <span class="avatar-title">
+                      <i class="mdi mdi-file-document-multiple font-size-24 text-info"></i>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts Row -->
+      <div class="row">
+        <div class="col-xl-8">
+          <div class="card">
+            <div class="card-header">
+              <h4 class="card-title mb-0">Project Applications Over Time</h4>
+            </div>
+            <div class="card-body">
+              <div id="applications-chart" style="height: 300px"></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-4">
+          <div class="card">
+            <div class="card-header">
+              <h4 class="card-title mb-0">Application Status Distribution</h4>
+            </div>
+            <div class="card-body">
+              <div id="status-pie-chart" style="height: 300px"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Additional Statistics Row -->
+      <div class="row">
+        <div class="col-xl-4">
+          <div class="card">
+            <div class="card-header">
+              <h4 class="card-title mb-0">Department Statistics</h4>
+            </div>
+            <div class="card-body">
+              <div id="department-chart" style="height: 250px"></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-4">
+          <div class="card">
+            <div class="card-header">
+              <h4 class="card-title mb-0">Recent Activities</h4>
+            </div>
+            <div class="card-body">
+              <div class="timeline-alt pb-0">
+                {% for activity in recent_activities|slice:":5" %}
+                <div class="timeline-item">
+                  <i class="mdi mdi-circle bg-info-lighten text-info timeline-icon"></i>
+                  <div class="timeline-item-info">
+                    <a href="#" class="text-info fw-bold mb-1 d-block">{{ activity.title }}</a>
+                    <small>{{ activity.timestamp|timesince }} ago</small>
+                    <p class="mb-0">{{ activity.description }}</p>
+                  </div>
+                </div>
+                {% empty %}
+                <div class="text-center text-muted">
+                  <i class="mdi mdi-information-outline font-size-24"></i>
+                  <p class="mt-2">No recent activities</p>
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-4">
+          <div class="card">
+            <div class="card-header">
+              <h4 class="card-title mb-0">Quick Actions</h4>
+            </div>
+            <div class="card-body">
+              <div class="d-grid gap-2">
+                <a href="{% url 'add_student' %}" class="btn btn-primary"> <i class="mdi mdi-account-plus me-2"></i>Add Student </a>
+                <a href="{% url 'add_supervisor' %}" class="btn btn-success"> <i class="mdi mdi-account-tie-plus me-2"></i>Add Supervisor </a>
+                <a href="{% url 'add_project' %}" class="btn btn-warning"> <i class="mdi mdi-folder-plus me-2"></i>Add Project </a>
+                <a href="{% url 'create_assessment_schema' %}" class="btn btn-info"> <i class="mdi mdi-file-plus me-2"></i>Create Assessment </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Data Tables Row -->
+      <div class="row">
+        <div class="col-xl-6">
+          <div class="card">
+            <div class="card-header">
+              <h4 class="card-title mb-0">Recent Applications</h4>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-centered table-nowrap mb-0">
+                  <thead>
+                    <tr>
+                      <th>Student</th>
+                      <th>Project</th>
+                      <th>Status</th>
+                      <th>Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for application in recent_applications|slice:":5" %}
+                    <tr>
+                      <td>
+                        <div class="d-flex align-items-center">
+                          <div class="avatar-sm bg-light rounded-circle flex-shrink-0">
+                            <span class="avatar-title text-primary"> {% with first_member=application.members.first %} {% if first_member %} {{ first_member.user.first_name|first }}{{ first_member.user.last_name|first }} {% else %} N/A {% endif %} {% endwith %} </span>
+                          </div>
+                          <div class="flex-grow-1 ms-3">
+                            <p class="mb-0 fw-medium">{% with first_member=application.members.first %} {% if first_member %} {{ first_member.user.first_name }} {{ first_member.user.last_name }} {% else %} No members {% endif %} {% endwith %}</p>
+                            <small class="text-muted">{{ application.application_type|title }}</small>
+                          </div>
+                        </div>
+                      </td>
+                      <td>{{ application.project.title|truncatechars:30 }}</td>
+                      <td>
+                        {% if application.status == 'applied' %}
+                        <span class="badge bg-warning">Applied</span>
+                        {% elif application.status == 'accepted' %}
+                        <span class="badge bg-success">Accepted</span>
+                        {% elif application.status == 'declined' %}
+                        <span class="badge bg-danger">Declined</span>
+                        {% else %}
+                        <span class="badge bg-secondary">{{ application.status|title }}</span>
+                        {% endif %}
+                      </td>
+                      <td>{{ application.applied_at|date:"M d, Y" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                      <td colspan="4" class="text-center text-muted">No applications found</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-6">
+          <div class="card">
+            <div class="card-header">
+              <h4 class="card-title mb-0">System Messages</h4>
+            </div>
+            <div class="card-body">
+              {% if messages %} {% for message in messages %}
+              <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+              {% endfor %} {% else %}
+              <div class="text-center text-muted">
+                <i class="mdi mdi-message-text-outline font-size-24"></i>
+                <p class="mt-2">No system messages</p>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-    <!-- End Page-content -->
-
+  </div>
 </div>
-<!-- end main content-->
+
 {% include 'footer.html' %}
+
+<!-- Chart.js and ApexCharts -->
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+<script>
+  // Applications Over Time Chart
+  var applicationsOptions = {
+      series: [{
+          name: 'Applications',
+          data: [{% for month in monthly_applications %}{{ month.count }}{% if not forloop.last %}, {% endif %}{% endfor %}]
+      }],
+      chart: {
+          type: 'area',
+          height: 300,
+          toolbar: {
+              show: false
+          }
+      },
+      dataLabels: {
+          enabled: false
+      },
+      stroke: {
+          curve: 'smooth',
+          width: 3
+      },
+      colors: ['#556ee6'],
+      fill: {
+          type: 'gradient',
+          gradient: {
+              shadeIntensity: 1,
+              opacityFrom: 0.7,
+              opacityTo: 0.2,
+              stops: [0, 90, 100]
+          }
+      },
+      xaxis: {
+          categories: [{% for month in monthly_applications %}'{{ month.month }}'{% if not forloop.last %}, {% endif %}{% endfor %}]
+      },
+      tooltip: {
+          x: {
+              format: 'MM'
+          },
+      },
+  };
+
+  var applicationsChart = new ApexCharts(document.querySelector("#applications-chart"), applicationsOptions);
+  applicationsChart.render();
+
+  // Status Distribution Pie Chart
+  var statusOptions = {
+      series: [{% for status, count in status_data.items %}{{ count }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+      chart: {
+          type: 'pie',
+          height: 300
+      },
+      labels: [{% for status, count in status_data.items %}'{{ status|title }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+      colors: ['#f1b44c', '#34c38f', '#f46a6a', '#50a5f1'],
+      responsive: [{
+          breakpoint: 480,
+          options: {
+              chart: {
+                  width: 200
+              },
+              legend: {
+                  position: 'bottom'
+              }
+          }
+      }]
+  };
+
+  var statusChart = new ApexCharts(document.querySelector("#status-pie-chart"), statusOptions);
+  statusChart.render();
+
+  // Department Statistics Chart
+  var departmentOptions = {
+      series: [{
+          name: 'Students',
+          data: [{% for dept in department_stats %}{{ dept.count }}{% if not forloop.last %}, {% endif %}{% endfor %}]
+      }],
+      chart: {
+          type: 'bar',
+          height: 250,
+          toolbar: {
+              show: false
+          }
+      },
+      colors: ['#34c38f'],
+      plotOptions: {
+          bar: {
+              horizontal: false,
+              columnWidth: '55%',
+              endingShape: 'rounded'
+          },
+      },
+      dataLabels: {
+          enabled: false
+      },
+      stroke: {
+          show: true,
+          width: 2,
+          colors: ['transparent']
+      },
+      xaxis: {
+          categories: [{% for dept in department_stats %}'{{ dept.department }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+      },
+      yaxis: {
+          title: {
+              text: 'Number of Students'
+          }
+      },
+      fill: {
+          opacity: 1
+      },
+      tooltip: {
+          y: {
+              formatter: function (val) {
+                  return val + " students"
+              }
+          }
+      }
+  };
+
+  var departmentChart = new ApexCharts(document.querySelector("#department-chart"), departmentOptions);
+  departmentChart.render();
+</script>
