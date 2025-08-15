@@ -1,0 +1,57 @@
+<!-- Sidebar Menu -->
+<ul class="metismenu list-unstyled" id="side-menu">
+  <li>
+    <a href="{% url 'supervisor_dashboard' %}" class="waves-effect">
+      <i class="mdi mdi-view-dashboard"></i>
+      <span>Dashboard</span>
+    </a>
+  </li>
+  <li>
+    <a href="{% url 'project_supervisor' %}" class="waves-effect">
+      <i class="mdi mdi-folder-multiple"></i>
+      <span>My Projects</span>
+    </a>
+  </li>
+  <li>
+    <a href="{% url 'add_project' %}" class="waves-effect">
+      <i class="mdi mdi-folder-plus"></i>
+      <span>Add Project</span>
+    </a>
+  </li>
+  <li>
+    <a href="{% url 'assessment_schema' %}" class="waves-effect">
+      <i class="mdi mdi-file-document"></i>
+      <span>View Assessments</span>
+    </a>
+  </li>
+  <li>
+    <a href="{% url 'supervisor_application' %}" class="waves-effect">
+      <i class="mdi mdi-application"></i>
+      <span>Applications</span>
+    </a>
+  </li>
+  <li>
+    <a href="{% url 'grading:grading' %}" class="waves-effect">
+      <i class="mdi mdi-account-check"></i>
+      <span>Grading</span>
+    </a>
+  </li>
+  <li>
+    <a href="{% url 'edit_profile' %}" class="waves-effect">
+      <i class="mdi mdi-account-edit"></i>
+      <span>Profile</span>
+    </a>
+  </li>
+  <li>
+    <a href="{% url 'change_password' %}" class="waves-effect">
+      <i class="mdi mdi-lock"></i>
+      <span>Change Password</span>
+    </a>
+  </li>
+  <li>
+    <a href="{% url 'logout' %}" class="waves-effect">
+      <i class="mdi mdi-logout"></i>
+      <span>Logout</span>
+    </a>
+  </li>
+</ul>
