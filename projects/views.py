@@ -132,7 +132,7 @@ def add_project(request):
 def project_detail(request, project_id):
     project = get_object_or_404(Project, id=project_id)
 
-    # Get detailed application information for the current user
+    # Get detailed application information for the current user FOR THIS SPECIFIC PROJECT
     user_application = None
     has_applied = False
     application_status = None
@@ -141,6 +141,7 @@ def project_detail(request, project_id):
         # Only check for students
         user_application = ApplicationMember.objects.filter(
             user=request.user,
+            application__project=project,  # Check for THIS specific project
             application__status__in=["applied", "accepted"]
         ).select_related('application').first()
         
