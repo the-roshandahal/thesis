@@ -9,10 +9,6 @@ class User(AbstractUser):
     gender = models.CharField(max_length=10, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
-class Admin(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    staff_id = models.CharField(max_length=20, unique=True)
 
 class Supervisor(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
