@@ -33,12 +33,20 @@ def apply_to_project(request, project_id):
 
         if application_type not in ['individual', 'group']:
             messages.error(request, "Please select a valid application type.")
-            return render(request, "application/apply_to_project.html", {'project': project})
+            return render(request, "application/apply_to_project.html", {
+                'project': project,
+                'user_is_supervisor': request.user.is_staff and not request.user.is_superuser,
+                'user_is_admin': request.user.is_superuser,
+            })
 
         # Check if applicant already has active application
         if has_active_application(applicant):
             messages.error(request, "You already have an active or accepted application.")
-            return render(request, "application/apply_to_project.html", {'project': project})
+            return render(request, "application/apply_to_project.html", {
+                'project': project,
+                'user_is_supervisor': request.user.is_staff and not request.user.is_superuser,
+                'user_is_admin': request.user.is_superuser,
+            })
 
         if application_type == 'individual':
             # Create application
@@ -63,7 +71,11 @@ def apply_to_project(request, project_id):
             group_emails_raw = request.POST.get('group_emails', '')
             if not group_emails_raw.strip():
                 messages.error(request, "Please enter emails of group members for group application.")
-                return render(request, "application/apply_to_project.html", {'project': project})
+                return render(request, "application/apply_to_project.html", {
+                    'project': project,
+                    'user_is_supervisor': request.user.is_staff and not request.user.is_superuser,
+                    'user_is_admin': request.user.is_superuser,
+                })
 
             group_emails = [email.strip().lower() for email in group_emails_raw.split(',') if email.strip()]
             if applicant.email.lower() not in group_emails:
@@ -78,13 +90,21 @@ def apply_to_project(request, project_id):
                     "These emails are not registered students: " + ", ".join(missing_emails) +
                     ". Please fix and apply again."
                 )
-                return render(request, "application/apply_to_project.html", {'project': project})
+                return render(request, "application/apply_to_project.html", {
+                    'project': project,
+                    'user_is_supervisor': request.user.is_staff and not request.user.is_superuser,
+                    'user_is_admin': request.user.is_superuser,
+                })
 
             # Check if any user has active application
             for user in users:
                 if has_active_application(user):
                     messages.error(request, f"Student {user.email} already has an active or accepted application.")
-                    return render(request, "application/apply_to_project.html", {'project': project})
+                    return render(request, "application/apply_to_project.html", {
+                        'project': project,
+                        'user_is_supervisor': request.user.is_staff and not request.user.is_superuser,
+                        'user_is_admin': request.user.is_superuser,
+                    })
 
             application = Application.objects.create(
                 project=project,
@@ -121,13 +141,21 @@ def apply_to_project(request, project_id):
         return redirect('project_detail', project_id=project.id)
 
     # GET request
-    return render(request, "application/apply_to_project.html", {'project': project})
+    return render(request, "application/apply_to_project.html", {
+        'project': project,
+        'user_is_supervisor': request.user.is_staff and not request.user.is_superuser,
+        'user_is_admin': request.user.is_superuser,
+    })
 
 
 def supervisor_application(request):
     user = request.user
     applications = Application.objects.filter(project__supervisor=user).select_related('project').prefetch_related('members__user')
-    return render (request,'application/supervisor_application.html',{'applications': applications})
+    return render(request, 'application/supervisor_application.html', {
+        'applications': applications,
+        'user_is_supervisor': request.user.is_staff and not request.user.is_superuser,
+        'user_is_admin': request.user.is_superuser,
+    })
 
 
 @login_required
