@@ -1,0 +1,244 @@
+{% load static %}
+{% include 'header.html' %}
+
+<div class="main-content">
+  <div class="page-content">
+    <div class="container-fluid">
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-primary alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+{% endif %}
+        <div class="container mt-4">
+  <h3>Edit Assessment Schema</h3>
+<form id="assessmentSchemaForm" method="POST" enctype="multipart/form-data" action="{% url 'edit_schema' schema.id %}">
+  {% csrf_token %}
+  <div class="mb-3 row">
+    <label class="col-sm-2 col-form-label">Schema Name</label>
+    <div class="col-sm-10">
+      <input type="text" name="schema_name" class="form-control" value="{{ schema.name }}" required>
+    </div>
+  </div>
+
+  <div class="mb-3 row">
+    <label class="col-sm-2 col-form-label">Start Date</label>
+    <div class="col-sm-4">
+      <input type="date" name="schema_start_date" class="form-control" value="{{ schema.start_date|date:'Y-m-d' }}" required>
+    </div>
+    <label class="col-sm-2 col-form-label">End Date</label>
+    <div class="col-sm-4">
+      <input type="date" name="schema_end_date" class="form-control" value="{{ schema.end_date|date:'Y-m-d' }}" required>
+    </div>
+  </div>
+
+  <hr>
+
+  <h4>Assignments</h4>
+  <div id="assignments-container">
+    {% for assessment in schema.assessments.all %}
+    <div class="assignment-item border rounded p-3 mb-3">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h5>Assignment #{{ forloop.counter }}</h5>
+        <button type="button" class="btn btn-danger btn-sm" onclick="removeAssignment(this)">Remove</button>
+      </div>
+      
+      <div class="row">
+        <div class="col-md-6 mb-2">
+          <label class="form-label">Assignment Name</label>
+          <input type="text" name="assignment_name_{{ forloop.counter0 }}" class="form-control" value="{{ assessment.title }}" required>
+        </div>
+        <div class="col-md-6 mb-2">
+          <label class="form-label">Due Date</label>
+          <input type="date" name="assignment_due_{{ forloop.counter0 }}" class="form-control" value="{{ assessment.due_date|date:'Y-m-d' }}" required>
+        </div>
+      </div>
+      
+      <div class="row">
+        <div class="col-md-4 mb-2">
+          <label class="form-label">Submission Type</label>
+          <select name="submission_type_{{ forloop.counter0 }}" class="form-control" required>
+            <option value="individual" {% if assessment.submission_type == 'individual' %}selected{% endif %}>Individual</option>
+            <option value="group" {% if assessment.submission_type == 'group' %}selected{% endif %}>Group</option>
+          </select>
+        </div>
+        <div class="col-md-4 mb-2">
+          <label class="form-label">Weight (%)</label>
+          <input type="number" name="assignment_weight_{{ forloop.counter0 }}" class="form-control" value="{{ assessment.weight }}" step="1" min="0" max="100" required>
+          <small class="text-muted">All assignment weights must sum to 100%.</small>
+        </div>
+        <div class="col-md-4 mb-2">
+          <label class="form-label">Submit By</label>
+          <input type="date" name="assignment_submit_by_{{ forloop.counter0 }}" class="form-control" value="{{ assessment.submit_by|date:'Y-m-d' }}" required>
+        </div>
+      </div>
+      
+      <div class="mb-2">
+        <label class="form-label">Description</label>
+        <textarea name="assignment_detail_{{ forloop.counter0 }}" class="form-control" rows="3">{{ assessment.description }}</textarea>
+      </div>
+      
+      <div class="row">
+        <div class="col-md-6 mb-2">
+          <label class="form-label">Detail Files</label>
+          <input type="file" name="assignment_files_{{ forloop.counter0 }}" class="form-control assignment-files-input" multiple>
+          <div class="file-names-list mt-1">
+            {% for file in assessment.detail_files.all %}
+            <small class="text-muted">{{ file.name }}</small><br>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="col-md-6 mb-2">
+          <label class="form-label">Sample Files</label>
+          <input type="file" name="sample_files_{{ forloop.counter0 }}" class="form-control assignment-files-input" multiple>
+          <div class="file-names-list mt-1">
+            {% for file in assessment.sample_files.all %}
+            <small class="text-muted">{{ file.name }}</small><br>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <button type="button" class="btn btn-success mb-3" onclick="addAssignment()">+ Add Assignment</button>
+
+  <div class="d-flex gap-2">
+    <button type="submit" class="btn btn-primary">Update Schema</button>
+    <a href="{% url 'assessment_schema' %}" class="btn btn-secondary">Cancel</a>
+  </div>
+</form>
+</div>
+
+<script>
+    let assignmentCount = {{ schema.assessments.count }};
+
+function addAssignment() {
+  const container = document.getElementById('assignments-container');
+  const assignmentDiv = document.createElement('div');
+  assignmentDiv.className = 'assignment-item border rounded p-3 mb-3';
+  
+  assignmentDiv.innerHTML = `
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <h5>Assignment #${assignmentCount + 1}</h5>
+      <button type="button" class="btn btn-danger btn-sm" onclick="removeAssignment(this)">Remove</button>
+    </div>
+    
+    <div class="row">
+      <div class="col-md-6 mb-2">
+        <label class="form-label">Assignment Name</label>
+        <input type="text" name="assignment_name_${assignmentCount}" class="form-control" required>
+      </div>
+      <div class="col-md-6 mb-2">
+        <label class="form-label">Due Date</label>
+        <input type="date" name="assignment_due_${assignmentCount}" class="form-control" required>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-md-4 mb-2">
+        <label class="form-label">Submission Type</label>
+        <select name="submission_type_${assignmentCount}" class="form-control" required>
+          <option value="individual">Individual</option>
+          <option value="group">Group</option>
+        </select>
+      </div>
+      <div class="col-md-4 mb-2">
+        <label class="form-label">Weight (%)</label>
+        <input type="number" name="assignment_weight_${assignmentCount}" class="form-control" step="1" min="0" max="100" required>
+        <small class="text-muted">All assignment weights must sum to 100%.</small>
+      </div>
+      <div class="col-md-4 mb-2">
+        <label class="form-label">Submit By</label>
+        <input type="date" name="assignment_submit_by_${assignmentCount}" class="form-control" required>
+      </div>
+    </div>
+    
+    <div class="mb-2">
+      <label class="form-label">Description</label>
+      <textarea name="assignment_detail_${assignmentCount}" class="form-control" rows="3"></textarea>
+    </div>
+    
+    <div class="row">
+      <div class="col-md-6 mb-2">
+        <label class="form-label">Detail Files</label>
+        <input type="file" name="assignment_files_${assignmentCount}" class="form-control assignment-files-input" multiple>
+        <div class="file-names-list mt-1"></div>
+      </div>
+      <div class="col-md-6 mb-2">
+        <label class="form-label">Sample Files</label>
+        <input type="file" name="sample_files_${assignmentCount}" class="form-control assignment-files-input" multiple>
+        <div class="file-names-list mt-1"></div>
+      </div>
+    </div>
+  `;
+  
+  container.appendChild(assignmentDiv);
+  assignmentCount++;
+  attachFileInputsListeners(assignmentDiv);
+}
+
+function removeAssignment(button) {
+  button.closest('.assignment-item').remove();
+}
+
+function handleFileInputChange(input) {
+  const container = input.nextElementSibling; // The div.file-names-list
+  container.innerHTML = ''; // Clear previous
+
+  Array.from(input.files).forEach((file, idx) => {
+    const div = document.createElement('div');
+    div.className = 'd-flex align-items-center mb-2';
+
+    // Get filename without extension
+    const fileNameWithoutExt = file.name.replace(/\.[^/.]+$/, "");
+
+    div.innerHTML = `
+      <input type="text" 
+             name="${input.name}_name_${idx}" 
+             class="form-control me-2" 
+             value="${fileNameWithoutExt}" 
+             maxlength="255" 
+             required>
+      <span class="text-muted me-2">.${file.name.split('.').pop()}</span>
+      <button type="button" class="btn btn-sm btn-danger">Remove</button>
+      <input type="hidden" name="${input.name}_ext_${idx}" value="${file.name.split('.').pop()}">
+    `;
+
+    // Remove file entry on button click
+    div.querySelector('button').onclick = () => {
+      removeFileFromInput(input, file);
+      div.remove();
+    };
+
+    container.appendChild(div);
+  });
+}
+
+// Helper to remove file from input.files (non-trivial, recreate FileList)
+function removeFileFromInput(input, fileToRemove) {
+  const dt = new DataTransfer();
+  Array.from(input.files).forEach(file => {
+    if (file !== fileToRemove) dt.items.add(file);
+  });
+  input.files = dt.files;
+}
+
+// Attach listeners dynamically to file inputs inside assignments container
+function attachFileInputsListeners(container) {
+  container.querySelectorAll('.assignment-files-input, .sample-files-input').forEach(input => {
+    input.onchange = () => handleFileInputChange(input);
+  });
+}
+
+// Attach listeners to existing file inputs
+document.addEventListener('DOMContentLoaded', function() {
+  attachFileInputsListeners(document);
+});
+</script>
+</div>
+</div>
+{% include 'footer.html' %}
