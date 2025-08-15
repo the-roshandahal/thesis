@@ -15,16 +15,17 @@ from django.shortcuts import get_object_or_404
 from functools import wraps
 from .permissions import (
     assessment_view_required, 
-    assessment_manage_required,
-    admin_required,
-    supervisor_or_admin_required
+    assessment_manage_required
 )
 
 @assessment_view_required
 def assessment_schema(request):
     schema = AssessmentSchema.objects.first()  # Only one allowed
     return render(request, 'assessment/assessment_schema.html', {
-        'schema': schema
+        'schema': schema,
+        'user_is_supervisor': request.user.is_staff and not request.user.is_superuser,
+        'user_is_admin': request.user.is_superuser,
+        'can_manage_assessments': request.user.is_superuser,
     })
 
 @assessment_manage_required
@@ -165,9 +166,15 @@ def create_assessment_schema(request):
             messages.error(request, f"Error creating schema: {str(e)}")
             if 'schema' in locals():
                 schema.delete()
-            return render(request, 'assessment/create_schema.html')
+            return render(request, 'assessment/create_schema.html', {
+                'user_is_supervisor': request.user.is_staff and not request.user.is_superuser,
+                'user_is_admin': request.user.is_superuser,
+            })
 
-    return render(request, 'assessment/create_schema.html')
+    return render(request, 'assessment/create_schema.html', {
+        'user_is_supervisor': request.user.is_staff and not request.user.is_superuser,
+        'user_is_admin': request.user.is_superuser,
+    })
 
 
 @assessment_manage_required
@@ -187,7 +194,11 @@ def edit_schema(request, id):
 
             if not schema_name or not start_date or not end_date:
                 messages.error(request, "Please fill in all schema fields correctly.")
-                return render(request, 'assessment/edit_schema.html', {'schema': schema})
+                return render(request, 'assessment/edit_schema.html', {
+                    'schema': schema,
+                    'user_is_supervisor': request.user.is_staff and not request.user.is_superuser,
+                    'user_is_admin': request.user.is_superuser,
+                })
 
             # Identify assignment indices dynamically
             assignment_indices = set()
@@ -210,13 +221,21 @@ def edit_schema(request, id):
 
                 if not name or not due_date or not submit_by or not weight_raw:
                     messages.error(request, f"Missing required fields for assignment #{idx}")
-                    return render(request, 'assessment/edit_schema.html', {'schema': schema})
+                    return render(request, 'assessment/edit_schema.html', {
+                        'schema': schema,
+                        'user_is_supervisor': request.user.is_staff and not request.user.is_superuser,
+                        'user_is_admin': request.user.is_superuser,
+                    })
 
                 try:
                     weight = float(weight_raw)
                 except (TypeError, ValueError):
                     messages.error(request, f"Invalid weight for assignment #{idx}")
-                    return render(request, 'assessment/edit_schema.html', {'schema': schema})
+                    return render(request, 'assessment/edit_schema.html', {
+                        'schema': schema,
+                        'user_is_supervisor': request.user.is_staff and not request.user.is_superuser,
+                        'user_is_admin': request.user.is_superuser,
+                    })
 
                 total_weight += weight
                 assignments_to_create.append({
@@ -231,7 +250,11 @@ def edit_schema(request, id):
 
             if round(total_weight, 2) != 100.0:
                 messages.error(request, f"Total weight must be exactly 100%. Currently {total_weight}%.")
-                return render(request, 'assessment/edit_schema.html', {'schema': schema})
+                return render(request, 'assessment/edit_schema.html', {
+                    'schema': schema,
+                    'user_is_supervisor': request.user.is_staff and not request.user.is_superuser,
+                    'user_is_admin': request.user.is_superuser,
+                })
 
             # All validations passed -> persist atomically
             with transaction.atomic():
@@ -325,6 +348,8 @@ def add_assessment(request, id):
                 return render(request, 'assessment/add_assessment.html', {
                     'schema': schema,
                     'existing_total': sum(a.weight for a in schema.assessments.all()),
+                    'user_is_supervisor': request.user.is_staff and not request.user.is_superuser,
+                    'user_is_admin': request.user.is_superuser,
                 })
 
             try:
@@ -334,6 +359,8 @@ def add_assessment(request, id):
                 return render(request, 'assessment/add_assessment.html', {
                     'schema': schema,
                     'existing_total': sum(a.weight for a in schema.assessments.all()),
+                    'user_is_supervisor': request.user.is_staff and not request.user.is_superuser,
+                    'user_is_admin': request.user.is_superuser,
                 })
 
             existing_total = sum(a.weight for a in schema.assessments.all())
@@ -343,6 +370,8 @@ def add_assessment(request, id):
                 return render(request, 'assessment/add_assessment.html', {
                     'schema': schema,
                     'existing_total': existing_total,
+                    'user_is_supervisor': request.user.is_staff and not request.user.is_superuser,
+                    'user_is_admin': request.user.is_superuser,
                 })
 
             with transaction.atomic():
@@ -418,6 +447,8 @@ def edit_assessment(request, id):
                     'schema': schema,
                     'assignment': assignment,
                     'existing_other_total': sum(a.weight for a in schema.assessments.exclude(id=assignment.id)),
+                    'user_is_supervisor': request.user.is_staff and not request.user.is_superuser,
+                    'user_is_admin': request.user.is_superuser,
                 })
 
             try:
@@ -428,6 +459,8 @@ def edit_assessment(request, id):
                     'schema': schema,
                     'assignment': assignment,
                     'existing_other_total': sum(a.weight for a in schema.assessments.exclude(id=assignment.id)),
+                    'user_is_supervisor': request.user.is_staff and not request.user.is_superuser,
+                    'user_is_admin': request.user.is_superuser,
                 })
 
             existing_other_total = sum(a.weight for a in schema.assessments.exclude(id=assignment.id))
@@ -438,6 +471,8 @@ def edit_assessment(request, id):
                     'schema': schema,
                     'assignment': assignment,
                     'existing_other_total': existing_other_total,
+                    'user_is_supervisor': request.user.is_staff and not request.user.is_superuser,
+                    'user_is_admin': request.user.is_superuser,
                 })
 
             with transaction.atomic():
