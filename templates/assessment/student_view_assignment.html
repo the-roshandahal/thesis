@@ -1,166 +1,799 @@
 {% load static %}
-{% include 'header.html' %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Assignments - KOI Thesis Management System</title>
 
-<div class="main-content">
-    <div class="page-content">
-        <div class="container-fluid">
-            <div class="container py-4">
-                {% if not has_accepted_project %}
-                <div class="card shadow-lg border-0 rounded-lg">
-                    <div class="card-body text-center p-5">
-                        <div class="mb-4">
-                            <i class="fas fa-file-alt fa-4x text-muted"></i>
-                        </div>
-                        <h4 class="mb-3">You need an accepted project to view assignments</h4>
-                        <p class="text-muted mb-4">
-                            Please submit your project proposal and get it approved by your supervisor 
-                            to access the assignment details.
-                        </p>
-                        <a href="{% url 'student_projects' %}" class="btn btn-primary">
-                            <i class="fas fa-plus me-2"></i>Browse Projects
-                        </a>
-                    </div>
-                </div>
-                {% else %}
-                {% if schema %}
-                <div class="mb-4">
-                    <div class="d-flex gap-4 text-muted mb-3">
-                        <span><i class="mdi mdi-calendar-start me-1"></i> Term Start - {{ schema.start_date|date:"M d, Y" }}</span>
-                        <span><i class="mdi mdi-calendar-end me-1"></i> Term End - {{ schema.end_date|date:"M d, Y" }}</span>
-                    </div>
-                </div>
-                
-                {% if assessments_with_days %}
-                <div class="assessment-list">
-                    <div class="card p-3">
-                        <h5 class="mb-1 u">Assessments</h5>
-                    </div>
-                    {% for assessment in assessments_with_days %}
-                    <div class="card shadow-sm mb-3 border-0">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <h5 class="mb-1">{{ assessment.title }} - {{ assessment.submission_type }}</h5>
-                                    <p class="text-muted mb-2">{{ assessment.description|safe }}</p>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
+    <style>
+      :root {
+        --primary-color: #2563eb;
+        --secondary-color: #1e40af;
+        --accent-color: #3b82f6;
+        --success-color: #16a34a;
+        --warning-color: #ca8a04;
+        --danger-color: #dc2626;
+        --info-color: #0891b2;
+        --text-dark: #1f2937;
+        --text-light: #6b7280;
+        --bg-light: #f8fafc;
+        --bg-white: #ffffff;
+        --border-color: #e5e7eb;
+      }
 
-                                    <div class="progress mb-3">
-                                        <div class="progress-bar" role="progressbar" style="width: {{ assessment.weight }}%;" aria-valuenow="{{ assessment.weight }}" aria-valuemin="0" aria-valuemax="100">{{ assessment.weight }}%</div>
-                                    </div>
-                                    <div class="d-flex gap-4 mb-3 align-items-center">
-                                        <span class="text-muted">
-                                            <i class="mdi mdi-weight me-1"></i> {{ assessment.weight }}%
-                                        </span>
-                                        {% if assessment.due_date %}
-                                        <span class="text-muted">
-                                            <i class="mdi mdi-calendar-clock me-1"></i> 
-                                            Due: {{ assessment.due_date|date:"M d, Y" }}
-                                            <span class="badge ms-2 bg-{% if assessment.is_overdue %}dark{% elif assessment.days_remaining <= 3 %}danger{% elif assessment.days_remaining <= 7 %}warning{% else %}primary{% endif %}">
-                                                {% if assessment.is_overdue %}
-                                                    Overdue by {{ assessment.days_absolute }} day{{ assessment.days_absolute|pluralize }}
-                                                {% else %}
-                                                    {{ assessment.days_remaining }} day{{ assessment.days_remaining|pluralize }} left
-                                                {% endif %}
-                                            </span>
-                                        </span>
-                                        {% endif %}
-                                        <span class="text-muted">
-                                            <i class="mdi mdi-calendar-clock me-1"></i> 
-                                            Submit by: {{ assessment.submit_by|date:"M d, Y" }}
-                                        </span>
-                                    </div>
-                                    <hr>
-                                    <div>
-   {% if assessment.can_attempt %}
-    {% if assessment.has_submission %}
-        <a href="{% url 'view_submission' assessment.obj.id %}" 
-           class="btn btn-info btn-sm">
-           <i class="mdi mdi-eye-outline me-1"></i> View Submission
-        </a>
-        <button class="btn btn-success btn-sm" disabled>
-            <i class="mdi mdi-check-all me-1"></i> Attempted
-        </button>
-    {% else %}
-        {% if assessment.is_submit_by_passed %}
-            <button class="btn btn-danger btn-sm" disabled title="Submission deadline has passed">
-                <i class="mdi mdi-alert-circle-outline me-1"></i> Submission Closed
-            </button>
-        {% else %}
-            <a href="{% url 'attempt_assessment' assessment.obj.id %}"
-               class="btn btn-primary btn-sm">
-               <i class="mdi mdi-pencil-outline me-1"></i> Attempt 
-            </a>
-        {% endif %}
-    {% endif %}
-{% else %}
-    {% if assessment.group_leader_submitted %}
-        <a href="{% url 'view_submission' assessment.leader_submission.id %}" 
-           class="btn btn-info btn-sm">
-           <i class="mdi mdi-eye-outline me-1"></i> View Group Submission
-        </a>
-        <p class="text-success">Group leader has submitted this assessment.</p>
-    {% else %}
-        <button class="btn btn-secondary btn-sm" disabled title="Only group leader can attempt">
-            <i class="mdi mdi-lock-outline me-1"></i> Attempt (Locked)
-        </button>
-        <p>Only the group leader can submit group assessments.</p>
-    {% endif %}
-{% endif %}
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-</div>
-                                </div>
-                            </div>
+      body {
+        font-family: "Inter", sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        color: var(--text-dark);
+      }
 
-                            {% if assessment.detail_files or assessment.sample_files %}
-                            <div class="mt-3 pt-3 border-top">
-                                {% if assessment.detail_files %}
-                                <div class="mb-3">
-                                    <h6 class="fs-14 mb-2"><i class="mdi mdi-file-document-outline me-1"></i> Instructions</h6>
-                                    <div class="d-flex flex-wrap gap-2">
-                                        {% for file in assessment.detail_files %}
-                                        <a href="{{ file.file.url }}" class="btn btn-outline-secondary btn-sm py-1 px-2">
-                                            <i class="mdi mdi-download me-1"></i> {{ file.name }}
-                                        </a>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                                {% endif %}
+      .page-container {
+        background: var(--bg-white);
+        border-radius: 24px;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        margin: 20px;
+        overflow: hidden;
+      }
 
-                                {% if assessment.sample_files %}
-                                <div>
-                                    <h6 class="fs-14 mb-2"><i class="mdi mdi-file-check-outline me-1"></i> Sample Files</h6>
-                                    <div class="d-flex flex-wrap gap-2">
-                                        {% for sample in assessment.sample_files %}
-                                        <a href="{{ sample.file.url }}" class="btn btn-outline-secondary btn-sm py-1 px-2">
-                                            <i class="mdi mdi-download me-1"></i> {{ sample.name }}
-                                        </a>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                                {% endif %}
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-                {% else %}
-                <div class="text-center py-5">
-                    <i class="mdi mdi-file-document-outline text-muted" style="font-size: 3rem;"></i>
-                    <h5 class="mt-3 text-muted">No assessments available</h5>
-                </div>
-                {% endif %}
-                {% else %}
-                <div class="text-center py-5">
-                    <i class="mdi mdi-alert-circle-outline text-muted" style="font-size: 3rem;"></i>
-                    <h5 class="mt-3 text-muted">No assessment schema found</h5>
-                </div>
-                {% endif %}
-                {% endif %}
-                
-            </div>
+      .page-header {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        color: white;
+        padding: 40px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .page-header::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        opacity: 0.3;
+      }
+
+      .header-content {
+        position: relative;
+        z-index: 2;
+      }
+
+      .page-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+      }
+
+      .page-subtitle {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        margin-bottom: 2rem;
+      }
+
+      .schema-info {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        padding: 24px;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        display: flex;
+        justify-content: center;
+        gap: 40px;
+        flex-wrap: wrap;
+      }
+
+      .schema-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: white;
+      }
+
+      .schema-item i {
+        font-size: 1.2rem;
+        opacity: 0.8;
+      }
+
+      .schema-text {
+        font-weight: 500;
+      }
+
+      .page-content {
+        padding: 40px;
+      }
+
+      .content-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+        gap: 20px;
+      }
+
+      .section-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--text-dark);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .section-title i {
+        color: var(--primary-color);
+      }
+
+      .assessments-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+        gap: 24px;
+        margin-bottom: 40px;
+      }
+
+      .assessment-card {
+        background: var(--bg-white);
+        border-radius: 20px;
+        padding: 28px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        border: 1px solid var(--border-color);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .assessment-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+      }
+
+      .assessment-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+      }
+
+      .card-header {
+        margin-bottom: 20px;
+      }
+
+      .assessment-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        margin-bottom: 8px;
+        line-height: 1.3;
+      }
+
+      .assessment-type {
+        display: inline-block;
+        background: rgba(37, 99, 235, 0.1);
+        color: var(--primary-color);
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .assessment-description {
+        color: var(--text-light);
+        line-height: 1.6;
+        margin-bottom: 20px;
+        font-size: 0.95rem;
+      }
+
+      .progress-section {
+        margin-bottom: 20px;
+      }
+
+      .progress-label {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+
+      .progress-text {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--text-dark);
+      }
+
+      .progress-percentage {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--primary-color);
+      }
+
+      .progress-bar {
+        height: 8px;
+        background: var(--bg-light);
+        border-radius: 4px;
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+        border-radius: 4px;
+        transition: width 0.3s ease;
+      }
+
+      .assessment-meta {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 16px;
+        margin-bottom: 24px;
+      }
+
+      .meta-item {
+        text-align: center;
+        padding: 16px;
+        background: var(--bg-light);
+        border-radius: 12px;
+      }
+
+      .meta-label {
+        font-size: 0.8rem;
+        color: var(--text-light);
+        font-weight: 500;
+        margin-bottom: 4px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .meta-value {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--text-dark);
+      }
+
+      .deadline-badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+      }
+
+      .deadline-overdue {
+        background: rgba(220, 38, 38, 0.1);
+        color: var(--danger-color);
+      }
+
+      .deadline-urgent {
+        background: rgba(220, 38, 38, 0.1);
+        color: var(--danger-color);
+      }
+
+      .deadline-warning {
+        background: rgba(202, 138, 4, 0.1);
+        color: var(--warning-color);
+      }
+
+      .deadline-normal {
+        background: rgba(37, 99, 235, 0.1);
+        color: var(--primary-color);
+      }
+
+      .card-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 20px;
+        flex-wrap: wrap;
+      }
+
+      .btn-action {
+        padding: 10px 20px;
+        border-radius: 10px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .btn-primary {
+        background: var(--primary-color);
+        color: white;
+      }
+
+      .btn-primary:hover {
+        background: var(--secondary-color);
+        color: white;
+        transform: translateY(-2px);
+      }
+
+      .btn-info {
+        background: var(--info-color);
+        color: white;
+      }
+
+      .btn-info:hover {
+        background: #0e7490;
+        color: white;
+        transform: translateY(-2px);
+      }
+
+      .btn-success {
+        background: var(--success-color);
+        color: white;
+      }
+
+      .btn-success:hover {
+        background: #15803d;
+        color: white;
+        transform: translateY(-2px);
+      }
+
+      .btn-danger {
+        background: var(--danger-color);
+        color: white;
+      }
+
+      .btn-danger:hover {
+        background: #b91c1c;
+        color: white;
+        transform: translateY(-2px);
+      }
+
+      .btn-secondary {
+        background: var(--text-light);
+        color: white;
+      }
+
+      .btn-secondary:hover {
+        background: #4b5563;
+        color: white;
+        transform: translateY(-2px);
+      }
+
+      .btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none !important;
+      }
+
+      .files-section {
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid var(--border-color);
+      }
+
+      .files-title {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .files-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .file-link {
+        background: var(--bg-light);
+        color: var(--text-dark);
+        padding: 8px 12px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-size: 0.8rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        border: 1px solid var(--border-color);
+      }
+
+      .file-link:hover {
+        background: var(--primary-color);
+        color: white;
+        transform: translateY(-2px);
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 80px 20px;
+        background: var(--bg-light);
+        border-radius: 20px;
+        border: 2px dashed var(--border-color);
+      }
+
+      .empty-icon {
+        width: 100px;
+        height: 100px;
+        background: rgba(37, 99, 235, 0.1);
+        color: var(--primary-color);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        margin: 0 auto 24px;
+      }
+
+      .empty-title {
+        font-size: 1.4rem;
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 12px;
+      }
+
+      .empty-description {
+        color: var(--text-light);
+        margin-bottom: 24px;
+        font-size: 1rem;
+      }
+
+      .navbar {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid var(--border-color);
+        padding: 16px 0;
+      }
+
+      .navbar-brand {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        text-decoration: none;
+      }
+
+      .navbar-nav {
+        display: flex;
+        gap: 20px;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      .nav-link {
+        color: var(--text-dark);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.3s ease;
+      }
+
+      .nav-link:hover {
+        color: var(--primary-color);
+      }
+
+      .btn-logout {
+        background: var(--danger-color);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+      }
+
+      .btn-logout:hover {
+        background: #b91c1c;
+        color: white;
+        transform: translateY(-1px);
+      }
+
+      .btn-browse {
+        background: var(--primary-color);
+        color: white;
+        padding: 12px 24px;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .btn-browse:hover {
+        background: var(--secondary-color);
+        color: white;
+        transform: translateY(-2px);
+      }
+
+      @media (max-width: 768px) {
+        .page-container {
+          margin: 10px;
+        }
+
+        .page-header {
+          padding: 30px 20px;
+        }
+
+        .page-content {
+          padding: 20px;
+        }
+
+        .page-title {
+          font-size: 2rem;
+        }
+
+        .schema-info {
+          flex-direction: column;
+          gap: 20px;
+        }
+
+        .assessments-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .assessment-meta {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .card-actions {
+          flex-direction: column;
+        }
+      }
+
+      .floating-shapes {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        overflow: hidden;
+        pointer-events: none;
+      }
+
+      .shape {
+        position: absolute;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        animation: float 6s ease-in-out infinite;
+      }
+
+      .shape:nth-child(1) {
+        width: 60px;
+        height: 60px;
+        top: 20%;
+        right: 20%;
+        animation-delay: 0s;
+      }
+
+      .shape:nth-child(2) {
+        width: 40px;
+        height: 40px;
+        bottom: 30%;
+        left: 15%;
+        animation-delay: 2s;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0px) rotate(0deg);
+        }
+        50% {
+          transform: translateY(-15px) rotate(180deg);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navigation -->
+    <nav class="navbar">
+      <div class="container">
+        <a href="{% url 'homepage' %}" class="navbar-brand"> <i class="fas fa-graduation-cap me-2"></i>KOI TMS </a>
+        <ul class="navbar-nav ms-auto">
+          <li><a href="{% url 'homepage' %}" class="nav-link">Home</a></li>
+          <li><a href="{% url 'student_dashboard' %}" class="nav-link">Dashboard</a></li>
+          <li><a href="{% url 'student_projects' %}" class="nav-link">Browse Projects</a></li>
+          <li><a href="{% url 'view_all_notifications' %}" class="nav-link">Notifications</a></li>
+          <li><a href="{% url 'logout' %}" class="btn-logout">Logout</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class="page-container">
+      <!-- Page Header -->
+      <div class="page-header">
+        <div class="floating-shapes">
+          <div class="shape"></div>
+          <div class="shape"></div>
         </div>
-    </div>
-</div>
 
-{% include 'footer.html' %}
+        <div class="header-content">
+          <h1 class="page-title">My Assignments</h1>
+          <p class="page-subtitle">Track your assessment progress and manage your thesis work</p>
+
+          {% if schema %}
+          <div class="schema-info">
+            <div class="schema-item">
+              <i class="fas fa-calendar-start"></i>
+              <span class="schema-text">Term Start: {{ schema.start_date|date:"M d, Y" }}</span>
+            </div>
+            <div class="schema-item">
+              <i class="fas fa-calendar-end"></i>
+              <span class="schema-text">Term End: {{ schema.end_date|date:"M d, Y" }}</span>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Page Content -->
+      <div class="page-content">
+        {% if not has_accepted_project %}
+        <div class="empty-state">
+          <div class="empty-icon">
+            <i class="fas fa-file-alt"></i>
+          </div>
+          <h3 class="empty-title">No Accepted Project</h3>
+          <p class="empty-description">You need an accepted project to view assignments. Please submit your project proposal and get it approved by your supervisor to access the assignment details.</p>
+          <a href="{% url 'student_projects' %}" class="btn-browse"> <i class="fas fa-search"></i>Browse Projects </a>
+        </div>
+        {% else %} {% if schema %} {% if assessments_with_days %}
+        <div class="content-header">
+          <h2 class="section-title">
+            <i class="fas fa-tasks"></i>
+            Current Assessments
+          </h2>
+        </div>
+
+        <div class="assessments-grid">
+          {% for assessment in assessments_with_days %}
+          <div class="assessment-card">
+            <div class="card-header">
+              <h3 class="assessment-title">{{ assessment.title }}</h3>
+              <span class="assessment-type">{{ assessment.submission_type }}</span>
+            </div>
+
+            <p class="assessment-description">{{ assessment.description|safe }}</p>
+
+            <div class="progress-section">
+              <div class="progress-label">
+                <span class="progress-text">Weight</span>
+                <span class="progress-percentage">{{ assessment.weight }}%</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: {{ assessment.weight }}%"></div>
+              </div>
+            </div>
+
+            <div class="assessment-meta">
+              <div class="meta-item">
+                <div class="meta-label">Weight</div>
+                <div class="meta-value">{{ assessment.weight }}%</div>
+              </div>
+
+              {% if assessment.due_date %}
+              <div class="meta-item">
+                <div class="meta-label">Due Date</div>
+                <div class="meta-value">
+                  {{ assessment.due_date|date:"M d, Y" }}
+                  <div class="deadline-badge deadline-{% if assessment.is_overdue %}overdue{% elif assessment.days_remaining <= 3 %}urgent{% elif assessment.days_remaining <= 7 %}warning{% else %}normal{% endif %}">
+                    {% if assessment.is_overdue %} Overdue by {{ assessment.days_absolute }} day{{ assessment.days_absolute|pluralize }} {% else %} {{ assessment.days_remaining }} day{{ assessment.days_remaining|pluralize }} left {% endif %}
+                  </div>
+                </div>
+              </div>
+              {% endif %}
+
+              <div class="meta-item">
+                <div class="meta-label">Submit By</div>
+                <div class="meta-value">{{ assessment.submit_by|date:"M d, Y" }}</div>
+              </div>
+            </div>
+
+            <div class="card-actions">
+              {% if assessment.can_attempt %} {% if assessment.has_submission %}
+              <a href="{% url 'view_submission' assessment.obj.id %}" class="btn-action btn-info"> <i class="fas fa-eye"></i>View Submission </a>
+              <button class="btn-action btn-success" disabled><i class="fas fa-check"></i>Attempted</button>
+              {% else %} {% if assessment.is_submit_by_passed %}
+              <button class="btn-action btn-danger" disabled title="Submission deadline has passed"><i class="fas fa-times"></i>Submission Closed</button>
+              {% else %}
+              <a href="{% url 'attempt_assessment' assessment.obj.id %}" class="btn-action btn-primary"> <i class="fas fa-pencil"></i>Attempt </a>
+              {% endif %} {% endif %} {% else %} {% if assessment.group_leader_submitted %}
+              <a href="{% url 'view_submission' assessment.leader_submission.id %}" class="btn-action btn-info"> <i class="fas fa-eye"></i>View Group Submission </a>
+              <span class="text-success">Group leader has submitted this assessment.</span>
+              {% else %}
+              <button class="btn-action btn-secondary" disabled title="Only group leader can attempt"><i class="fas fa-lock"></i>Attempt (Locked)</button>
+              <span>Only the group leader can submit group assessments.</span>
+              {% endif %} {% endif %}
+            </div>
+
+            {% if assessment.detail_files or assessment.sample_files %}
+            <div class="files-section">
+              {% if assessment.detail_files %}
+              <div class="files-title"><i class="fas fa-file-document"></i>Instructions</div>
+              <div class="files-grid">
+                {% for file in assessment.detail_files %}
+                <a href="{{ file.file.url }}" class="file-link"> <i class="fas fa-download me-1"></i>{{ file.name }} </a>
+                {% endfor %}
+              </div>
+              {% endif %} {% if assessment.sample_files %}
+              <div class="files-title"><i class="fas fa-file-check"></i>Sample Files</div>
+              <div class="files-grid">
+                {% for sample in assessment.sample_files %}
+                <a href="{{ sample.file.url }}" class="file-link"> <i class="fas fa-download me-1"></i>{{ sample.name }} </a>
+                {% endfor %}
+              </div>
+              {% endif %}
+            </div>
+            {% endif %}
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+          <div class="empty-icon">
+            <i class="fas fa-file-document"></i>
+          </div>
+          <h3 class="empty-title">No Assessments Available</h3>
+          <p class="empty-description">There are currently no assessments available for your project. Check back later or contact your supervisor for updates.</p>
+        </div>
+        {% endif %} {% else %}
+        <div class="empty-state">
+          <div class="empty-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+          </div>
+          <h3 class="empty-title">No Assessment Schema Found</h3>
+          <p class="empty-description">No assessment schema has been configured for your project yet. Please contact your supervisor or administrator.</p>
+        </div>
+        {% endif %} {% endif %}
+      </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      // Animate assessment cards on scroll
+      document.addEventListener("DOMContentLoaded", function () {
+        const observerOptions = {
+          threshold: 0.1,
+          rootMargin: "0px 0px -50px 0px",
+        };
+
+        const observer = new IntersectionObserver(function (entries) {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.style.opacity = "1";
+              entry.target.style.transform = "translateY(0)";
+            }
+          });
+        }, observerOptions);
+
+        // Observe assessment cards
+        document.querySelectorAll(".assessment-card").forEach((card) => {
+          card.style.opacity = "0";
+          card.style.transform = "translateY(30px)";
+          card.style.transition = "all 0.6s ease";
+          observer.observe(card);
+        });
+      });
+    </script>
+  </body>
+</html>

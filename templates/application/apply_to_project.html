@@ -1,71 +1,552 @@
 {% load static %}
-{% include 'header.html' %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Apply to Project - KOI Thesis Management System</title>
 
-<div class="main-content">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
-    <div class="page-content">
-        <div class="container-fluid">
-            <!-- Main content here -->
-             {% if messages %}
-                {% for message in messages %}
-                    <div class="alert alert-primary alert-dismissible fade show" role="alert">
-                        {{ message|linebreaksbr  }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                {% endfor %}
-            {% endif %}
+    <style>
+      :root {
+        --primary-color: #2563eb;
+        --secondary-color: #1e40af;
+        --accent-color: #3b82f6;
+        --success-color: #16a34a;
+        --warning-color: #ca8a04;
+        --danger-color: #dc2626;
+        --info-color: #0891b2;
+        --text-dark: #1f2937;
+        --text-light: #6b7280;
+        --bg-light: #f8fafc;
+        --bg-white: #ffffff;
+        --border-color: #e5e7eb;
+      }
 
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-            <div class="container mt-4">
-                <h2>Apply to Project: {{ project.title }}</h2>
-                <form method="POST">
-                    {% csrf_token %}
-                    <div class="mb-3">
-                        <label for="application_type" class="form-label">Apply as:</label>
-                        <select class="form-control" name="application_type" id="application_type" required>
-                            <option value="">-- Select --</option>
-                            <option value="individual">Individual</option>
-                            <option value="group">Group</option>
-                        </select>
-                    </div>
+      body {
+        font-family: "Inter", sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        color: var(--text-dark);
+      }
 
-                    <div class="mb-3" id="group-emails" style="display: none;">
-                        <label for="group_emails" class="form-label">Group member emails (comma-separated):</label>
-                        <input type="text" name="group_emails" class="form-control">
-                    </div>
+      .page-container {
+        background: var(--bg-white);
+        border-radius: 24px;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        margin: 20px;
+        overflow: hidden;
+      }
 
-                    <div class="mb-3">
-                        <label for="message" class="form-label">Why are you applying? (Brief Message)</label>
-                        <textarea class="form-control" name="message" rows="4" required></textarea>
-                    </div>
+      .page-header {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        color: white;
+        padding: 40px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
 
-                    <button type="submit" class="btn btn-primary">Submit Application</button>
-                </form>
-            </div>
+      .page-header::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        opacity: 0.3;
+      }
 
-            <script>
-                const typeSelect = document.getElementById('application_type');
-                typeSelect.addEventListener('change', function () {
-                    document.getElementById('group-emails').style.display = this.value === 'group' ? 'block' : 'none';
-                });
-            </script>
+      .header-content {
+        position: relative;
+        z-index: 2;
+      }
 
+      .page-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+      }
 
+      .page-subtitle {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        margin-bottom: 2rem;
+      }
 
+      .project-info {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        padding: 24px;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        margin-bottom: 2rem;
+      }
 
+      .project-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        margin-bottom: 8px;
+      }
 
+      .project-supervisor {
+        opacity: 0.9;
+        font-size: 0.95rem;
+      }
 
+      .page-content {
+        padding: 40px;
+      }
 
+      .application-form {
+        max-width: 600px;
+        margin: 0 auto;
+      }
 
+      .form-section {
+        background: var(--bg-white);
+        border-radius: 20px;
+        padding: 32px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        border: 1px solid var(--border-color);
+        margin-bottom: 24px;
+      }
 
+      .section-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
 
+      .section-title i {
+        color: var(--primary-color);
+      }
 
+      .form-group {
+        margin-bottom: 24px;
+      }
 
+      .form-label {
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 8px;
+        display: block;
+        font-size: 0.95rem;
+      }
+
+      .form-control {
+        border: 2px solid var(--border-color);
+        border-radius: 12px;
+        padding: 14px 18px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: var(--bg-white);
+        color: var(--text-dark);
+      }
+
+      .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        outline: none;
+      }
+
+      .form-select {
+        border: 2px solid var(--border-color);
+        border-radius: 12px;
+        padding: 14px 18px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: var(--bg-white);
+        color: var(--text-dark);
+      }
+
+      .form-select:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        outline: none;
+      }
+
+      .form-textarea {
+        min-height: 120px;
+        resize: vertical;
+      }
+
+      .group-emails-section {
+        background: var(--bg-light);
+        border-radius: 12px;
+        padding: 20px;
+        border: 1px solid var(--border-color);
+        margin-top: 16px;
+        transition: all 0.3s ease;
+      }
+
+      .group-emails-section.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .group-emails-section.hide {
+        opacity: 0;
+        transform: translateY(-10px);
+        pointer-events: none;
+      }
+
+      .help-text {
+        font-size: 0.85rem;
+        color: var(--text-light);
+        margin-top: 6px;
+        font-style: italic;
+      }
+
+      .btn-submit {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        border: none;
+        color: white;
+        padding: 16px 32px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        border-radius: 12px;
+        width: 100%;
+        transition: all 0.3s ease;
+        cursor: pointer;
+      }
+
+      .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(37, 99, 235, 0.3);
+      }
+
+      .btn-submit:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .alert {
+        border-radius: 12px;
+        border: none;
+        padding: 16px;
+        margin-bottom: 24px;
+        background: rgba(37, 99, 235, 0.1);
+        color: var(--primary-color);
+        border-left: 4px solid var(--primary-color);
+      }
+
+      .alert-success {
+        background: rgba(22, 163, 74, 0.1);
+        color: var(--success-color);
+        border-left-color: var(--success-color);
+      }
+
+      .alert-danger {
+        background: rgba(220, 38, 38, 0.1);
+        color: var(--danger-color);
+        border-left-color: var(--danger-color);
+      }
+
+      .navbar {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid var(--border-color);
+        padding: 16px 0;
+      }
+
+      .navbar-brand {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        text-decoration: none;
+      }
+
+      .navbar-nav {
+        display: flex;
+        gap: 20px;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      .nav-link {
+        color: var(--text-dark);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.3s ease;
+      }
+
+      .nav-link:hover {
+        color: var(--primary-color);
+      }
+
+      .btn-logout {
+        background: var(--danger-color);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+      }
+
+      .btn-logout:hover {
+        background: #b91c1c;
+        color: white;
+        transform: translateY(-1px);
+      }
+
+      .btn-back {
+        background: transparent;
+        color: var(--primary-color);
+        border: 2px solid var(--primary-color);
+        padding: 10px 20px;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 24px;
+      }
+
+      .btn-back:hover {
+        background: var(--primary-color);
+        color: white;
+        transform: translateY(-2px);
+      }
+
+      @media (max-width: 768px) {
+        .page-container {
+          margin: 10px;
+        }
+
+        .page-header {
+          padding: 30px 20px;
+        }
+
+        .page-content {
+          padding: 20px;
+        }
+
+        .page-title {
+          font-size: 2rem;
+        }
+
+        .form-section {
+          padding: 24px;
+        }
+
+        .btn-submit {
+          padding: 14px 24px;
+          font-size: 1rem;
+        }
+      }
+
+      .floating-shapes {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        overflow: hidden;
+        pointer-events: none;
+      }
+
+      .shape {
+        position: absolute;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        animation: float 6s ease-in-out infinite;
+      }
+
+      .shape:nth-child(1) {
+        width: 60px;
+        height: 60px;
+        top: 20%;
+        right: 20%;
+        animation-delay: 0s;
+      }
+
+      .shape:nth-child(2) {
+        width: 40px;
+        height: 40px;
+        bottom: 30%;
+        left: 15%;
+        animation-delay: 2s;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0px) rotate(0deg);
+        }
+        50% {
+          transform: translateY(-15px) rotate(180deg);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navigation -->
+    <nav class="navbar">
+      <div class="container">
+        <a href="{% url 'homepage' %}" class="navbar-brand"> <i class="fas fa-graduation-cap me-2"></i>KOI TMS </a>
+        <ul class="navbar-nav ms-auto">
+          <li><a href="{% url 'homepage' %}" class="nav-link">Home</a></li>
+          <li><a href="{% url 'student_dashboard' %}" class="nav-link">Dashboard</a></li>
+          <li><a href="{% url 'student_projects' %}" class="nav-link">Browse Projects</a></li>
+          <li><a href="{% url 'view_all_notifications' %}" class="nav-link">Notifications</a></li>
+          <li><a href="{% url 'logout' %}" class="btn-logout">Logout</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class="page-container">
+      <!-- Page Header -->
+      <div class="page-header">
+        <div class="floating-shapes">
+          <div class="shape"></div>
+          <div class="shape"></div>
         </div>
 
-    </div>
-    <!-- End Page-content -->
+        <div class="header-content">
+          <h1 class="page-title">Apply to Project</h1>
+          <p class="page-subtitle">Submit your application and start your thesis journey</p>
 
-</div>
-<!-- end main content-->
-{% include 'footer.html' %}
+          <div class="project-info">
+            <h3 class="project-title">{{ project.title }}</h3>
+            <p class="project-supervisor">
+              <i class="fas fa-user-tie me-2"></i>
+              Supervisor: Dr. {{ project.supervisor.first_name }} {{ project.supervisor.last_name }}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Page Content -->
+      <div class="page-content">
+        <a href="{% url 'project_detail' project.id %}" class="btn-back"> <i class="fas fa-arrow-left"></i>Back to Project </a>
+
+        <!-- Messages -->
+        {% if messages %} {% for message in messages %}
+        <div class="alert {% if message.tags == 'error' %}alert-danger{% elif message.tags == 'success' %}alert-success{% else %}alert-primary{% endif %} alert-dismissible fade show" role="alert">
+          <i class="fas fa-{% if message.tags == 'error' %}exclamation-circle{% elif message.tags == 'success' %}check-circle{% else %}info-circle{% endif %} me-2"></i>
+          {{ message|linebreaksbr }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %} {% endif %}
+
+        <!-- Application Form -->
+        <div class="application-form">
+          <div class="form-section">
+            <h2 class="section-title">
+              <i class="fas fa-paper-plane"></i>
+              Application Details
+            </h2>
+
+            <form method="POST" id="applicationForm">
+              {% csrf_token %}
+
+              <div class="form-group">
+                <label for="application_type" class="form-label">Application Type</label>
+                <select class="form-select" name="application_type" id="application_type" required>
+                  <option value="">-- Select Application Type --</option>
+                  <option value="individual">Individual Application</option>
+                  <option value="group">Group Application</option>
+                </select>
+                <div class="help-text">Choose whether you want to apply individually or as part of a group</div>
+              </div>
+
+              <div class="form-group" id="group-emails-section">
+                <label for="group_emails" class="form-label">Group Member Emails</label>
+                <input type="text" name="group_emails" class="form-control" id="group_emails" placeholder="Enter email addresses separated by commas (e.g., student1@email.com, student2@email.com)" />
+                <div class="help-text">Include all group members' email addresses. You will be designated as the group leader.</div>
+              </div>
+
+              <div class="form-group">
+                <label for="message" class="form-label">Application Message</label>
+                <textarea class="form-control form-textarea" name="message" id="message" rows="5" placeholder="Tell us why you're interested in this project and what makes you a good candidate..." required></textarea>
+                <div class="help-text">Explain your motivation, relevant skills, and why you're interested in this research area</div>
+              </div>
+
+              <button type="submit" class="btn-submit" id="submitBtn"><i class="fas fa-paper-plane me-2"></i>Submit Application</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const typeSelect = document.getElementById("application_type");
+        const groupEmailsSection = document.getElementById("group-emails-section");
+        const submitBtn = document.getElementById("submitBtn");
+
+        // Initially hide group emails section
+        groupEmailsSection.classList.add("hide");
+
+        // Show/hide group emails based on selection
+        typeSelect.addEventListener("change", function () {
+          if (this.value === "group") {
+            groupEmailsSection.classList.remove("hide");
+            groupEmailsSection.classList.add("show");
+          } else {
+            groupEmailsSection.classList.remove("show");
+            groupEmailsSection.classList.add("hide");
+          }
+        });
+
+        // Form validation
+        const form = document.getElementById("applicationForm");
+        form.addEventListener("submit", function (e) {
+          const applicationType = typeSelect.value;
+          const message = document.getElementById("message").value.trim();
+
+          if (!applicationType) {
+            e.preventDefault();
+            alert("Please select an application type.");
+            return false;
+          }
+
+          if (!message) {
+            e.preventDefault();
+            alert("Please provide an application message.");
+            return false;
+          }
+
+          if (applicationType === "group") {
+            const groupEmails = document.getElementById("group_emails").value.trim();
+            if (!groupEmails) {
+              e.preventDefault();
+              alert("Please provide group member emails for group applications.");
+              return false;
+            }
+          }
+
+          // Disable submit button to prevent double submission
+          submitBtn.disabled = true;
+          submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Submitting...';
+        });
+      });
+    </script>
+  </body>
+</html>

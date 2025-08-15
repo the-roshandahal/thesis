@@ -1,148 +1,671 @@
 {% load static %}
-{% include 'header.html' %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Notifications - KOI Thesis Management System</title>
 
-<div class="main-content">
-    <div class="page-content">
-        <div class="container-fluid">
-            <!-- Page title and breadcrumb -->
-            <div class="row">
-                <div class="col-lg-8 mx-auto">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center mb-4">
-                                <h4 class="card-title">Your Notifications</h4>
-                                <div>
-                                    <a href = "{% url 'mark_all_notifications_as_read' %}"><button class="btn btn-sm btn-outline-secondary">Mark all as read</button></a>
-                                </div>
-                            </div>
-                            
-                            <div class="simplebar-wrapper" style="max-height: 600px;">
-                                <div class="notification-list">
-                                    {% if notifications %}
-                                        {% for notification in notifications %}
-                                        <a href="{% url 'mark_notification_as_read_and_redirect' notification.id %}" class="notification-item {% if not notification.is_read %}unread{% endif %}">
-                                            <div class="d-flex align-items-start">
-                                                <div class="notification-icon bg-soft-primary rounded-circle me-3">
-                                                    <i class="mdi mdi-bell-outline font-size-18"></i>
-                                                </div>
-                                                <div class="flex-grow-1">
-                                                    <h6 class="mb-1">{{ notification.message }}</h6>
-                                                    <div class="text-muted">
-                                                        <small class="text-muted">{{ notification.created_at|timesince }} ago</small>
-                                                    </div>
-                                                </div>
-                                                {% if not notification.is_read %}
-                                                <div class="unread-indicator"></div>
-                                                {% endif %}
-                                            </div>
-                                        </a>
-                                        {% endfor %}
-                                    {% else %}
-                                        <div class="text-center py-5">
-                                            <i class="mdi mdi-bell-off-outline font-size-24 text-muted mb-3"></i>
-                                            <h5 class="text-muted">No notifications yet</h5>
-                                            <p class="text-muted mb-0">We'll notify you when something arrives</p>
-                                        </div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            
-                            {% if notifications.has_other_pages %}
-                            <div class="row mt-4">
-                                <div class="col-sm-12 col-md-5">
-                                    <div class="dataTables_info">
-                                        Showing {{ notifications.start_index }} to {{ notifications.end_index }} of {{ notifications.paginator.count }} entries
-                                    </div>
-                                </div>
-                                <div class="col-sm-12 col-md-7">
-                                    <div class="dataTables_paginate paging_simple_numbers">
-                                        <ul class="pagination justify-content-end">
-                                            {% if notifications.has_previous %}
-                                                <li class="paginate_button page-item previous">
-                                                    <a href="?page={{ notifications.previous_page_number }}" class="page-link">Previous</a>
-                                                </li>
-                                            {% else %}
-                                                <li class="paginate_button page-item previous disabled">
-                                                    <a href="#" class="page-link">Previous</a>
-                                                </li>
-                                            {% endif %}
-                                            
-                                            {% for i in notifications.paginator.page_range %}
-                                                {% if notifications.number == i %}
-                                                    <li class="paginate_button page-item active">
-                                                        <a href="#" class="page-link">{{ i }}</a>
-                                                    </li>
-                                                {% else %}
-                                                    <li class="paginate_button page-item">
-                                                        <a href="?page={{ i }}" class="page-link">{{ i }}</a>
-                                                    </li>
-                                                {% endif %}
-                                            {% endfor %}
-                                            
-                                            {% if notifications.has_next %}
-                                                <li class="paginate_button page-item next">
-                                                    <a href="?page={{ notifications.next_page_number }}" class="page-link">Next</a>
-                                                </li>
-                                            {% else %}
-                                                <li class="paginate_button page-item next disabled">
-                                                    <a href="#" class="page-link">Next</a>
-                                                </li>
-                                            {% endif %}
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
-<style>
-    .notification-list {
-        border-radius: 8px;
+    <style>
+      :root {
+        --primary-color: #2563eb;
+        --secondary-color: #1e40af;
+        --accent-color: #3b82f6;
+        --success-color: #16a34a;
+        --warning-color: #ca8a04;
+        --danger-color: #dc2626;
+        --info-color: #0891b2;
+        --text-dark: #1f2937;
+        --text-light: #6b7280;
+        --bg-light: #f8fafc;
+        --bg-white: #ffffff;
+        --border-color: #e5e7eb;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        color: var(--text-dark);
+      }
+
+      .page-container {
+        background: var(--bg-white);
+        border-radius: 24px;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        margin: 20px;
         overflow: hidden;
-    }
-    
-    .notification-item {
-        display: block;
-        padding: 16px;
-        border-bottom: 1px solid #f1f1f1;
-        transition: all 0.3s;
-        color: #495057;
+      }
+
+      .page-header {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        color: white;
+        padding: 40px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .page-header::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        opacity: 0.3;
+      }
+
+      .header-content {
+        position: relative;
+        z-index: 2;
+      }
+
+      .page-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+      }
+
+      .page-subtitle {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        margin-bottom: 2rem;
+      }
+
+      .notifications-stats {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        padding: 24px;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        display: flex;
+        justify-content: center;
+        gap: 40px;
+        flex-wrap: wrap;
+      }
+
+      .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: white;
+      }
+
+      .stat-item i {
+        font-size: 1.2rem;
+        opacity: 0.8;
+      }
+
+      .stat-text {
+        font-weight: 500;
+      }
+
+      .page-content {
+        padding: 40px;
+      }
+
+      .content-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+        gap: 20px;
+      }
+
+      .section-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--text-dark);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .section-title i {
+        color: var(--primary-color);
+      }
+
+      .btn-mark-all {
+        background: var(--primary-color);
+        color: white;
+        padding: 10px 20px;
+        border-radius: 10px;
         text-decoration: none;
-    }
-    
-    .notification-item:hover {
-        background-color: #f8f9fa;
-    }
-    
-    .notification-item.unread {
-        background-color: #f8faff;
-    }
-    
-    .notification-icon {
-        width: 40px;
-        height: 40px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .btn-mark-all:hover {
+        background: var(--secondary-color);
+        color: white;
+        transform: translateY(-2px);
+      }
+
+      .notifications-container {
+        max-width: 800px;
+        margin: 0 auto;
+      }
+
+      .notification-card {
+        background: var(--bg-white);
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        border: 1px solid var(--border-color);
+        transition: all 0.3s ease;
+        margin-bottom: 16px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .notification-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+      }
+
+      .notification-card.unread {
+        background: linear-gradient(135deg, rgba(37, 99, 235, 0.05) 0%, rgba(59, 130, 246, 0.05) 100%);
+        border-left: 4px solid var(--primary-color);
+      }
+
+      .notification-card.unread::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+      }
+
+      .notification-content {
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+      }
+
+      .notification-icon {
+        width: 48px;
+        height: 48px;
+        background: var(--primary-color);
+        color: white;
+        border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-    }
-    
-    .unread-indicator {
-        width: 8px;
-        height: 8px;
-        background-color: #3b5de7;
-        border-radius: 50%;
-        margin-left: 10px;
-    }
-    
-    .notification-item .text-muted {
-        color: #6c757d !important;
-    }
-</style>
+        font-size: 1.2rem;
+        flex-shrink: 0;
+      }
 
-{% include 'footer.html' %}
+      .notification-icon.info {
+        background: var(--info-color);
+      }
+
+      .notification-icon.success {
+        background: var(--success-color);
+      }
+
+      .notification-icon.warning {
+        background: var(--warning-color);
+      }
+
+      .notification-icon.danger {
+        background: var(--danger-color);
+      }
+
+      .notification-details {
+        flex: 1;
+      }
+
+      .notification-message {
+        font-size: 1rem;
+        font-weight: 500;
+        color: var(--text-dark);
+        margin-bottom: 8px;
+        line-height: 1.5;
+      }
+
+      .notification-time {
+        font-size: 0.85rem;
+        color: var(--text-light);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .notification-time i {
+        font-size: 0.8rem;
+      }
+
+      .unread-badge {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        width: 12px;
+        height: 12px;
+        background: var(--primary-color);
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+          opacity: 1;
+        }
+        50% {
+          transform: scale(1.2);
+          opacity: 0.7;
+        }
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 80px 20px;
+        background: var(--bg-light);
+        border-radius: 20px;
+        border: 2px dashed var(--border-color);
+      }
+
+      .empty-icon {
+        width: 100px;
+        height: 100px;
+        background: rgba(37, 99, 235, 0.1);
+        color: var(--primary-color);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        margin: 0 auto 24px;
+      }
+
+      .empty-title {
+        font-size: 1.4rem;
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 12px;
+      }
+
+      .empty-description {
+        color: var(--text-light);
+        margin-bottom: 24px;
+        font-size: 1rem;
+      }
+
+      .pagination-container {
+        margin-top: 40px;
+        display: flex;
+        justify-content: center;
+      }
+
+      .pagination {
+        display: flex;
+        gap: 8px;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      .page-item {
+        margin: 0;
+      }
+
+      .page-link {
+        padding: 10px 16px;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        color: var(--text-dark);
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        background: var(--bg-white);
+      }
+
+      .page-link:hover {
+        background: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
+        transform: translateY(-2px);
+      }
+
+      .page-item.active .page-link {
+        background: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
+      }
+
+      .page-item.disabled .page-link {
+        background: var(--bg-light);
+        color: var(--text-light);
+        border-color: var(--border-color);
+        cursor: not-allowed;
+      }
+
+      .page-item.disabled .page-link:hover {
+        transform: none;
+        background: var(--bg-light);
+        color: var(--text-light);
+      }
+
+      .pagination-info {
+        text-align: center;
+        margin-bottom: 20px;
+        color: var(--text-light);
+        font-size: 0.9rem;
+      }
+
+      .navbar {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid var(--border-color);
+        padding: 16px 0;
+      }
+
+      .navbar-brand {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        text-decoration: none;
+      }
+
+      .navbar-nav {
+        display: flex;
+        gap: 20px;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      .nav-link {
+        color: var(--text-dark);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.3s ease;
+      }
+
+      .nav-link:hover {
+        color: var(--primary-color);
+      }
+
+      .btn-logout {
+        background: var(--danger-color);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+      }
+
+      .btn-logout:hover {
+        background: #b91c1c;
+        color: white;
+        transform: translateY(-1px);
+      }
+
+      @media (max-width: 768px) {
+        .page-container {
+          margin: 10px;
+        }
+
+        .page-header {
+          padding: 30px 20px;
+        }
+
+        .page-content {
+          padding: 20px;
+        }
+
+        .page-title {
+          font-size: 2rem;
+        }
+
+        .notifications-stats {
+          flex-direction: column;
+          gap: 20px;
+        }
+
+        .content-header {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .btn-mark-all {
+          width: 100%;
+          justify-content: center;
+        }
+
+        .notification-content {
+          flex-direction: column;
+          text-align: center;
+        }
+
+        .notification-icon {
+          align-self: center;
+        }
+      }
+
+      .floating-shapes {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        overflow: hidden;
+        pointer-events: none;
+      }
+
+      .shape {
+        position: absolute;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        animation: float 6s ease-in-out infinite;
+      }
+
+      .shape:nth-child(1) {
+        width: 60px;
+        height: 60px;
+        top: 20%;
+        right: 20%;
+        animation-delay: 0s;
+      }
+
+      .shape:nth-child(2) {
+        width: 40px;
+        height: 40px;
+        bottom: 30%;
+        left: 15%;
+        animation-delay: 2s;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0px) rotate(0deg);
+        }
+        50% {
+          transform: translateY(-15px) rotate(180deg);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navigation -->
+    <nav class="navbar">
+      <div class="container">
+        <a href="{% url 'homepage' %}" class="navbar-brand"> <i class="fas fa-graduation-cap me-2"></i>KOI TMS </a>
+        <ul class="navbar-nav ms-auto">
+          <li><a href="{% url 'homepage' %}" class="nav-link">Home</a></li>
+          <li><a href="{% url 'student_dashboard' %}" class="nav-link">Dashboard</a></li>
+          <li><a href="{% url 'student_projects' %}" class="nav-link">Browse Projects</a></li>
+          <li><a href="{% url 'view_all_notifications' %}" class="nav-link">Notifications</a></li>
+          <li><a href="{% url 'logout' %}" class="btn-logout">Logout</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class="page-container">
+      <!-- Page Header -->
+      <div class="page-header">
+        <div class="floating-shapes">
+          <div class="shape"></div>
+          <div class="shape"></div>
+        </div>
+
+        <div class="header-content">
+          <h1 class="page-title">Notifications</h1>
+          <p class="page-subtitle">Stay updated with your thesis project activities and important updates</p>
+
+          <div class="notifications-stats">
+            <div class="stat-item">
+              <i class="fas fa-bell"></i>
+              <span class="stat-text">Total: {{ notifications|length }}</span>
+            </div>
+            <div class="stat-item">
+              <i class="fas fa-envelope-open"></i>
+              <span class="stat-text">Read: {{ notifications|dictsort:"is_read"|length }}</span>
+            </div>
+            <div class="stat-item">
+              <i class="fas fa-envelope"></i>
+              <span class="stat-text">Unread: {{ notifications|dictsort:"is_read"|length }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Page Content -->
+      <div class="page-content">
+        <div class="content-header">
+          <h2 class="section-title">
+            <i class="fas fa-bell"></i>
+            Your Notifications
+          </h2>
+
+          {% if notifications %}
+          <a href="{% url 'mark_all_notifications_as_read' %}" class="btn-mark-all"> <i class="fas fa-check-double"></i>Mark All as Read </a>
+          {% endif %}
+        </div>
+
+        <div class="notifications-container">
+          {% if notifications %} {% for notification in notifications %}
+          <a href="{% url 'mark_notification_as_read_and_redirect' notification.id %}" class="notification-card {% if not notification.is_read %}unread{% endif %}" style="text-decoration: none; display: block">
+            {% if not notification.is_read %}
+            <div class="unread-badge"></div>
+            {% endif %}
+
+            <div class="notification-content">
+              <div class="notification-icon {% if 'accepted' in notification.message.lower %}success{% elif 'rejected' in notification.message.lower %}danger{% elif 'reminder' in notification.message.lower %}warning{% else %}info{% endif %}">
+                <i class="fas fa-{% if 'accepted' in notification.message.lower %}check-circle{% elif 'rejected' in notification.message.lower %}times-circle{% elif 'reminder' in notification.message.lower %}exclamation-triangle{% else %}info-circle{% endif %}"></i>
+              </div>
+
+              <div class="notification-details">
+                <div class="notification-message">{{ notification.message }}</div>
+                <div class="notification-time">
+                  <i class="fas fa-clock"></i>
+                  {{ notification.created_at|timesince }} ago
+                </div>
+              </div>
+            </div>
+          </a>
+          {% endfor %} {% if notifications.has_other_pages %}
+          <div class="pagination-info">Showing {{ notifications.start_index }} to {{ notifications.end_index }} of {{ notifications.paginator.count }} entries</div>
+
+          <div class="pagination-container">
+            <ul class="pagination">
+              {% if notifications.has_previous %}
+              <li class="page-item">
+                <a href="?page={{ notifications.previous_page_number }}" class="page-link"> <i class="fas fa-chevron-left"></i> Previous </a>
+              </li>
+              {% else %}
+              <li class="page-item disabled">
+                <span class="page-link"> <i class="fas fa-chevron-left"></i> Previous </span>
+              </li>
+              {% endif %} {% for i in notifications.paginator.page_range %} {% if notifications.number == i %}
+              <li class="page-item active">
+                <span class="page-link">{{ i }}</span>
+              </li>
+              {% else %}
+              <li class="page-item">
+                <a href="?page={{ i }}" class="page-link">{{ i }}</a>
+              </li>
+              {% endif %} {% endfor %} {% if notifications.has_next %}
+              <li class="page-item">
+                <a href="?page={{ notifications.next_page_number }}" class="page-link"> Next <i class="fas fa-chevron-right"></i> </a>
+              </li>
+              {% else %}
+              <li class="page-item disabled">
+                <span class="page-link"> Next <i class="fas fa-chevron-right"></i> </span>
+              </li>
+              {% endif %}
+            </ul>
+          </div>
+          {% endif %} {% else %}
+          <div class="empty-state">
+            <div class="empty-icon">
+              <i class="fas fa-bell-slash"></i>
+            </div>
+            <h3 class="empty-title">No Notifications Yet</h3>
+            <p class="empty-description">We'll notify you when something important happens with your thesis project, such as application updates, assessment deadlines, or supervisor feedback.</p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      // Animate notification cards on scroll
+      document.addEventListener("DOMContentLoaded", function () {
+        const observerOptions = {
+          threshold: 0.1,
+          rootMargin: "0px 0px -50px 0px",
+        };
+
+        const observer = new IntersectionObserver(function (entries) {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.style.opacity = "1";
+              entry.target.style.transform = "translateY(0)";
+            }
+          });
+        }, observerOptions);
+
+        // Observe notification cards
+        document.querySelectorAll(".notification-card").forEach((card) => {
+          card.style.opacity = "0";
+          card.style.transform = "translateY(20px)";
+          card.style.transition = "all 0.6s ease";
+          observer.observe(card);
+        });
+      });
+    </script>
+  </body>
+</html>
