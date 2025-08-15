@@ -10,15 +10,24 @@ from django.utils import timezone
 from datetime import date
 from application.models import *
 from django.db import transaction
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404
+from functools import wraps
+from .permissions import (
+    assessment_view_required, 
+    assessment_manage_required,
+    admin_required,
+    supervisor_or_admin_required
+)
 
-
+@assessment_view_required
 def assessment_schema(request):
     schema = AssessmentSchema.objects.first()  # Only one allowed
     return render(request, 'assessment/assessment_schema.html', {
         'schema': schema
     })
 
-
+@assessment_manage_required
 def create_assessment_schema(request):
     if AssessmentSchema.objects.exists():
         return redirect('assessment_schema')
@@ -161,6 +170,7 @@ def create_assessment_schema(request):
     return render(request, 'assessment/create_schema.html')
 
 
+@assessment_manage_required
 def edit_schema(request, id):
     try:
         schema = AssessmentSchema.objects.get(id=id)
@@ -292,6 +302,7 @@ def edit_schema(request, id):
     return render(request, 'assessment/edit_schema.html', {'schema': schema})
 
 
+@assessment_manage_required
 def add_assessment(request, id):
     # Add a single assessment to an existing schema
     try:
@@ -387,6 +398,7 @@ def add_assessment(request, id):
     })
 
 
+@assessment_manage_required
 def edit_assessment(request, id):
     assignment = get_object_or_404(Assessment, id=id)
     schema = assignment.schema
@@ -482,6 +494,7 @@ def edit_assessment(request, id):
     })
 
 
+@assessment_manage_required
 def delete_assessment(request, id):
     assessment = get_object_or_404(Assessment, id=id)
     schema = assessment.schema
