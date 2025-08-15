@@ -482,6 +482,49 @@ def edit_assessment(request, id):
     })
 
 
+def delete_assessment(request, id):
+    assessment = get_object_or_404(Assessment, id=id)
+    schema = assessment.schema
+    
+    if request.method == 'POST':
+        try:
+            # Check if there are any student submissions
+            student_submissions = StudentSubmission.objects.filter(assignment=assessment)
+            submission_count = student_submissions.count()
+            
+            if submission_count > 0:
+                # If there are submissions, show a warning and don't delete
+                messages.warning(
+                    request, 
+                    f"Cannot delete assessment '{assessment.title}' because it has {submission_count} student submission(s). "
+                    "Consider archiving the assessment instead of deleting it to preserve academic records."
+                )
+                return redirect('assessment_schema')
+            
+            # If no submissions exist, safe to delete
+            with transaction.atomic():
+                # Delete related files first
+                for detail_file in assessment.detail_files.all():
+                    if detail_file.file:
+                        default_storage.delete(detail_file.file.path)
+                    detail_file.delete()
+                
+                for sample_file in assessment.sample_files.all():
+                    if sample_file.file:
+                        default_storage.delete(sample_file.file.path)
+                    sample_file.delete()
+                
+                # Delete the assessment (this will cascade to related models)
+                assessment.delete()
+                
+                messages.success(request, f"Assessment '{assessment.title}' deleted successfully!")
+                
+        except Exception as e:
+            messages.error(request, f"Error deleting assessment: {str(e)}")
+    
+    return redirect('assessment_schema')
+
+
 from datetime import date
 from django.shortcuts import render
 from .models import AssessmentSchema, StudentSubmission, Assessment
