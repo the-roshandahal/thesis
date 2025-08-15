@@ -1,44 +1,49 @@
-{% load static %} {% include 'header.html' %}
+{% extends 'base_dashboard.html' %}
+{% load static %}
 
-<div class="main-content">
-  <div class="page-content">
-    <div class="container-fluid">
-      <!-- Page Title -->
-      <div class="row">
-        <div class="col-12">
-          <div class="page-title-box d-flex align-items-center justify-content-between">
-            <h4 class="mb-0">Admin Dashboard</h4>
-            <div class="page-title-right">
-              <ol class="breadcrumb m-0">
-                <li class="breadcrumb-item"><a href="javascript: void(0);">Dashboard</a></li>
-                <li class="breadcrumb-item active">Overview</li>
-              </ol>
-            </div>
-          </div>
+{% block title %}Admin Dashboard - Thesis Management System{% endblock %}
+
+{% block sidebar_menu %}
+    {% include 'admin_sidebar.html' %}
+{% endblock %}
+
+{% block content %}
+  <!-- Page Title -->
+  <div class="row">
+    <div class="col-12">
+      <div class="page-title-box d-flex align-items-center justify-content-between">
+        <h4 class="mb-0">Admin Dashboard</h4>
+        <div class="page-title-right">
+          <ol class="breadcrumb m-0">
+            <li class="breadcrumb-item"><a href="javascript: void(0);">Dashboard</a></li>
+            <li class="breadcrumb-item active">Overview</li>
+          </ol>
         </div>
       </div>
+    </div>
+  </div>
 
-      <!-- Statistics Cards -->
-      <div class="row">
-        <div class="col-xl-3 col-md-6">
-          <div class="card mini-stats-wid">
-            <div class="card-body">
-              <div class="d-flex">
-                <div class="flex-grow-1">
-                  <p class="text-muted fw-medium">Total Students</p>
-                  <h4 class="mb-0">{{ total_students|default:"0" }}</h4>
-                </div>
-                <div class="flex-shrink-0 align-self-center">
-                  <div class="avatar-sm rounded-circle bg-primary bg-opacity-10">
-                    <span class="avatar-title">
-                      <i class="mdi mdi-account-group font-size-24 text-primary"></i>
-                    </span>
-                  </div>
-                </div>
+  <!-- Statistics Cards -->
+  <div class="row">
+    <div class="col-xl-3 col-md-6">
+      <div class="card mini-stats-wid">
+        <div class="card-body">
+          <div class="d-flex">
+            <div class="flex-grow-1">
+              <p class="text-muted fw-medium">Total Students</p>
+              <h4 class="mb-0">{{ total_students }}</h4>
+            </div>
+            <div class="flex-shrink-0 align-self-center">
+              <div class="avatar-sm rounded-circle bg-primary bg-opacity-10">
+                <span class="avatar-title">
+                  <i class="mdi mdi-account-group font-size-24 text-primary"></i>
+                </span>
               </div>
             </div>
           </div>
         </div>
+      </div>
+    </div>
         <div class="col-xl-3 col-md-6">
           <div class="card mini-stats-wid">
             <div class="card-body">
@@ -103,7 +108,9 @@
         <div class="col-xl-8">
           <div class="card">
             <div class="card-header">
-              <h4 class="card-title mb-0">Project Applications Over Time</h4>
+              <h4 class="card-title mb-0">
+                <i class="mdi mdi-chart-line me-2"></i>Project Applications Over Time
+              </h4>
             </div>
             <div class="card-body">
               <div id="applications-chart" style="height: 300px"></div>
@@ -113,7 +120,9 @@
         <div class="col-xl-4">
           <div class="card">
             <div class="card-header">
-              <h4 class="card-title mb-0">Application Status Distribution</h4>
+              <h4 class="card-title mb-0">
+                <i class="mdi mdi-chart-pie me-2"></i>Application Status Distribution
+              </h4>
             </div>
             <div class="card-body">
               <div id="status-pie-chart" style="height: 300px"></div>
@@ -127,7 +136,9 @@
         <div class="col-xl-4">
           <div class="card">
             <div class="card-header">
-              <h4 class="card-title mb-0">Department Statistics</h4>
+              <h4 class="card-title mb-0">
+                <i class="mdi mdi-domain me-2"></i>Department Statistics
+              </h4>
             </div>
             <div class="card-body">
               <div id="department-chart" style="height: 250px"></div>
@@ -137,7 +148,9 @@
         <div class="col-xl-4">
           <div class="card">
             <div class="card-header">
-              <h4 class="card-title mb-0">Recent Activities</h4>
+              <h4 class="card-title mb-0">
+                <i class="mdi mdi-clock-outline me-2"></i>Recent Activities
+              </h4>
             </div>
             <div class="card-body">
               <div class="timeline-alt pb-0">
@@ -163,14 +176,24 @@
         <div class="col-xl-4">
           <div class="card">
             <div class="card-header">
-              <h4 class="card-title mb-0">Quick Actions</h4>
+              <h4 class="card-title mb-0">
+                <i class="mdi mdi-lightning-bolt me-2"></i>Quick Actions
+              </h4>
             </div>
             <div class="card-body">
               <div class="d-grid gap-2">
-                <a href="{% url 'add_student' %}" class="btn btn-primary"> <i class="mdi mdi-account-plus me-2"></i>Add Student </a>
-                <a href="{% url 'add_supervisor' %}" class="btn btn-success"> <i class="mdi mdi-account-tie-plus me-2"></i>Add Supervisor </a>
-                <a href="{% url 'add_project' %}" class="btn btn-warning"> <i class="mdi mdi-folder-plus me-2"></i>Add Project </a>
-                <a href="{% url 'create_assessment_schema' %}" class="btn btn-info"> <i class="mdi mdi-file-plus me-2"></i>Create Assessment </a>
+                <a href="{% url 'add_student' %}" class="btn btn-primary">
+                  <i class="mdi mdi-account-plus me-2"></i>Add Student
+                </a>
+                <a href="{% url 'add_supervisor' %}" class="btn btn-success">
+                  <i class="mdi mdi-account-tie-plus me-2"></i>Add Supervisor
+                </a>
+                <a href="{% url 'add_project' %}" class="btn btn-warning">
+                  <i class="mdi mdi-folder-plus me-2"></i>Add Project
+                </a>
+                <a href="{% url 'create_assessment_schema' %}" class="btn btn-info">
+                  <i class="mdi mdi-file-plus me-2"></i>Create Assessment
+                </a>
               </div>
             </div>
           </div>
@@ -182,17 +205,27 @@
         <div class="col-xl-6">
           <div class="card">
             <div class="card-header">
-              <h4 class="card-title mb-0">Recent Applications</h4>
+              <h4 class="card-title mb-0">
+                <i class="mdi mdi-file-document-multiple me-2"></i>Recent Applications
+              </h4>
             </div>
             <div class="card-body">
               <div class="table-responsive">
                 <table class="table table-centered table-nowrap mb-0">
                   <thead>
                     <tr>
-                      <th>Student</th>
-                      <th>Project</th>
-                      <th>Status</th>
-                      <th>Date</th>
+                      <th>
+                        <i class="mdi mdi-account me-1"></i>Student
+                      </th>
+                      <th>
+                        <i class="mdi mdi-folder me-1"></i>Project
+                      </th>
+                      <th>
+                        <i class="mdi mdi-information me-1"></i>Status
+                      </th>
+                      <th>
+                        <i class="mdi mdi-calendar me-1"></i>Date
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -201,31 +234,63 @@
                       <td>
                         <div class="d-flex align-items-center">
                           <div class="avatar-sm bg-light rounded-circle flex-shrink-0">
-                            <span class="avatar-title text-primary"> {% with first_member=application.members.first %} {% if first_member %} {{ first_member.user.first_name|first }}{{ first_member.user.last_name|first }} {% else %} N/A {% endif %} {% endwith %} </span>
+                            <span class="avatar-title text-primary">
+                              {% with first_member=application.members.first %}
+                                {% if first_member %}
+                                  {{ first_member.user.first_name|first }}{{ first_member.user.last_name|first }}
+                                {% else %}
+                                  N/A
+                                {% endif %}
+                              {% endwith %}
+                            </span>
                           </div>
                           <div class="flex-grow-1 ms-3">
-                            <p class="mb-0 fw-medium">{% with first_member=application.members.first %} {% if first_member %} {{ first_member.user.first_name }} {{ first_member.user.last_name }} {% else %} No members {% endif %} {% endwith %}</p>
-                            <small class="text-muted">{{ application.application_type|title }}</small>
+                            <p class="mb-0 fw-medium">
+                              {% with first_member=application.members.first %}
+                                {% if first_member %}
+                                  {{ first_member.user.first_name }} {{ first_member.user.last_name }}
+                                {% else %}
+                                  No members
+                                {% endif %}
+                              {% endwith %}
+                            </p>
+                            <small class="text-muted">
+                              <i class="mdi mdi-tag me-1"></i>{{ application.application_type|title }}
+                            </small>
                           </div>
                         </div>
                       </td>
-                      <td>{{ application.project.title|truncatechars:30 }}</td>
+                      <td>
+                        <i class="mdi mdi-folder-outline me-1"></i>{{ application.project.title|truncatechars:30 }}
+                      </td>
                       <td>
                         {% if application.status == 'applied' %}
-                        <span class="badge bg-warning">Applied</span>
+                        <span class="badge bg-warning">
+                          <i class="mdi mdi-clock me-1"></i>Applied
+                        </span>
                         {% elif application.status == 'accepted' %}
-                        <span class="badge bg-success">Accepted</span>
+                        <span class="badge bg-success">
+                          <i class="mdi mdi-check me-1"></i>Accepted
+                        </span>
                         {% elif application.status == 'declined' %}
-                        <span class="badge bg-danger">Declined</span>
+                        <span class="badge bg-danger">
+                          <i class="mdi mdi-close me-1"></i>Declined
+                        </span>
                         {% else %}
-                        <span class="badge bg-secondary">{{ application.status|title }}</span>
+                        <span class="badge bg-secondary">
+                          <i class="mdi mdi-help me-1"></i>{{ application.status|title }}
+                        </span>
                         {% endif %}
                       </td>
-                      <td>{{ application.applied_at|date:"M d, Y" }}</td>
+                      <td>
+                        <i class="mdi mdi-calendar-clock me-1"></i>{{ application.applied_at|date:"M d, Y" }}
+                      </td>
                     </tr>
                     {% empty %}
                     <tr>
-                      <td colspan="4" class="text-center text-muted">No applications found</td>
+                      <td colspan="4" class="text-center text-muted">
+                        <i class="mdi mdi-inbox-outline me-2"></i>No applications found
+                      </td>
                     </tr>
                     {% endfor %}
                   </tbody>
@@ -237,15 +302,19 @@
         <div class="col-xl-6">
           <div class="card">
             <div class="card-header">
-              <h4 class="card-title mb-0">System Messages</h4>
+              <h4 class="card-title mb-0">
+                <i class="mdi mdi-message-text me-2"></i>System Messages
+              </h4>
             </div>
             <div class="card-body">
-              {% if messages %} {% for message in messages %}
-              <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-              </div>
-              {% endfor %} {% else %}
+              {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                  <i class="mdi mdi-message-text me-2"></i>{{ message }}
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+              {% else %}
               <div class="text-center text-muted">
                 <i class="mdi mdi-message-text-outline font-size-24"></i>
                 <p class="mt-2">No system messages</p>
@@ -261,6 +330,9 @@
 
 {% include 'footer.html' %}
 
+{% endblock %}
+
+{% block extra_js %}
 <!-- Chart.js and ApexCharts -->
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
@@ -285,7 +357,7 @@
           curve: 'smooth',
           width: 3
       },
-      colors: ['#556ee6'],
+      colors: ['#34c38f'],
       fill: {
           type: 'gradient',
           gradient: {
@@ -385,3 +457,4 @@
   var departmentChart = new ApexCharts(document.querySelector("#department-chart"), departmentOptions);
   departmentChart.render();
 </script>
+{% endblock %}
