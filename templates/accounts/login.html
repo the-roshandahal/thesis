@@ -286,6 +286,57 @@
         margin-bottom: 0;
       }
 
+      .role-pills {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 1rem;
+      }
+
+      .role-radio {
+        display: none; /* Hide default radio buttons */
+      }
+
+      .role-pill {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 20px;
+        border-radius: 25px;
+        border: 2px solid var(--primary-color);
+        background-color: var(--bg-white);
+        color: var(--primary-color);
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+        font-size: 0.95rem;
+        min-width: 120px;
+        justify-content: center;
+      }
+
+      .role-pill:hover {
+        background-color: rgba(37, 99, 235, 0.1);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+      }
+
+      .role-radio:checked + .role-pill {
+        background-color: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+      }
+
+      .role-pill i {
+        font-size: 1.1rem;
+      }
+
+      .role-pill span {
+        font-weight: 600;
+      }
+
       @media (max-width: 768px) {
         .login-container {
           flex-direction: column;
@@ -304,6 +355,18 @@
 
         .welcome-title {
           font-size: 2rem;
+        }
+
+        .role-pills {
+          flex-direction: column;
+          gap: 8px;
+        }
+
+        .role-pill {
+          min-width: auto;
+          width: 100%;
+          justify-content: center;
+          padding: 15px 20px;
         }
       }
 
@@ -435,13 +498,26 @@
           </div>
 
           <div class="form-group">
-            <label for="user_type" class="form-label">Select Your Role</label>
-            <select class="form-select" name="user_type" id="user_type" required>
-              <option value="">Choose your role...</option>
-              <option value="student">Student</option>
-              <option value="supervisor">Supervisor</option>
-              <option value="admin">Administrator</option>
-            </select>
+            <label class="form-label">Select Your Role</label>
+            <div class="role-pills">
+              <input type="radio" name="user_type" id="role_student" value="student" class="role-radio" required />
+              <label for="role_student" class="role-pill">
+                <i class="fas fa-user-graduate"></i>
+                <span>Student</span>
+              </label>
+
+              <input type="radio" name="user_type" id="role_supervisor" value="supervisor" class="role-radio" />
+              <label for="role_supervisor" class="role-pill">
+                <i class="fas fa-user-tie"></i>
+                <span>Supervisor</span>
+              </label>
+
+              <input type="radio" name="user_type" id="role_admin" value="admin" class="role-radio" />
+              <label for="role_admin" class="role-pill">
+                <i class="fas fa-user-shield"></i>
+                <span>Administrator</span>
+              </label>
+            </div>
           </div>
 
           <div class="form-check">
@@ -502,13 +578,15 @@
       document.querySelector("form").addEventListener("submit", function (e) {
         const email = document.getElementById("email").value;
         const password = document.getElementById("password").value;
-        const userType = document.getElementById("user_type").value;
+        const selectedRole = document.querySelector('input[name="user_type"]:checked');
 
-        if (!email || !password || !userType) {
+        if (!email || !password || !selectedRole) {
           e.preventDefault();
-          alert("Please fill in all required fields.");
+          alert("Please fill in all required fields including selecting a role.");
           return false;
         }
+
+        const userType = selectedRole.value;
 
         // Basic email validation
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
