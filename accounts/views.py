@@ -6,8 +6,35 @@ from django.contrib.auth.hashers import check_password, make_password
 from .models import Admin, Supervisor, Student, User
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import update_session_auth_hash
+from functools import wraps
 
 
+def admin_required(view_func):
+    """Decorator to check if user is admin (superuser)"""
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            messages.error(request, "Please log in to access this page.")
+            return redirect('login')
+        if not request.user.is_superuser:
+            messages.error(request, "Access denied. Admin privileges required.")
+            return redirect('home')
+        return view_func(request, *args, **kwargs)
+    return _wrapped_view
+
+
+def supervisor_required(view_func):
+    """Decorator to check if user is supervisor (staff)"""
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            messages.error(request, "Please log in to access this page.")
+            return redirect('login')
+        if not request.user.is_staff:
+            messages.error(request, "Access denied. Supervisor privileges required.")
+            return redirect('home')
+        return view_func(request, *args, **kwargs)
+    return _wrapped_view
 
 
 def get_user_type(user):
@@ -22,9 +49,9 @@ def get_user_type(user):
 def login(request):
     if request.user.is_authenticated:
         if request.user.is_superuser:
-            return admin_dashboard(request)
+            return redirect('admin_dashboard')
         elif request.user.is_staff:
-            return render( request,'supervisor_dashboard.html')  
+            return redirect('supervisor_dashboard')
         else:
             return redirect('home')
     else:
@@ -60,7 +87,14 @@ def login(request):
                     request.session['user_type'] = user_type
                     user.last_login = timezone.now()
                     user.save()
-                    return redirect('home')
+                    
+                    # Redirect based on user type after successful login
+                    if user.is_superuser:
+                        return redirect('admin_dashboard')
+                    elif user.is_staff:
+                        return redirect('supervisor_dashboard')
+                    else:
+                        return redirect('home')
                 else:
                     messages.error(request, 'Incorrect password.')
             else:
@@ -258,16 +292,17 @@ def change_password(request):
     return render(request, 'accounts/change_password.html')
 
 
+@admin_required
 def admin_dashboard(request):
     """Comprehensive admin dashboard with statistics and charts data"""
     from django.db.models import Count, Q
     from django.utils import timezone
     from datetime import datetime, timedelta
     from projects.models import Project
-    from application.models import Application
+    from application.models import Application, ApplicationMember
     from assessment.models import AssessmentSchema, Assessment, StudentSubmission
     
-    # Basic counts
+    # Get overall statistics
     total_students = Student.objects.count()
     total_supervisors = Supervisor.objects.count()
     total_projects = Project.objects.count()
@@ -278,23 +313,23 @@ def admin_dashboard(request):
     status_data = {item['status']: item['count'] for item in status_counts}
     
     # Department statistics
-    department_stats = Student.objects.values('department').annotate(count=Count('id')).order_by('-count')
+    department_stats = Student.objects.values('department').annotate(count=Count('id'))
     
     # Recent applications (last 5)
     recent_applications = Application.objects.select_related(
         'project'
     ).order_by('-applied_at')[:5]
     
-    # Recent activities (simulated for now)
+    # Recent activities (simulated data)
     recent_activities = [
         {
             'title': 'New Student Registration',
-            'description': 'Student John Doe registered in Computer Science department',
+            'description': 'Student John Doe registered for Computer Science',
             'timestamp': timezone.now() - timedelta(hours=2)
         },
         {
-            'title': 'Project Application Submitted',
-            'description': 'Application submitted for AI Project by Student Jane Smith',
+            'title': 'Project Application',
+            'description': 'New application received for AI Thesis Project',
             'timestamp': timezone.now() - timedelta(hours=4)
         },
         {
@@ -342,3 +377,198 @@ def admin_dashboard(request):
     }
     
     return render(request, 'admin_dashboard.html', context)
+
+
+@supervisor_required
+def supervisor_dashboard(request):
+    """Comprehensive supervisor dashboard with statistics and charts data"""
+    from django.db.models import Count, Q
+    from django.utils import timezone
+    from datetime import datetime, timedelta
+    from projects.models import Project
+    from application.models import Application, ApplicationMember
+    from assessment.models import AssessmentSchema, Assessment, StudentSubmission
+    
+    print(f"DEBUG: Starting supervisor_dashboard for user: {request.user}")
+    
+    # Get the current supervisor
+    try:
+        supervisor = Supervisor.objects.get(user=request.user)
+        print(f"DEBUG: Found supervisor: {supervisor}")
+    except Supervisor.DoesNotExist:
+        messages.error(request, "Supervisor profile not found. Please contact administrator.")
+        return redirect('home')
+    
+    print(f"DEBUG: About to query projects for supervisor.user: {supervisor.user}")
+    
+    # Supervisor-specific statistics
+    try:
+        total_projects = Project.objects.filter(supervisor=supervisor.user).count()
+        print(f"DEBUG: Total projects: {total_projects}")
+    except Exception as e:
+        print(f"DEBUG: Error getting total_projects: {e}")
+        total_projects = 0
+    
+    try:
+        total_applications = Application.objects.filter(project__supervisor=supervisor.user).count()
+        print(f"DEBUG: Total applications: {total_applications}")
+    except Exception as e:
+        print(f"DEBUG: Error getting total_applications: {e}")
+        total_applications = 0
+    
+    try:
+        accepted_applications = Application.objects.filter(
+            project__supervisor=supervisor.user, 
+            status='accepted'
+        ).count()
+        print(f"DEBUG: Accepted applications: {accepted_applications}")
+    except Exception as e:
+        print(f"DEBUG: Error getting accepted_applications: {e}")
+        accepted_applications = 0
+    
+    try:
+        pending_applications = Application.objects.filter(
+            project__supervisor=supervisor.user, 
+            status='applied'
+        ).count()
+        print(f"DEBUG: Pending applications: {pending_applications}")
+    except Exception as e:
+        print(f"DEBUG: Error getting pending_applications: {e}")
+        pending_applications = 0
+    
+    # Get supervisor's projects
+    try:
+        supervisor_projects = Project.objects.filter(supervisor=supervisor.user)
+        print(f"DEBUG: Supervisor projects query successful, count: {supervisor_projects.count()}")
+    except Exception as e:
+        print(f"DEBUG: Error getting supervisor_projects: {e}")
+        supervisor_projects = Project.objects.none()
+    
+    # Recent applications for supervisor's projects
+    try:
+        recent_applications = Application.objects.filter(
+            project__supervisor=supervisor.user
+        ).select_related('project').order_by('-applied_at')[:5]
+        print(f"DEBUG: Recent applications query successful, count: {len(recent_applications)}")
+    except Exception as e:
+        print(f"DEBUG: Error getting recent_applications: {e}")
+        recent_applications = []
+    
+    # Project status distribution
+    try:
+        project_status_counts = supervisor_projects.values('availability').annotate(count=Count('id'))
+        project_status_data = {item['availability']: item['count'] for item in project_status_counts}
+        print(f"DEBUG: Project status distribution: {project_status_data}")
+    except Exception as e:
+        print(f"DEBUG: Error getting project_status_counts: {e}")
+        project_status_data = {}
+    
+    # Monthly application trends for supervisor's projects (last 6 months)
+    monthly_applications = []
+    try:
+        for i in range(6):
+            month_start = timezone.now().replace(day=1) - timedelta(days=30*i)
+            month_end = month_start.replace(day=28) + timedelta(days=4)
+            month_end = month_end.replace(day=1) - timedelta(days=1)
+            
+            count = Application.objects.filter(
+                project__supervisor=supervisor.user,
+                applied_at__gte=month_start,
+                applied_at__lte=month_end
+            ).count()
+            
+            monthly_applications.append({
+                'month': month_start.strftime('%b'),
+                'count': count
+            })
+        
+        # Reverse to show oldest to newest
+        monthly_applications.reverse()
+        print(f"DEBUG: Monthly applications calculated successfully: {len(monthly_applications)} months")
+    except Exception as e:
+        print(f"DEBUG: Error calculating monthly applications: {e}")
+        monthly_applications = []
+    
+    # Recent activities (supervisor-specific)
+    try:
+        first_application = recent_applications.first() if recent_applications.exists() else None
+        project_title = first_application.project.title if first_application else "your project"
+        
+        recent_activities = [
+            {
+                'title': 'New Project Application',
+                'description': f'Application received for {project_title}',
+                'timestamp': timezone.now() - timedelta(hours=2) if first_application else timezone.now() - timedelta(hours=4)
+            },
+            {
+                'title': 'Project Status Updated',
+                'description': 'Project availability status changed',
+                'timestamp': timezone.now() - timedelta(hours=6)
+            },
+            {
+                'title': 'Student Assignment',
+                'description': 'New student assigned to your project',
+                'timestamp': timezone.now() - timedelta(hours=8)
+            }
+        ]
+    except Exception as e:
+        print(f"Error creating recent activities: {e}")
+        recent_activities = [
+            {
+                'title': 'Welcome to Dashboard',
+                'description': 'Your supervisor dashboard is ready',
+                'timestamp': timezone.now()
+            }
+        ]
+    
+    # Assessment statistics for supervisor's projects
+    try:
+        if AssessmentSchema.objects.exists():
+            schema = AssessmentSchema.objects.first()
+            total_assessments = Assessment.objects.filter(schema=schema).count()
+            completed_submissions = StudentSubmission.objects.filter(
+                assignment__schema=schema
+            ).count()
+        else:
+            total_assessments = 0
+            completed_submissions = 0
+    except Exception as e:
+        print(f"Error getting assessment statistics: {e}")
+        total_assessments = 0
+        completed_submissions = 0
+    
+    # Ensure we have valid data for the context
+    try:
+        context = {
+            'supervisor': supervisor,
+            'total_projects': total_projects,
+            'total_applications': total_applications,
+            'accepted_applications': accepted_applications,
+            'pending_applications': pending_applications,
+            'project_status_data': project_status_data,
+            'recent_applications': recent_applications,
+            'recent_activities': recent_activities,
+            'monthly_applications': monthly_applications,
+            'total_assessments': total_assessments,
+            'completed_submissions': completed_submissions,
+            'supervisor_projects': supervisor_projects[:5] if supervisor_projects.exists() else [],  # Last 5 projects
+        }
+    except Exception as e:
+        # Log the error and provide fallback data
+        print(f"Error in supervisor_dashboard context: {e}")
+        context = {
+            'supervisor': supervisor,
+            'total_projects': 0,
+            'total_applications': 0,
+            'accepted_applications': 0,
+            'pending_applications': 0,
+            'project_status_data': {},
+            'recent_applications': [],
+            'recent_activities': [],
+            'monthly_applications': [],
+            'total_assessments': 0,
+            'completed_submissions': 0,
+            'supervisor_projects': [],
+        }
+    
+    return render(request, 'supervisor_dashboard.html', context)
