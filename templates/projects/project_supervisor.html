@@ -44,6 +44,7 @@
                           <span class="badge bg-secondary">{{ tag.name }}</span>
                           {% endfor %}
                         </div>
+<<<<<<< HEAD
 
                         <!-- Truncated Description -->
                         <p class="card-text">{{ project.description|truncatechars:150|safe }}</p>
@@ -84,6 +85,55 @@
               </div>
             </div>
           </div>
+||||||| da228a1
+                    </div> <!-- end col -->
+                </div> <!-- end row -->
+=======
+
+                        <!-- Truncated Description -->
+                        <p class="card-text">{{ project.description|truncatechars:150|safe }}</p>
+                        <div class="row text-center mb-3">
+                          <div class="col-md-3">
+                            <strong>Availability:</strong><br />
+
+                            {% if project.availability == "available" %}
+                            <span class="badge bg-success">{{ project.availability }}</span>
+                            {% else %}
+                            <span class="badge bg-danger">{{ project.availability }}</span>
+                            {% endif %}
+                          </div>
+                          <div class="col-md-3">
+                            <strong>Last Modified:</strong><br />
+                            {{ project.last_modified|date:"d M Y" }}
+                          </div>
+                          <div class="col-md-3">
+                            <strong>Project Type:</strong><br />
+                            {{ project.project_type }}
+                          </div>
+                          <div class="col-md-3">
+                            <strong>Actions:</strong><br />
+                            <a href="{% url 'edit_project' project.id %}" class="btn btn-sm btn-warning"> <i class="fas fa-edit"></i> Edit </a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  {% endfor %} {% else %}
+                  <div class="container d-flex flex-column justify-content-center align-items-center p-2">
+                    <div class="col-12">
+                      <div class="alert alert-info text-center" role="alert">No projects found matching your criteria.</div>
+                    </div>
+                    <a href="{% url 'homepage' %}">
+                      <button class="btn btn-primary mt-3">Back to Projects</button>
+                    </a>
+                  </div>
+
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+>>>>>>> origin/feat/edit-project
         </div>
         <!-- end col -->
       </div>

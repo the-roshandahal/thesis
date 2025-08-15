@@ -1,18 +1,16 @@
 <div class="row">
-    {% for file in files %}
-    <div class="col-md-6 mb-3">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">File {{ forloop.counter }}</h5>
-                <p class="card-text">{{ file.file.name }}</p>
-                <a href="{{ file.file.url }}" class="btn btn-primary" download>
-                    <i class="fas fa-download"></i> Download
-                </a>
-                {% if file.file.url|lower|slice:'-4:' == '.pdf' %}
-                <iframe src="{{ file.file.url }}" style="width:100%; height:500px;" frameborder="0"></iframe>
-                {% endif %}
-            </div>
-        </div>
+  {% for file in files %}
+  <div class="col-md-6 mb-3">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">File {{ forloop.counter }}</h5>
+        <p class="card-text">{{ file.file.name }}</p>
+        <a href="{{ file.file.url }}" class="btn btn-primary" download> <i class="fas fa-download"></i> Download </a>
+        {% if '.pdf' in file.file.name|lower %}
+        <iframe src="{{ file.file.url }}" style="width: 100%; height: 500px" frameborder="0"></iframe>
+        {% endif %}
+      </div>
     </div>
-    {% endfor %}
+  </div>
+  {% endfor %}
 </div>

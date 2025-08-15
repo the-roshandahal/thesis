@@ -1,0 +1,352 @@
+{% load static %}
+{% include 'header.html' %}
+
+<div class="main-content">
+    <div class="page-content">
+        <div class="container-fluid">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title mb-4">Edit Project</h4>
+                        
+                        {% if error %}
+                            <div class="alert alert-danger">{{ error }}</div>
+                        {% endif %}
+
+                        <form id="projectForm" method="POST" enctype="multipart/form-data" onsubmit="return submitForm(event);">
+                            {% csrf_token %}
+                            
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Project Title</label>
+                                        <input type="text" class="form-control" name="project_title" value="{{ project.title }}" required>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Project Type</label>
+                                        <select class="form-select" name="project_type" required>
+                                            <option value="Research" {% if project.project_type == 'Research' %}selected{% endif %}>Research</option>
+                                            <option value="Development" {% if project.project_type == 'Development' %}selected{% endif %}>Development</option>
+                                            <option value="R and D" {% if project.project_type == 'R and D' %}selected{% endif %}>R and D</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Pre-requisites</label>
+                                        <input type="text" class="form-control" name="prerequisites" value="{{ project.prerequisites }}" required>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <label class="form-label">Topic Areas</label>
+                                    <div class="input-group mb-2">
+                                        <input type="text" id="topicAreaInput" class="form-control" placeholder="E.g., AI, Web Development">
+                                        <button class="btn btn-primary" type="button" onclick="addTopicArea()">Add</button>
+                                    </div>
+                                    <div id="topicAreaList" class="mb-3">
+                                        {% for area in project.areas.all %}
+                                        <div class="alert alert-secondary alert-dismissible fade show mb-2">
+                                            {{ area.name }}
+                                            <button type="button" class="btn-close" onclick="this.parentElement.remove()"></button>
+                                            <input type="hidden" name="project_areas[]" value="{{ area.name }}">
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Description</label>
+                                <textarea id="description" name="description">{{ project.description }}</textarea>
+                            </div>
+
+                            <!-- Existing Files Section -->
+                            <div class="mb-4">
+                                <label class="form-label">Existing Files</label>
+                                <div class="row">
+                                    {% for file in project.files.all %}
+                                    <div class="col-md-6 mb-3">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <h6 class="card-title">{{ file.display_name }}</h6>
+                                                <p class="card-text text-muted">{{ file.file.name }}</p>
+                                                <a href="{{ file.file.url }}" class="btn btn-sm btn-primary" download>
+                                                    <i class="fas fa-download"></i> Download
+                                                </a>
+                                                <button type="button" class="btn btn-sm btn-danger" onclick="deleteFile({{ file.id }})">
+                                                    <i class="fas fa-trash"></i> Delete
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% empty %}
+                                    <div class="col-12">
+                                        <p class="text-muted">No files uploaded yet.</p>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label">Upload New Files (PDF only)</label>
+                                <input type="file" id="fileInput" class="form-control" multiple accept=".pdf">
+                                <small class="text-muted">Max 10MB per file</small>
+                                <div id="filePreview" class="mt-2"></div>
+                                <div id="hiddenFilesData"></div> 
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Reference Links</label>
+                                <div class="input-group mb-2">
+                                    <input type="url" id="linkInput" class="form-control" placeholder="https://example.com">
+                                    <button class="btn btn-primary" type="button" onclick="addLink()">Add Link</button>
+                                </div>
+                                <div id="linkList" class="mb-3">
+                                    {% for link in project.links.all %}
+                                    <div class="alert alert-info alert-dismissible fade show mb-2">
+                                        <a href="{{ link.url }}" target="_blank">{{ link.url }}</a>
+                                        <button type="button" class="btn-close" onclick="this.parentElement.remove()"></button>
+                                        <input type="hidden" name="project_links[]" value="{{ link.url }}">
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between">
+                                <a href="{% url 'project_supervisor' %}" class="btn btn-secondary">Cancel</a>
+                                <button type="submit" class="btn btn-primary">Update Project</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Place the first <script> tag in your HTML's <head> -->
+<script src="https://cdn.tiny.cloud/1/pe0ptqkzisvdzcwvnywvj7urndv6wf68ccaj2kxmzdxr7eaz/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
+
+<!-- Place the following <script> and <textarea> tags your HTML's <body> -->
+<script>
+  tinymce.init({
+    selector: 'textarea',
+    plugins: [
+      // Core editing features
+      'anchor', 'autolink', 'charmap', 'codesample', 'emoticons', 'image', 'link', 'lists', 'media', 'searchreplace', 'table', 'visualblocks', 'wordcount',
+      // Your account includes a free trial of TinyMCE premium features
+      // Try the most popular premium features until Aug 5, 2025:
+      'checklist', 'mediaembed', 'casechange', 'formatpainter', 'pageembed', 'a11ychecker', 'tinymcespellchecker', 'permanentpen', 'powerpaste', 'advtable', 'advcode', 'editimage', 'advtemplate', 'ai', 'mentions', 'tinycomments', 'tableofcontents', 'footnotes', 'mergetags', 'autocorrect', 'typography', 'inlinecss', 'markdown','importword', 'exportword', 'exportpdf'
+    ],
+    toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat',
+    tinycomments_mode: 'embedded',
+    tinycomments_author: 'Author name',
+    mergetags_list: [
+      { value: 'First.Name', title: 'First Name' },
+      { value: 'Email', title: 'Email' },
+    ],
+    ai_request: (request, respondWith) => respondWith.string(() => Promise.reject('See docs to implement AI Assistant')),
+  });
+</script>
+<script>
+
+    // --- Global array to hold selected files and their custom names ---
+    let selectedFiles = [];
+
+    // --- Helper function to render file previews ---
+    function renderFilePreviews() {
+        const preview = document.getElementById('filePreview');
+        preview.innerHTML = ''; // Clear existing previews
+
+        selectedFiles.forEach((fileEntry, index) => {
+            const div = document.createElement('div');
+            div.className = 'd-flex flex-column flex-md-row justify-content-between align-items-md-center mb-2 p-2 bg-light rounded';
+            div.innerHTML = `
+                <div class="mb-2 mb-md-0">
+                    <span class="d-block text-truncate" style="max-width: 250px;">Original: ${fileEntry.file.name}</span>
+                    <input type="text" class="form-control mt-1" 
+                           value="${fileEntry.customName}" 
+                           placeholder="Enter custom name (optional)" 
+                           oninput="updateCustomFileName(${index}, this.value)"
+                           maxlength="255">
+                    <small class="text-muted d-block">${(fileEntry.file.size / (1024 * 1024)).toFixed(2)} MB</small>
+                </div>
+                <button type="button" class="btn btn-sm btn-danger mt-2 mt-md-0" onclick="removeFilePreview(this, ${index})">Remove</button>
+            `;
+            preview.appendChild(div);
+        });
+    }
+
+    // --- File Input Change Listener ---
+    document.getElementById('fileInput').addEventListener('change', function(e) {
+        // Add new files to our selectedFiles array
+        Array.from(e.target.files).forEach(file => {
+            // Check if file is already in selectedFiles by name
+            const isDuplicate = selectedFiles.some(existingFile => existingFile.file.name === file.name);
+            if (!isDuplicate) {
+                selectedFiles.push({
+                    file: file,
+                    customName: file.name.split('.').slice(0, -1).join('.').substring(0, 255) // Default to original name without extension, truncated
+                });
+            } else {
+                alert(`File "${file.name}" has already been selected.`);
+            }
+        });
+        e.target.value = null; // Clear the input so same file can be selected again if needed
+        renderFilePreviews(); // Re-render the previews
+    });
+
+    // --- Remove File from Preview and selectedFiles Array ---
+    function removeFilePreview(button, indexToRemove) {
+        selectedFiles.splice(indexToRemove, 1); // Remove the file from our array
+        renderFilePreviews(); // Re-render to update indices and display
+    }
+
+    // --- Update Custom File Name in selectedFiles Array ---
+    function updateCustomFileName(index, newName) {
+        if (selectedFiles[index]) {
+            selectedFiles[index].customName = newName.substring(0, 255); // Truncate to 255 characters
+        }
+    }
+
+    // --- Delete existing file function ---
+    function deleteFile(fileId) {
+        if (confirm('Are you sure you want to delete this file?')) {
+            fetch(`/projects/delete_file/${fileId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name="csrfmiddlewaretoken"]').value,
+                },
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Remove the file element from the DOM
+                    const fileElement = document.querySelector(`[data-file-id="${fileId}"]`);
+                    if (fileElement) {
+                        fileElement.remove();
+                    }
+                    // Reload the page to update the file list
+                    location.reload();
+                } else {
+                    alert('Error deleting file. Please try again.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error deleting file. Please try again.');
+            });
+        }
+    }
+
+    // --- Custom Form Submission Function ---
+    async function submitForm(event) {
+        event.preventDefault(); // Prevent default form submission
+
+        const form = document.getElementById('projectForm');
+        const formData = new FormData();
+
+        // Append regular form fields
+        formData.append('project_title', form.elements['project_title'].value);
+        formData.append('project_type', form.elements['project_type'].value);
+        formData.append('prerequisites', form.elements['prerequisites'].value);
+        
+        // Get TinyMCE content
+        formData.append('description', tinymce.get('description').getContent());
+
+        // Append Topic Areas
+        document.querySelectorAll('#topicAreaList input[name="project_areas[]"]').forEach(input => {
+            formData.append('project_areas[]', input.value);
+        });
+
+        // Append Links
+        document.querySelectorAll('#linkList input[name="project_links[]"]').forEach(input => {
+            formData.append('project_links[]', input.value);
+        });
+
+        // Append CSRF token
+        formData.append('csrfmiddlewaretoken', document.querySelector('[name="csrfmiddlewaretoken"]').value);
+
+        // Append files from our selectedFiles array with their custom names
+        selectedFiles.forEach((fileEntry, index) => {
+            formData.append('uploaded_files', fileEntry.file); // The actual File object
+            formData.append(`custom_file_name_${index}`, fileEntry.customName); // The custom name
+        });
+
+        // Submit the form using fetch API
+        try {
+            const response = await fetch(form.action, {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (response.redirected) {
+                window.location.href = response.url; // Follow the redirect
+            } else if (!response.ok) {
+                // If not redirected and not ok (e.g., validation error), parse error and display
+                const errorHtml = await response.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(errorHtml, 'text/html');
+                const errorDiv = doc.querySelector('.alert.alert-danger'); // Assuming your Django error template structure
+                if (errorDiv) {
+                    document.querySelector('.alert.alert-danger').innerHTML = errorDiv.innerHTML;
+                    document.querySelector('.alert.alert-danger').style.display = 'block';
+                } else {
+                    alert('An unexpected error occurred. Please check the console for details.');
+                    console.error('Server response error:', errorHtml);
+                }
+            }
+        } catch (error) {
+            console.error('Form submission error:', error);
+            alert('An error occurred during submission. Please try again.');
+        }
+
+        return false; // Prevent default form submission again
+    }
+
+
+    // Add Topic Area (remains the same)
+    function addTopicArea() {
+        const input = document.getElementById('topicAreaInput');
+        const value = input.value.trim();
+        
+        if (value) {
+            const list = document.getElementById('topicAreaList');
+            const div = document.createElement('div');
+            div.className = 'alert alert-secondary alert-dismissible fade show mb-2';
+            div.innerHTML = `
+                ${value}
+                <button type="button" class="btn-close" onclick="this.parentElement.remove()"></button>
+                <input type="hidden" name="project_areas[]" value="${value}">
+            `;
+            list.appendChild(div);
+            input.value = '';
+        }
+    }
+
+    // Add Link (remains the same)
+    function addLink() {
+        const input = document.getElementById('linkInput');
+        const value = input.value.trim();
+        
+        if (value) {
+            const list = document.getElementById('linkList');
+            const div = document.createElement('div');
+            div.className = 'alert alert-info alert-dismissible fade show mb-2';
+            div.innerHTML = `
+                <a href="${value}" target="_blank">${value}</a>
+                <button type="button" class="btn-close" onclick="this.parentElement.remove()"></button>
+                <input type="hidden" name="project_links[]" value="${value}">
+            `;
+            list.appendChild(div);
+            input.value = '';
+        }
+    }
+
+</script>
+
+{% include 'footer.html' %} 

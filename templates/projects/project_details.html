@@ -135,6 +135,12 @@
                 </a>
                 {% endif %}
               </div>
+
+              {% if user == project.supervisor %}
+              <div class="mb-4 text-end">
+                <a href="{% url 'edit_project' project.id %}" class="btn btn-warning"> <i class="fas fa-edit"></i> Edit Project </a>
+              </div>
+              {% endif %}
             </div>
             <!-- .card-body -->
           </div>

@@ -18,7 +18,7 @@ class Project(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     supervisor = models.ForeignKey(User, on_delete= models.CASCADE)
     availability = models.CharField(max_length=100, default='available')
-    last_modified = models.DateTimeField(default=timezone.now())
+    last_modified = models.DateTimeField(default=timezone.now)
     def __str__(self):
         return self.title
 
