@@ -1,113 +1,121 @@
-{% extends 'base.html' %}
+{% extends 'base_dashboard.html' %} {% load static %} {% block title %}My Profile - Thesis Management System{% endblock %} {% block sidebar_menu %} {% if user_is_supervisor %} {% include 'supervisor_sidebar.html' %} {% elif user_is_admin %} {% include 'admin_sidebar.html' %} {% else %}
+<!-- Student sidebar or no sidebar -->
+{% endif %} {% endblock %} {% block content %}
+<!-- Page Title -->
+<div class="row">
+  <div class="col-12">
+    <div class="page-title-box d-flex align-items-center justify-content-between">
+      <h4 class="mb-0">My Profile</h4>
+      <div class="page-title-right">
+        <ol class="breadcrumb m-0">
+          {% if user_is_supervisor %}
+          <li class="breadcrumb-item"><a href="{% url 'supervisor_dashboard' %}">Dashboard</a></li>
+          {% elif user_is_admin %}
+          <li class="breadcrumb-item"><a href="{% url 'admin_dashboard' %}">Dashboard</a></li>
+          {% endif %}
+          <li class="breadcrumb-item active">Profile</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</div>
 
-{% block content %}
-<div class="container py-5">
-  <div class="row justify-content-center">
-    <div class="col-lg-8">
-      <div class="card shadow-lg border-0">
-        <!-- Card Header -->
-        <div class="card-header bg-primary text-white py-3">
-          <div class="d-flex justify-content-between align-items-center">
-            <div>
-              <h4 class="mb-0 text-white">My Profile</h4>
-              <small class="opacity-75">View your account details</small>
-            </div>
-            <a href="{% url 'edit_profile' %}" class="btn btn-light btn-sm">
-              <i class="bi bi-pencil-square me-1"></i> Edit Profile
-            </a>
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card shadow-lg border-0">
+      <!-- Card Header -->
+      <div class="card-header bg-primary text-white py-3">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h4 class="mb-0 text-white"><i class="mdi mdi-account me-2"></i>My Profile</h4>
+            <small class="opacity-75">View your account details</small>
           </div>
+          <a href="{% url 'edit_profile' %}" class="btn btn-light btn-sm"> <i class="mdi mdi-pencil me-1"></i> Edit Profile </a>
         </div>
-        
-        <!-- Messages -->
-        {% for message in messages %}
-        <div class="alert alert-{{ message.tags }} alert-dismissible fade show m-3 mb-0 rounded">
-          <i class="bi {% if message.tags == 'success' %}bi-check-circle-fill{% else %}bi-exclamation-triangle-fill{% endif %} me-2"></i>
-          {{ message }}
-          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-        {% endfor %}
+      </div>
 
-        <!-- Card Body -->
-        <div class="card-body p-4">
-          <div class="row">
-            <!-- Profile Picture Column -->
-            <div class="col-md-4 text-center mb-4 mb-md-0">
-              <div class="position-relative d-inline-block">
-                <img src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}https://via.placeholder.com/150{% endif %}" 
-                     class="img-thumbnail rounded-circle shadow" 
-                     style="width: 150px; height: 150px; object-fit: cover;"
-                     alt="Profile Picture">
-               
-              </div>
-              <h5 class="mt-3 mb-0">{{ user.get_full_name|default:user.username }}</h5>
-              <p class="text-muted mb-0">
-                {% if user.is_superuser %}
-                <span class="badge bg-danger">Administrator</span>
-                {% elif user.is_staff %}
-                <span class="badge bg-info">Staff</span>
-                {% else %}
-                <span class="badge bg-success">Student</span>
-                {% endif %}
-              </p>
+      <!-- Messages -->
+      {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show m-3 mb-0 rounded">
+        <i class="mdi {% if message.tags == 'success' %}mdi-check-circle{% else %}mdi-alert{% endif %} me-2"></i>
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+      {% endfor %}
+
+      <!-- Card Body -->
+      <div class="card-body p-4">
+        <div class="row">
+          <!-- Profile Picture Column -->
+          <div class="col-md-4 text-center mb-4 mb-md-0">
+            <div class="position-relative d-inline-block">
+              <img src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}https://via.placeholder.com/150{% endif %}" class="img-thumbnail rounded-circle shadow" style="width: 150px; height: 150px; object-fit: cover" alt="Profile Picture" />
             </div>
-            
-            <!-- Profile Details Column -->
-            <div class="col-md-8">
-              <div class="table-responsive">
-                <table class="table table-borderless">
-                  <tbody>
-                    <tr>
-                      <th class="ps-0" style="width: 35%"><i class="bi bi-person-lines-fill text-primary me-2"></i>First Name</th>
-                      <td>{{ user.first_name|default:"-" }}</td>
-                    </tr>
-                    <tr>
-                      <th class="ps-0"><i class="bi bi-person-lines-fill text-primary me-2"></i>Last Name</th>
-                      <td>{{ user.last_name|default:"-" }}</td>
-                    </tr>
-                    <tr>
-                      <th class="ps-0"><i class="bi bi-envelope-fill text-primary me-2"></i>Email</th>
-                      <td>{{ user.email }}</td>
-                    </tr>
-                    <tr>
-                      <th class="ps-0"><i class="bi bi-geo-alt-fill text-primary me-2"></i>Address</th>
-                      <td>{{ user.address|default:"-" }}</td>
-                    </tr>
-                    {% if profile.department is not None %}
-                    <tr>
-                      <th class="ps-0"><i class="bi bi-building-fill text-primary me-2"></i>Department</th>
-                      <td>{{ profile.department|default:"-" }}</td>
-                    </tr>
-                    {% endif %}
-                    {% if not user.is_staff and not user.is_superuser %}
-                    <tr>
-                      <th class="ps-0"><i class="bi bi-credit-card-fill text-primary me-2"></i>Student ID</th>
-                      <td>{{ profile.student_id }}</td>
-                    </tr>
-                    {% elif user.is_staff or user.is_superuser %}
-                    <tr>
-                      <th class="ps-0"><i class="bi bi-credit-card-2-front-fill text-primary me-2"></i>Staff ID</th>
-                      <td>{{ profile.staff_id }}</td>
-                    </tr>
-                    {% endif %}
-                    <tr>
-                      <th class="ps-0"><i class="bi bi-telephone-fill text-primary me-2"></i>Contact</th>
-                      <td>{{ user.contact|default:"-" }}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
+            <h5 class="mt-3 mb-0">{{ user.get_full_name|default:user.username }}</h5>
+            <p class="text-muted mb-0">
+              {% if user.is_superuser %}
+              <span class="badge bg-danger"> <i class="mdi mdi-shield-crown me-1"></i>Administrator </span>
+              {% elif user.is_staff %}
+              <span class="badge bg-info"> <i class="mdi mdi-account-tie me-1"></i>Staff </span>
+              {% else %}
+              <span class="badge bg-success"> <i class="mdi mdi-account me-1"></i>Student </span>
+              {% endif %}
+            </p>
+          </div>
+
+          <!-- Profile Details Column -->
+          <div class="col-md-8">
+            <div class="table-responsive">
+              <table class="table table-borderless">
+                <tbody>
+                  <tr>
+                    <th class="ps-0" style="width: 35%"><i class="mdi mdi-account text-primary me-2"></i>First Name</th>
+                    <td>{{ user.first_name|default:"-" }}</td>
+                  </tr>
+                  <tr>
+                    <th class="ps-0"><i class="mdi mdi-account text-primary me-2"></i>Last Name</th>
+                    <td>{{ user.last_name|default:"-" }}</td>
+                  </tr>
+                  <tr>
+                    <th class="ps-0"><i class="mdi mdi-email text-primary me-2"></i>Email</th>
+                    <td>{{ user.email }}</td>
+                  </tr>
+                  <tr>
+                    <th class="ps-0"><i class="mdi mdi-home text-primary me-2"></i>Address</th>
+                    <td>{{ user.address|default:"-" }}</td>
+                  </tr>
+                  {% if profile.department is not None %}
+                  <tr>
+                    <th class="ps-0"><i class="mdi mdi-domain text-primary me-2"></i>Department</th>
+                    <td>{{ profile.department|default:"-" }}</td>
+                  </tr>
+                  {% endif %} {% if not user.is_staff and not user.is_superuser %}
+                  <tr>
+                    <th class="ps-0"><i class="mdi mdi-card-account-details text-primary me-2"></i>Student ID</th>
+                    <td>{{ profile.student_id }}</td>
+                  </tr>
+                  {% elif user.is_staff or user.is_superuser %}
+                  <tr>
+                    <th class="ps-0"><i class="mdi mdi-card-account-details text-primary me-2"></i>Staff ID</th>
+                    <td>{{ profile.staff_id }}</td>
+                  </tr>
+                  {% endif %}
+                  <tr>
+                    <th class="ps-0"><i class="mdi mdi-phone text-primary me-2"></i>Contact</th>
+                    <td>{{ user.contact|default:"-" }}</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
-        
-        <!-- Card Footer -->
-        <div class="card-footer bg-light py-3">
-          <div class="d-flex justify-content-between align-items-center">
-            <small class="text-muted">Last updated: {{ user.updated_at|date:"F j, Y" }}</small>
-            <a href="{% url 'change_password' %}" class="btn btn-outline-secondary btn-sm">
-              <i class="bi bi-shield-lock me-1"></i> Change Password
-            </a>
-          </div>
+      </div>
+
+      <!-- Card Footer -->
+      <div class="card-footer bg-light py-3">
+        <div class="d-flex justify-content-between align-items-center">
+          <small class="text-muted">Last updated: {{ user.updated_at|date:"F j, Y" }}</small>
+          <a href="{% url 'change_password' %}" class="btn btn-outline-secondary btn-sm"> <i class="mdi mdi-lock me-1"></i> Change Password </a>
         </div>
       </div>
     </div>
