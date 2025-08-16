@@ -1,6 +1,10 @@
 {% extends 'base_dashboard.html' %} {% load static %} {% block title %}Assessment Detail - Thesis Management System{% endblock %} {% block sidebar_menu %} {% if user_is_supervisor %} {% include 'supervisor_sidebar.html' %} {% elif user_is_admin %} {% include 'admin_sidebar.html' %} {% else %}
 <!-- Student sidebar or no sidebar -->
 {% endif %} {% endblock %} {% block content %}
+
+<!-- CSRF Token for AJAX requests -->
+{% csrf_token %}
+
 <!-- Page Title -->
 <div class="row">
   <div class="col-12">
@@ -54,7 +58,7 @@
       </div>
       {% if published_status == 'unpublished' %}
       <div class="col-md-3">
-        <button type="button" class="btn btn-primary waves-effect waves-light"><i class="mdi mdi-publish me-1"></i>Publish Grades</button>
+        <button type="button" class="btn btn-primary waves-effect waves-light" onclick="publishGrades({{ assessment.id }})"><i class="mdi mdi-publish me-1"></i>Publish Grades</button>
       </div>
       {% else %}
       <div class="col-md-3">
@@ -118,4 +122,50 @@
     </div>
   </div>
 </div>
+
+<script>
+  function publishGrades(assessmentId) {
+    if (!confirm("Are you sure you want to publish grades for this assessment? This action cannot be undone.")) {
+      return;
+    }
+
+    // Get the button that was clicked
+    const button = document.querySelector(`button[onclick="publishGrades(${assessmentId})"]`);
+    const originalText = button.innerHTML;
+    button.innerHTML = '<i class="mdi mdi-loading mdi-spin me-1"></i>Publishing...';
+    button.disabled = true;
+
+    // Make AJAX request to publish grades
+    fetch(`/grading/assessments/${assessmentId}/publish/`, {
+      method: "POST",
+      headers: {
+        "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value,
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          // Show success message
+          alert(data.message);
+          // Reload the page to show updated status
+          location.reload();
+        } else {
+          // Show error message
+          alert("Error: " + (data.error || "Failed to publish grades"));
+          // Reset button state
+          button.innerHTML = originalText;
+          button.disabled = false;
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        alert("An error occurred while publishing grades. Please try again.");
+        // Reset button state
+        button.innerHTML = originalText;
+        button.disabled = false;
+      });
+  }
+</script>
+
 {% endblock %}

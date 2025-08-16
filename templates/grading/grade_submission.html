@@ -111,7 +111,7 @@
               <!-- Submit Button -->
               <div class="form-group mt-4">
                 <button type="submit" class="btn btn-primary btn-lg"><i class="mdi mdi-content-save me-2"></i>Save Grade</button>
-                <a href="{% url 'project_submissions' submission.assignment.schema.id %}" class="btn btn-secondary btn-lg ml-2"> <i class="mdi mdi-arrow-left me-2"></i>Back to Submissions </a>
+                <a href="{% url 'grading:assessment_detail' submission.assignment.id %}" class="btn btn-secondary btn-lg ml-2"> <i class="mdi mdi-arrow-left me-2"></i>Back to Assessment</a>
               </div>
             </form>
           </div>
