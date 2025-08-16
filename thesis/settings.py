@@ -140,3 +140,10 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # Path where files are stored
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'accounts.User'
+
+# Session Configuration
+SESSION_COOKIE_AGE = 30 * 24 * 60 * 60  # 30 days in seconds
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Sessions persist across browser restarts
+SESSION_SAVE_EVERY_REQUEST = True  # Update session on every request
+SESSION_COOKIE_SECURE = False  # Set to True in production with HTTPS
+SESSION_COOKIE_HTTPONLY = True  # Prevent JavaScript access to session cookie

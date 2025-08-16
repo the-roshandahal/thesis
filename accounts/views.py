@@ -20,6 +20,7 @@ def login(request):
         if request.method == 'POST':
             email = request.POST.get('email')
             password = request.POST.get('password')
+            remember_me = request.POST.get('remember_me') == 'on'  # Checkbox value
             user_obj = None
 
             # Try to find user by email in Django User model
@@ -29,6 +30,16 @@ def login(request):
                     auth_login(request, user)
                     user.last_login = timezone.now()
                     user.save()
+                    
+                    # Handle "Remember me" functionality
+                    if remember_me:
+                        # Set session to expire in 30 days (30 * 24 * 60 * 60 seconds)
+                        request.session.set_expiry(30 * 24 * 60 * 60)
+                        # Set session as persistent (won't expire when browser closes)
+                        request.session.modified = True
+                    else:
+                        # Session expires when browser closes
+                        request.session.set_expiry(0)
                     
                     # Redirect based on user role
                     if user.is_superuser:

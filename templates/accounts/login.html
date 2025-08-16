@@ -217,12 +217,37 @@
       }
 
       .form-check {
-        margin: 1rem 0;
+        margin-bottom: 1.5rem;
+        padding: 0;
+      }
+
+      .form-check-input {
+        margin-top: 0.2rem;
+        margin-right: 0.75rem;
+      }
+
+      .form-check-label {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        cursor: pointer;
+        color: var(--text-dark);
+        font-weight: 500;
+      }
+
+      .form-check-label small {
+        font-weight: 400;
+        opacity: 0.8;
       }
 
       .form-check-input:checked {
         background-color: var(--primary-color);
         border-color: var(--primary-color);
+      }
+
+      .form-check-input:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.25);
       }
 
       .alert {
@@ -522,7 +547,11 @@
 
           <div class="form-check">
             <input class="form-check-input" type="checkbox" id="remember-me" name="remember_me" />
-            <label class="form-check-label" for="remember-me"> Remember me for 30 days </label>
+            <label class="form-check-label" for="remember-me">
+              <i class="fas fa-clock me-2"></i>
+              Remember me for 30 days
+              <small class="d-block text-muted mt-1"> Stay logged in across browser sessions </small>
+            </label>
           </div>
 
           <button type="submit" class="btn btn-login"><i class="fas fa-sign-in-alt me-2"></i>Sign In</button>
