@@ -134,8 +134,8 @@ local_settings.py
 db.sqlite3
 db.sqlite3-journal
 
-# Media files (we want to keep these)
-# media/
+# Media files (user uploads - typically large and not needed in version control)
+media/
 
 # Static files (we want to keep these)
 # static/
