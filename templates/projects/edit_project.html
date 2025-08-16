@@ -62,7 +62,7 @@
 
                             <div class="mb-3">
                                 <label class="form-label">Description</label>
-                                <textarea id="description" name="description">{{ project.description }}</textarea>
+                                <textarea id="description" name="description" class="form-control" rows="8" placeholder="Enter detailed project description, requirements, objectives, and any other relevant information...">{{ project.description }}</textarea>
                             </div>
 
                             <!-- Existing Files Section -->
@@ -100,26 +100,28 @@
                                 <div id="hiddenFilesData"></div> 
                             </div>
 
-                            <div class="mb-3">
-                                <label class="form-label">Reference Links</label>
-                                <div class="input-group mb-2">
-                                    <input type="url" id="linkInput" class="form-control" placeholder="https://example.com">
-                                    <button class="btn btn-primary" type="button" onclick="addLink()">Add Link</button>
-                                </div>
-                                <div id="linkList" class="mb-3">
-                                    {% for link in project.links.all %}
-                                    <div class="alert alert-info alert-dismissible fade show mb-2">
-                                        <a href="{{ link.url }}" target="_blank">{{ link.url }}</a>
-                                        <button type="button" class="btn-close" onclick="this.parentElement.remove()"></button>
-                                        <input type="hidden" name="project_links[]" value="{{ link.url }}">
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <label class="form-label">Project Links</label>
+                                    <div class="input-group mb-2">
+                                        <input type="url" id="linkInput" class="form-control" placeholder="https://example.com">
+                                        <button class="btn btn-primary" type="button" onclick="addLink()">Add</button>
                                     </div>
-                                    {% endfor %}
+                                    <div id="linkList" class="mb-3">
+                                        {% for link in project.links.all %}
+                                        <div class="alert alert-info alert-dismissible fade show mb-2">
+                                            <a href="{{ link.url }}" target="_blank">{{ link.url }}</a>
+                                            <button type="button" class="btn-close" onclick="this.parentElement.remove()"></button>
+                                            <input type="hidden" name="project_links[]" value="{{ link.url }}">
+                                        </div>
+                                        {% endfor %}
+                                    </div>
                                 </div>
                             </div>
 
-                            <div class="d-flex justify-content-between">
-                                <a href="{% url 'project_supervisor' %}" class="btn btn-secondary">Cancel</a>
+                            <div class="text-end">
                                 <button type="submit" class="btn btn-primary">Update Project</button>
+                                <a href="{% url 'project_supervisor' %}" class="btn btn-secondary">Cancel</a>
                             </div>
                         </form>
                     </div>
@@ -129,30 +131,6 @@
     </div>
 </div>
 
-<!-- Place the first <script> tag in your HTML's <head> -->
-<script src="https://cdn.tiny.cloud/1/pe0ptqkzisvdzcwvnywvj7urndv6wf68ccaj2kxmzdxr7eaz/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
-
-<!-- Place the following <script> and <textarea> tags your HTML's <body> -->
-<script>
-  tinymce.init({
-    selector: 'textarea',
-    plugins: [
-      // Core editing features
-      'anchor', 'autolink', 'charmap', 'codesample', 'emoticons', 'image', 'link', 'lists', 'media', 'searchreplace', 'table', 'visualblocks', 'wordcount',
-      // Your account includes a free trial of TinyMCE premium features
-      // Try the most popular premium features until Aug 5, 2025:
-      'checklist', 'mediaembed', 'casechange', 'formatpainter', 'pageembed', 'a11ychecker', 'tinymcespellchecker', 'permanentpen', 'powerpaste', 'advtable', 'advcode', 'editimage', 'advtemplate', 'ai', 'mentions', 'tinycomments', 'tableofcontents', 'footnotes', 'mergetags', 'autocorrect', 'typography', 'inlinecss', 'markdown','importword', 'exportword', 'exportpdf'
-    ],
-    toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat',
-    tinycomments_mode: 'embedded',
-    tinycomments_author: 'Author name',
-    mergetags_list: [
-      { value: 'First.Name', title: 'First Name' },
-      { value: 'Email', title: 'Email' },
-    ],
-    ai_request: (request, respondWith) => respondWith.string(() => Promise.reject('See docs to implement AI Assistant')),
-  });
-</script>
 <script>
 
     // --- Global array to hold selected files and their custom names ---
@@ -256,7 +234,7 @@
         formData.append('prerequisites', form.elements['prerequisites'].value);
         
         // Get TinyMCE content
-        formData.append('description', tinymce.get('description').getContent());
+        formData.append('description', document.getElementById('description').value);
 
         // Append Topic Areas
         document.querySelectorAll('#topicAreaList input[name="project_areas[]"]').forEach(input => {
