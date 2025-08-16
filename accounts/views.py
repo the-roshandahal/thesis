@@ -1,3 +1,4 @@
+import logging
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.contrib import messages
@@ -5,6 +6,10 @@ from django.contrib.auth import login as auth_login
 from django.contrib.auth.hashers import check_password, make_password
 from django.utils import timezone
 from .models import Student, Supervisor, User
+from .decorators import admin_required, supervisor_required, student_required, role_based_redirect
+
+# Set up logging
+logger = logging.getLogger(__name__)
 
 
 def login(request):
@@ -20,16 +25,42 @@ def login(request):
         if request.method == 'POST':
             email = request.POST.get('email')
             password = request.POST.get('password')
+            user_type = request.POST.get('user_type')  # Get the selected role
             remember_me = request.POST.get('remember_me') == 'on'  # Checkbox value
             user_obj = None
+
+            # Validate that user_type is provided
+            if not user_type:
+                messages.error(request, 'Please select your role.')
+                logger.warning(f'Failed login attempt: No role selected for email {email}')
+                return render(request, 'accounts/login.html')
 
             # Try to find user by email in Django User model
             try:
                 user = User.objects.get(email=email)
                 if check_password(password, user.password):
+                    # Validate role selection against user's actual permissions
+                    role_valid = False
+                    if user_type == 'admin' and user.is_superuser:
+                        role_valid = True
+                    elif user_type == 'supervisor' and user.is_staff and not user.is_superuser:
+                        role_valid = True
+                    elif user_type == 'student' and not user.is_staff and not user.is_superuser:
+                        role_valid = True
+                    
+                    if not role_valid:
+                        # Role mismatch - show generic error message for security
+                        messages.error(request, 'Invalid credentials. Please check your email, password, and selected role.')
+                        logger.warning(f'Role validation failed: User {user.email} attempted to login with mismatched role {user_type}')
+                        return render(request, 'accounts/login.html')
+                    
+                    # Role validation passed - proceed with login
                     auth_login(request, user)
                     user.last_login = timezone.now()
                     user.save()
+                    
+                    # Log successful login
+                    logger.info(f'Successful login: User {user.email} logged in with role {user_type}')
                     
                     # Handle "Remember me" functionality
                     if remember_me:
@@ -50,8 +81,10 @@ def login(request):
                         return redirect('home')
                 else:
                     messages.error(request, 'Incorrect password.')
+                    logger.warning(f'Failed login attempt: Incorrect password for user {email}')
             except User.DoesNotExist:
                 messages.error(request, f"No user found for email {email}.")
+                logger.warning(f'Failed login attempt: User not found for email {email}')
 
         return render(request, 'accounts/login.html')
 
@@ -61,11 +94,15 @@ def logout_view(request):
     return redirect('homepage')
 
 
+@login_required
+@admin_required
 def student_admin(request):
     students = Student.objects.all()
     return render(request, 'accounts/student_admin.html', {'students': students})
 
 
+@login_required
+@admin_required
 def add_student(request):
     if request.method == 'POST':
         first_name = request.POST.get('first_name')
@@ -77,10 +114,12 @@ def add_student(request):
 
         if password != password2:
             messages.error(request, "Passwords do not match.")
+            logger.warning(f'Admin {request.user.email} failed to add student: Password mismatch for email {email}')
             return redirect('add_student')
 
         if User.objects.filter(email=email).exists():
             messages.error(request, "Email already exists.")
+            logger.warning(f'Admin {request.user.email} failed to add student: Email {email} already exists')
             return redirect('add_student')
 
         user = User.objects.create(
@@ -99,16 +138,21 @@ def add_student(request):
         )
 
         messages.success(request, "Student added successfully.")
+        logger.info(f'Admin {request.user.email} successfully added new student: {email} (ID: STU{user.id:04d})')
         return redirect('student_admin')
 
     return render(request, 'accounts/add_student.html')
 
 
+@login_required
+@admin_required
 def supervisor_admin(request):
     supervisors = Supervisor.objects.all()
     return render(request, 'accounts/supervisor_admin.html', {'supervisors': supervisors})
 
 
+@login_required
+@admin_required
 def add_supervisor(request):
     if request.method == 'POST':
         first_name = request.POST.get('first_name')
@@ -120,10 +164,12 @@ def add_supervisor(request):
 
         if password != password2:
             messages.error(request, "Passwords do not match.")
+            logger.warning(f'Admin {request.user.email} failed to add supervisor: Password mismatch for email {email}')
             return redirect('add_student')
 
         if User.objects.filter(email=email).exists():
             messages.error(request, "Email already exists.")
+            logger.warning(f'Admin {request.user.email} failed to add supervisor: Email {email} already exists')
             return redirect('add_student')
 
         user = User.objects.create(
@@ -142,6 +188,7 @@ def add_supervisor(request):
         )
 
         messages.success(request, "Supervisor added successfully.")
+        logger.info(f'Admin {request.user.email} successfully added new supervisor: {email} (ID: SUP{user.id:04d})')
         return redirect('supervisor_admin')
 
     return render(request, 'accounts/add_supervisor.html')
@@ -198,6 +245,7 @@ def change_password(request):
 
 
 @login_required
+@admin_required
 def admin_dashboard(request):
     """Comprehensive admin dashboard with statistics and charts data"""
     # Check if user is admin
@@ -290,6 +338,7 @@ def admin_dashboard(request):
 
 
 @login_required
+@supervisor_required
 def supervisor_dashboard(request):
     """Comprehensive supervisor dashboard with statistics and charts data"""
     # Check if user is supervisor

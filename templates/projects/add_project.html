@@ -23,7 +23,7 @@
       <div class="alert alert-danger">{{ error }}</div>
       {% endif %}
 
-      <form id="projectForm" method="POST" enctype="multipart/form-data" onsubmit="return submitForm(event);">
+      <form id="projectForm" method="POST" action="{% url 'add_project' %}" enctype="multipart/form-data">
         {% csrf_token %}
 
         <div class="row">
@@ -64,15 +64,27 @@
 
         <div class="mb-3">
           <label class="form-label">Description</label>
-          <textarea id="description" name="description"></textarea>
+          <textarea id="description" name="description" class="form-control" rows="8" placeholder="Enter detailed project description, requirements, objectives, and any other relevant information..."></textarea>
         </div>
 
         <div class="mb-4">
-          <label class="form-label">Upload Files (PDF only)</label>
-          <input type="file" id="fileInput" class="form-control" multiple accept=".pdf" />
-          <small class="text-muted">Max 10MB per file</small>
+          <label class="form-label">Project Files</label>
+
+          <!-- Sample File -->
+          <div class="mb-3">
+            <label class="form-label">Sample File (PDF)</label>
+            <input type="file" id="sampleFileInput" class="form-control" accept=".pdf" />
+            <small class="text-muted">Upload a sample file for students to reference</small>
+          </div>
+
+          <!-- Assessment Details -->
+          <div class="mb-3">
+            <label class="form-label">Assessment Details (PDF)</label>
+            <input type="file" id="assessmentFileInput" class="form-control" accept=".pdf" />
+            <small class="text-muted">Upload assessment criteria and details</small>
+          </div>
+
           <div id="filePreview" class="mt-2"></div>
-          <div id="hiddenFilesData"></div>
         </div>
 
         <div class="mb-3">
@@ -93,198 +105,83 @@
   </div>
 </div>
 {% endblock %} {% block extra_js %}
-<!-- TinyMCE -->
-<script src="https://cdn.tiny.cloud/1/pe0ptqkzisvdzcwvnywvj7urndv6wf68ccaj2kxmzdxr7eaz/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
-
 <script>
-  // Initialize TinyMCE
-  tinymce.init({
-    selector: "textarea",
-    plugins: [
-      // Core editing features
-      "anchor",
-      "autolink",
-      "charmap",
-      "codesample",
-      "emoticons",
-      "image",
-      "link",
-      "lists",
-      "media",
-      "searchreplace",
-      "table",
-      "visualblocks",
-      "wordcount",
-      // Your account includes a free trial of TinyMCE premium features
-      // Try the most popular premium features until Aug 5, 2025:
-      "checklist",
-      "mediaembed",
-      "casechange",
-      "formatpainter",
-      "pageembed",
-      "a11ychecker",
-      "tinymcespellchecker",
-      "permanentpen",
-      "powerpaste",
-      "advtable",
-      "advcode",
-      "editimage",
-      "advtemplate",
-      "ai",
-      "mentions",
-      "tinycomments",
-      "tableofcontents",
-      "footnotes",
-      "mergetags",
-      "autocorrect",
-      "typography",
-      "inlinecss",
-      "markdown",
-      "importword",
-      "exportword",
-      "exportpdf",
-    ],
-    toolbar: "undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat",
-    height: 300,
-    menubar: false,
-    branding: false,
-    promotion: false,
-    content_style: "body { font-family: -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif; font-size: 14px; }",
-    setup: function (editor) {
-      editor.on("change", function () {
-        editor.save();
-      });
-    },
-  });
-
   // --- Global Variables ---
-  let selectedFiles = []; // Array to store selected files with their custom names
+  let sampleFile = null; // Sample file
+  let assessmentFile = null; // Assessment details file
 
   // --- Render File Previews Function ---
   function renderFilePreviews() {
     const preview = document.getElementById("filePreview");
-    const hiddenData = document.getElementById("hiddenFilesData");
-
-    // Clear existing previews and hidden data
+    // Clear existing previews
     preview.innerHTML = "";
-    hiddenData.innerHTML = "";
 
     // Render each file
-    selectedFiles.forEach((fileEntry, index) => {
-      // Create preview div
+    if (sampleFile) {
       const div = document.createElement("div");
       div.className = "d-flex align-items-center justify-content-between p-2 border rounded mb-2";
       div.innerHTML = `
         <div class="flex-grow-1">
           <input type="text" class="form-control form-control-sm" 
-                 value="${fileEntry.customName}" 
-                 onchange="updateCustomFileName(${index}, this.value)"
+                 value="Sample File" 
+                 onchange="updateCustomFileName(0, this.value)"
                  maxlength="255">
-          <small class="text-muted d-block">${(fileEntry.file.size / (1024 * 1024)).toFixed(2)} MB</small>
+          <small class="text-muted d-block">${(sampleFile.size / (1024 * 1024)).toFixed(2)} MB</small>
         </div>
-        <button type="button" class="btn btn-sm btn-danger mt-2 mt-md-0" onclick="removeFilePreview(this, ${index})">Remove</button>
+        <button type="button" class="btn btn-sm btn-danger mt-2 mt-md-0" onclick="removeFilePreview(this, 0)">Remove</button>
       `;
       preview.appendChild(div);
-    });
+    }
+
+    if (assessmentFile) {
+      const div = document.createElement("div");
+      div.className = "d-flex align-items-center justify-content-between p-2 border rounded mb-2";
+      div.innerHTML = `
+        <div class="flex-grow-1">
+          <input type="text" class="form-control form-control-sm" 
+                 value="Assessment Details" 
+                 onchange="updateCustomFileName(1, this.value)"
+                 maxlength="255">
+          <small class="text-muted d-block">${(assessmentFile.size / (1024 * 1024)).toFixed(2)} MB</small>
+        </div>
+        <button type="button" class="btn btn-sm btn-danger mt-2 mt-md-0" onclick="removeFilePreview(this, 1)">Remove</button>
+      `;
+      preview.appendChild(div);
+    }
   }
 
-  // --- File Input Change Listener ---
+  // --- File Input Change Listeners ---
   document.addEventListener("DOMContentLoaded", function () {
-    document.getElementById("fileInput").addEventListener("change", function (e) {
-      // Add new files to our selectedFiles array
-      Array.from(e.target.files).forEach((file) => {
-        // Check if file is already in selectedFiles by name
-        const isDuplicate = selectedFiles.some((existingFile) => existingFile.file.name === file.name);
-        if (!isDuplicate) {
-          selectedFiles.push({
-            file: file,
-            customName: file.name.split(".").slice(0, -1).join(".").substring(0, 255), // Default to original name without extension, truncated
-          });
-        } else {
-          alert(`File "${file.name}" has already been selected.`);
-        }
-      });
-      e.target.value = null; // Clear the input so same file can be selected again if needed
-      renderFilePreviews(); // Re-render the previews
+    // Sample file input
+    document.getElementById("sampleFileInput").addEventListener("change", function (e) {
+      if (e.target.files.length > 0) {
+        sampleFile = e.target.files[0];
+        console.log("Sample file selected:", sampleFile.name);
+        renderFilePreviews(); // Update the preview
+      }
     });
+
+    // Assessment file input
+    document.getElementById("assessmentFileInput").addEventListener("change", function (e) {
+      if (e.target.files.length > 0) {
+        assessmentFile = e.target.files[0];
+        console.log("Assessment file selected:", assessmentFile.name);
+        renderFilePreviews(); // Update the preview
+      }
+    });
+
+    // Initial render of file previews
+    renderFilePreviews();
   });
 
   // --- Remove File from Preview and selectedFiles Array ---
   function removeFilePreview(button, indexToRemove) {
-    selectedFiles.splice(indexToRemove, 1); // Remove the file from our array
+    if (indexToRemove === 0) {
+      sampleFile = null;
+    } else if (indexToRemove === 1) {
+      assessmentFile = null;
+    }
     renderFilePreviews(); // Re-render to update indices and display
-  }
-
-  // --- Update Custom File Name in selectedFiles Array ---
-  function updateCustomFileName(index, newName) {
-    if (selectedFiles[index]) {
-      selectedFiles[index].customName = newName.substring(0, 255); // Truncate to 255 characters
-    }
-  }
-
-  // --- Custom Form Submission Function ---
-  async function submitForm(event) {
-    event.preventDefault(); // Prevent default form submission
-
-    const form = document.getElementById("projectForm");
-    const formData = new FormData();
-
-    // Append regular form fields
-    formData.append("project_title", form.elements["project_title"].value);
-    formData.append("project_type", form.elements["project_type"].value);
-    formData.append("prerequisites", form.elements["prerequisites"].value);
-
-    // Get TinyMCE content
-    formData.append("description", tinymce.get("description").getContent());
-
-    // Append Topic Areas
-    document.querySelectorAll('#topicAreaList input[name="project_areas[]"]').forEach((input) => {
-      formData.append("project_areas[]", input.value);
-    });
-
-    // Append Links
-    document.querySelectorAll('#linkList input[name="project_links[]"]').forEach((input) => {
-      formData.append("project_links[]", input.value);
-    });
-
-    // Append CSRF token
-    formData.append("csrfmiddlewaretoken", document.querySelector('[name="csrfmiddlewaretoken"]').value);
-
-    // Append files from our selectedFiles array with their custom names
-    selectedFiles.forEach((fileEntry, index) => {
-      formData.append("uploaded_files", fileEntry.file); // The actual File object
-      formData.append(`custom_file_name_${index}`, fileEntry.customName); // The custom name
-    });
-
-    // Submit the form using fetch API
-    try {
-      const response = await fetch(form.action, {
-        method: "POST",
-        body: formData,
-      });
-
-      if (response.redirected) {
-        window.location.href = response.url; // Follow the redirect
-      } else if (!response.ok) {
-        // If not redirected and not ok (e.g., validation error), parse error and display
-        const errorHtml = await response.text();
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(errorHtml, "text/html");
-        const errorDiv = doc.querySelector(".alert.alert-danger"); // Assuming your Django error template structure
-        if (errorDiv) {
-          document.querySelector(".alert.alert-danger").innerHTML = errorDiv.innerHTML;
-          document.querySelector(".alert.alert-danger").style.display = "block";
-        } else {
-          alert("An unexpected error occurred. Please check the console for details.");
-          console.error("Server response error:", errorHtml);
-        }
-      }
-    } catch (error) {
-      console.error("Form submission error:", error);
-      alert("An error occurred during submission. Please try again.");
-    }
-
-    return false; // Prevent default form submission again
   }
 
   // Add Topic Area (remains the same)

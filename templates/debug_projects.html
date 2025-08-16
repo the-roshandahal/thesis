@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Debug Projects - KOI TMS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  </head>
+  <body>
+    <div class="container mt-4">
+      <h1>Debug Projects</h1>
+
+      <div class="row mb-4">
+        <div class="col-md-4">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Summary</h5>
+              <p><strong>Total Projects:</strong> {{ total_projects }}</p>
+              <p><strong>Total Applications:</strong> {{ total_applications }}</p>
+              <p><strong>Accepted Applications:</strong> {{ accepted_applications }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h3>Project Details</h3>
+      <div class="table-responsive">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Title</th>
+              <th>Availability Field</th>
+              <th>Total Apps</th>
+              <th>Accepted</th>
+              <th>Applied</th>
+              <th>Declined</th>
+              <th>Is Available Property</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for project in debug_info %}
+            <tr>
+              <td>{{ project.id }}</td>
+              <td>{{ project.title }}</td>
+              <td>
+                <span class="badge {% if project.availability_field == 'available' %}bg-success{% else %}bg-warning{% endif %}"> {{ project.availability_field }} </span>
+              </td>
+              <td>{{ project.total_applications }}</td>
+              <td>
+                <span class="badge {% if project.accepted_applications > 0 %}bg-success{% else %}bg-secondary{% endif %}"> {{ project.accepted_applications }} </span>
+              </td>
+              <td>{{ project.applied_applications }}</td>
+              <td>{{ project.declined_applications }}</td>
+              <td>
+                <span class="badge {% if project.is_available_property %}bg-success{% else %}bg-warning{% endif %}"> {{ project.is_available_property|yesno:"Yes,No" }} </span>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mt-4">
+        <a href="{% url 'homepage' %}" class="btn btn-primary">Back to Homepage</a>
+      </div>
+    </div>
+  </body>
+</html>

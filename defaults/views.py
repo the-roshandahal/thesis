@@ -38,7 +38,6 @@ def home(request):
         
         if accepted_application:
             from assessment.models import Assessment, StudentSubmission
-            from django.utils import timezone
             from datetime import timedelta
             
             # Get assessments for the accepted project
@@ -115,20 +114,47 @@ def home(request):
 def homepage(request):
     query = request.GET.get('q')
     topic_type = request.GET.get('topic_type')
+    availability_filter = request.GET.get('availability', 'all')  # New filter parameter
 
+    # Get all projects initially
     projects = Project.objects.all()
+    print(f"DEBUG: Total projects found: {projects.count()}")
+
+    # Apply availability filter if specified
+    if availability_filter == 'available':
+        # Show only projects that are available for new applications
+        # (no accepted applications, only 'applied' or 'declined' applications are fine)
+        projects = [p for p in projects if p.is_available_for_application]
+        print(f"DEBUG: After 'available' filter: {len(projects)} projects")
+    elif availability_filter == 'taken':
+        # Show only projects that have accepted applications (are taken)
+        projects = [p for p in projects if not p.is_available_for_application]
+        print(f"DEBUG: After 'taken' filter: {len(projects)} projects")
+    # If 'all' or no filter, show all projects
 
     if query:
-        projects = projects.filter(title__icontains=query)  # or any field you want to search in
+        projects = [p for p in projects if query.lower() in p.title.lower()]
 
     if topic_type:
-        projects = projects.filter(project_type__iexact=topic_type)
+        projects = [p for p in projects if p.project_type.lower() == topic_type.lower()]
+
+    # Add availability information to each project
+    for project in projects:
+        project.is_available = project.is_available_for_application
+        print(f"DEBUG: Project '{project.title}' - is_available: {project.is_available}")
 
     context = {
         'projects': projects,
         'query': query,
         'selected_topic_type': topic_type,
+        'selected_availability': availability_filter,
+        'total_projects': len(projects),
+        'available_count': len([p for p in projects if p.is_available]),
+        'taken_count': len([p for p in projects if not p.is_available]),
     }
+    
+    print(f"DEBUG: Final context - Total: {context['total_projects']}, Available: {context['available_count']}, Taken: {context['taken_count']}")
+    
     return render(request, 'index.html', context)
 
 def view_all_notifications(request):
@@ -179,3 +205,51 @@ def mark_all_notifications_as_read(request):
 
     # Redirect back to the "View All Notifications" page after marking as read
     return HttpResponseRedirect(reverse('view_all_notifications'))
+
+def debug_projects(request):
+    """Debug view to check project availability status"""
+    from projects.models import Project
+    from application.models import Application
+    
+    projects = Project.objects.all()
+    applications = Application.objects.all()
+    
+    debug_info = []
+    
+    for project in projects:
+        project_info = {
+            'id': project.id,
+            'title': project.title,
+            'availability_field': project.availability,
+            'total_applications': project.applications.count(),
+            'accepted_applications': project.applications.filter(status='accepted').count(),
+            'applied_applications': project.applications.filter(status='applied').count(),
+            'declined_applications': project.applications.filter(status='declined').count(),
+            'is_available_property': project.is_available_for_application,
+        }
+        debug_info.append(project_info)
+    
+    context = {
+        'debug_info': debug_info,
+        'total_projects': projects.count(),
+        'total_applications': applications.count(),
+        'accepted_applications': applications.filter(status='accepted').count(),
+    }
+    
+    return render(request, 'debug_projects.html', context)
+
+def fix_project_availability(request):
+    """Fix the availability status of all existing projects"""
+    from projects.models import Project
+    
+    projects = Project.objects.all()
+    fixed_count = 0
+    
+    for project in projects:
+        old_status = project.availability
+        project.update_availability_status()
+        if old_status != project.availability:
+            fixed_count += 1
+    
+    messages.success(request, f"Fixed availability status for {fixed_count} projects.")
+    return redirect('homepage')

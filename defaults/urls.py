@@ -9,6 +9,6 @@ urlpatterns = [
     path('notifications/', views.view_all_notifications, name='view_all_notifications'),
     path('notification/read/<int:notification_id>/', views.mark_notification_as_read_and_redirect, name='mark_notification_as_read_and_redirect'),
     path('notifications/mark_all_as_read/', views.mark_all_notifications_as_read, name='mark_all_notifications_as_read'),
-
-
+    path('debug-projects/', views.debug_projects, name='debug_projects'),
+    path('fix-availability/', views.fix_project_availability, name='fix_project_availability'),
 ]

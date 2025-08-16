@@ -420,6 +420,19 @@
         </div>
         {% endfor %} {% endif %}
 
+        <!-- Project Availability Status -->
+        {% if is_available %}
+        <div class="alert alert-success" role="alert">
+          <i class="fas fa-check-circle me-2"></i>
+          <strong>Project Available!</strong> This project is currently accepting applications from students.
+        </div>
+        {% else %}
+        <div class="alert alert-warning" role="alert">
+          <i class="fas fa-exclamation-triangle me-2"></i>
+          <strong>Project Not Available</strong> This project is no longer accepting applications as it has already been assigned.
+        </div>
+        {% endif %}
+
         <!-- Project Description -->
         <div class="project-section">
           <h3 class="section-title">
@@ -521,6 +534,7 @@
           {% endif %} {% else %}
           <!-- Show apply button if user hasn't applied -->
           <div class="application-section">
+            {% if is_available and not has_accepted_application_anywhere %}
             <h4 class="mb-3">Interested in this project?</h4>
             <p class="text-muted mb-4">Submit your application below to get started with your thesis journey.</p>
             <a href="{% url 'apply_to_project' project.id %}" class="btn-apply">
@@ -533,6 +547,23 @@
                 You can apply individually or as part of a group
               </small>
             </p>
+            {% elif has_accepted_application_anywhere %}
+            <div class="alert alert-warning" role="alert">
+              <i class="fas fa-exclamation-triangle me-2"></i>
+              <strong>Application Accepted!</strong> You have an accepted application to another project. <br /><small class="text-muted">You cannot apply to additional projects while your current application is active. Please complete your current project first.</small>
+            </div>
+            {% else %}
+            <div class="alert alert-warning" role="alert">
+              <i class="fas fa-exclamation-triangle me-2"></i>
+              <strong>Project Not Available</strong> This project is no longer accepting applications as it has already been assigned to students.
+            </div>
+            <p class="text-muted mt-3 mb-0">
+              <small>
+                <i class="fas fa-info-circle me-1"></i>
+                Please browse other available projects
+              </small>
+            </p>
+            {% endif %}
           </div>
           {% endif %}
         </div>

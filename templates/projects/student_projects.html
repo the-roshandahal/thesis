@@ -154,6 +154,31 @@
             transform: translateY(-2px);
         }
         
+        .filter-summary {
+            text-align: center;
+            color: white;
+        }
+        
+        .summary-stats {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+        
+        .stat-item {
+            display: flex;
+            align-items: center;
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+        
+        .current-filter {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
         .page-content {
             padding: 40px;
         }
@@ -347,19 +372,23 @@
         .availability-badge {
             padding: 6px 12px;
             border-radius: 20px;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             font-weight: 600;
-            text-transform: uppercase;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
         }
         
         .availability-available {
             background: rgba(22, 163, 74, 0.1);
             color: var(--success-color);
+            border: 1px solid rgba(22, 163, 74, 0.3);
         }
         
-        .availability-unavailable {
-            background: rgba(220, 38, 38, 0.1);
-            color: var(--danger-color);
+        .availability-taken {
+            background: rgba(202, 138, 4, 0.1);
+            color: var(--warning-color);
+            border: 1px solid rgba(202, 138, 4, 0.3);
         }
         
         .card-actions {
@@ -403,6 +432,20 @@
             background: var(--primary-color);
             color: white;
             transform: translateY(-2px);
+        }
+        
+        .btn-disabled {
+            background: var(--bg-light);
+            color: var(--text-light);
+            border: 2px solid var(--border-color);
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        
+        .btn-disabled:hover {
+            transform: none;
+            background: var(--bg-light);
+            color: var(--text-light);
         }
         
         .empty-state {
@@ -574,11 +617,19 @@
         .alert {
             border-radius: 12px;
             border: none;
-            padding: 16px;
+            padding: 16px 20px;
             margin-bottom: 24px;
-            background: rgba(37, 99, 235, 0.1);
-            color: var(--primary-color);
-            border-left: 4px solid var(--primary-color);
+            font-size: 0.95rem;
+        }
+        
+        .alert-warning {
+            background: rgba(202, 138, 4, 0.1);
+            color: #92400e;
+            border-left: 4px solid var(--warning-color);
+        }
+        
+        .alert-warning .btn-close {
+            color: #92400e;
         }
     </style>
 </head>
@@ -600,6 +651,32 @@
                 
                 <!-- Search and Filter Section -->
                 <div class="search-section">
+                    <!-- Filter Summary -->
+                    <div class="filter-summary mb-3">
+                        <div class="summary-stats">
+                            <span class="stat-item">
+                                <i class="fas fa-list me-1"></i>
+                                <strong>{{ total_projects }}</strong> Total Projects
+                            </span>
+                            <span class="stat-item">
+                                <i class="fas fa-check-circle me-1 text-success"></i>
+                                <strong>{{ available_count }}</strong> Available
+                            </span>
+                            <span class="stat-item">
+                                <i class="fas fa-exclamation-triangle me-1 text-warning"></i>
+                                <strong>{{ taken_count }}</strong> Taken
+                            </span>
+                        </div>
+                        {% if selected_availability != 'all' %}
+                        <div class="current-filter">
+                            <small class="text-white-50">
+                                <i class="fas fa-filter me-1"></i>
+                                Showing: {{ selected_availability|title }} projects only
+                            </small>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
                     <form method="GET" class="search-form">
                         <input type="text" 
                                name="q" 
@@ -613,6 +690,12 @@
                             <option value="development" {% if selected_topic_type == 'development' %}selected{% endif %}>Development</option>
                             <option value="analysis" {% if selected_topic_type == 'analysis' %}selected{% endif %}>Analysis</option>
                             <option value="design" {% if selected_topic_type == 'design' %}selected{% endif %}>Design</option>
+                        </select>
+                        
+                        <select name="availability" class="filter-select">
+                            <option value="all" {% if selected_availability == 'all' %}selected{% endif %}>All Projects</option>
+                            <option value="available" {% if selected_availability == 'available' %}selected{% endif %}>Available Only</option>
+                            <option value="taken" {% if selected_availability == 'taken' %}selected{% endif %}>Taken Only</option>
                         </select>
                         
                         <button type="submit" class="btn-search">
@@ -653,6 +736,16 @@
                 {% endfor %}
             {% endif %}
 
+            <!-- Active Application Warning -->
+            {% if has_accepted_application_anywhere %}
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <strong>Application Accepted!</strong> You have an accepted application to another project. 
+                <br><small class="text-muted">You cannot apply to additional projects while your current application is active. Please complete your current project first.</small>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endif %}
+
             <!-- Projects Grid -->
             {% if projects %}
                 <div class="projects-grid">
@@ -687,11 +780,17 @@
                         
                         <div class="project-meta">
                             <div class="meta-item">
-                                <div class="meta-label">Availability</div>
+                                <div class="meta-label">Status</div>
                                 <div class="meta-value">
-                                    <span class="availability-badge availability-{{ project.availability }}">
-                                        {{ project.availability|title }}
+                                    {% if project.is_available %}
+                                    <span class="availability-badge availability-available">
+                                        <i class="fas fa-check-circle me-1"></i>Available
                                     </span>
+                                    {% else %}
+                                    <span class="availability-badge availability-taken">
+                                        <i class="fas fa-exclamation-triangle me-1"></i>Taken
+                                    </span>
+                                    {% endif %}
                                 </div>
                             </div>
                             
@@ -710,10 +809,18 @@
                             <a href="{% url 'project_detail' project.id %}" class="btn-action btn-primary">
                                 <i class="fas fa-eye"></i>View Details
                             </a>
-                            {% if project.availability == "available" %}
+                            {% if project.is_available and not has_accepted_application_anywhere %}
                             <a href="{% url 'apply_to_project' project.id %}" class="btn-action btn-outline">
                                 <i class="fas fa-paper-plane"></i>Apply Now
                             </a>
+                            {% elif has_accepted_application_anywhere %}
+                            <span class="btn-action btn-disabled" title="You have an accepted application to another project">
+                                <i class="fas fa-check-circle"></i>Project Accepted
+                            </span>
+                            {% else %}
+                            <span class="btn-action btn-disabled" title="This project is no longer accepting applications">
+                                <i class="fas fa-ban"></i>Not Available
+                            </span>
                             {% endif %}
                         </div>
                     </div>
