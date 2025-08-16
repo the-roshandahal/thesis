@@ -47,80 +47,88 @@
       <!-- Statistics Cards -->
       <div class="row">
         <div class="col-xl-3 col-md-6">
-          <div class="card mini-stats-wid">
-            <div class="card-body">
-              <div class="d-flex">
-                <div class="flex-grow-1">
-                  <p class="text-muted fw-medium">Total Projects</p>
-                  <h4 class="mb-0">{{ total_projects }}</h4>
-                </div>
-                <div class="flex-shrink-0 align-self-center">
-                  <div class="avatar-sm rounded-circle bg-primary bg-opacity-10">
-                    <span class="avatar-title">
-                      <i class="mdi mdi-folder-multiple font-size-24 text-primary"></i>
-                    </span>
+          <a href="{% url 'project_supervisor' %}" class="text-decoration-none">
+            <div class="card mini-stats-wid hover-effect">
+              <div class="card-body">
+                <div class="d-flex">
+                  <div class="flex-grow-1">
+                    <p class="text-muted fw-medium">Total Projects</p>
+                    <h4 class="mb-0">{{ total_projects }}</h4>
+                  </div>
+                  <div class="flex-shrink-0 align-self-center">
+                    <div class="avatar-sm rounded-circle bg-primary bg-opacity-10">
+                      <span class="avatar-title">
+                        <i class="mdi mdi-folder-multiple font-size-24 text-primary"></i>
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
+          </a>
         </div>
         <div class="col-xl-3 col-md-6">
-          <div class="card mini-stats-wid">
-            <div class="card-body">
-              <div class="d-flex">
-                <div class="flex-grow-1">
-                  <p class="text-muted fw-medium">Total Applications</p>
-                  <h4 class="mb-0">{{ total_applications }}</h4>
-                </div>
-                <div class="flex-shrink-0 align-self-center">
-                  <div class="avatar-sm rounded-circle bg-info bg-opacity-10">
-                    <span class="avatar-title">
-                      <i class="mdi mdi-file-document-multiple font-size-24 text-info"></i>
-                    </span>
+          <a href="{% url 'supervisor_application' %}" class="text-decoration-none">
+            <div class="card mini-stats-wid hover-effect">
+              <div class="card-body">
+                <div class="d-flex">
+                  <div class="flex-grow-1">
+                    <p class="text-muted fw-medium">Total Applications</p>
+                    <h4 class="mb-0">{{ total_applications }}</h4>
+                  </div>
+                  <div class="flex-shrink-0 align-self-center">
+                    <div class="avatar-sm rounded-circle bg-info bg-opacity-10">
+                      <span class="avatar-title">
+                        <i class="mdi mdi-file-document-multiple font-size-24 text-info"></i>
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
+          </a>
         </div>
         <div class="col-xl-3 col-md-6">
-          <div class="card mini-stats-wid">
-            <div class="card-body">
-              <div class="d-flex">
-                <div class="flex-grow-1">
-                  <p class="text-muted fw-medium">Accepted Applications</p>
-                  <h4 class="mb-0">{{ accepted_applications }}</h4>
-                </div>
-                <div class="flex-shrink-0 align-self-center">
-                  <div class="avatar-sm rounded-circle bg-success bg-opacity-10">
-                    <span class="avatar-title">
-                      <i class="mdi mdi-check-circle font-size-24 text-success"></i>
-                    </span>
+          <a href="{% url 'supervisor_application' %}?status=accepted" class="text-decoration-none">
+            <div class="card mini-stats-wid hover-effect">
+              <div class="card-body">
+                <div class="d-flex">
+                  <div class="flex-grow-1">
+                    <p class="text-muted fw-medium">Accepted Applications</p>
+                    <h4 class="mb-0">{{ accepted_applications }}</h4>
+                  </div>
+                  <div class="flex-shrink-0 align-self-center">
+                    <div class="avatar-sm rounded-circle bg-success bg-opacity-10">
+                      <span class="avatar-title">
+                        <i class="mdi mdi-check-circle font-size-24 text-success"></i>
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
+          </a>
         </div>
         <div class="col-xl-3 col-md-6">
-          <div class="card mini-stats-wid">
-            <div class="card-body">
-              <div class="d-flex">
-                <div class="flex-grow-1">
-                  <p class="text-muted fw-medium">Pending Applications</p>
-                  <h4 class="mb-0">{{ pending_applications }}</h4>
-                </div>
-                <div class="flex-shrink-0 align-self-center">
-                  <div class="avatar-sm rounded-circle bg-warning bg-opacity-10">
-                    <span class="avatar-title">
-                      <i class="mdi mdi-clock font-size-24 text-warning"></i>
-                    </span>
+          <a href="{% url 'supervisor_application' %}?status=applied" class="text-decoration-none">
+            <div class="card mini-stats-wid hover-effect">
+              <div class="card-body">
+                <div class="d-flex">
+                  <div class="flex-grow-1">
+                    <p class="text-muted fw-medium">Pending Applications</p>
+                    <h4 class="mb-0">{{ pending_applications }}</h4>
+                  </div>
+                  <div class="flex-shrink-0 align-self-center">
+                    <div class="avatar-sm rounded-circle bg-warning bg-opacity-10">
+                      <span class="avatar-title">
+                        <i class="mdi mdi-clock font-size-24 text-warning"></i>
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
+          </a>
         </div>
       </div>
 
@@ -390,6 +398,30 @@
 {% block extra_js %}
 <!-- Chart.js and ApexCharts -->
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+<style>
+  /* Hover effect for clickable statistics cards */
+  .hover-effect {
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+  
+  .hover-effect:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  }
+  
+  /* Ensure text color remains consistent on hover */
+  .hover-effect:hover .text-muted,
+  .hover-effect:hover h4 {
+    color: inherit !important;
+  }
+  
+  /* Add subtle border on hover */
+  .hover-effect:hover {
+    border-color: #dee2e6;
+  }
+</style>
 
 <script>
   // Applications Over Time Chart

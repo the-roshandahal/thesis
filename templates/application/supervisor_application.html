@@ -3,12 +3,81 @@
 <div class="row">
   <div class="col-12">
     <div class="page-title-box d-flex align-items-center justify-content-between">
-      <h4 class="mb-0">Applications</h4>
+      <div class="d-flex align-items-center">
+        <h4 class="mb-0 me-3">Applications</h4>
+        <a href="{% url 'supervisor_dashboard' %}" class="btn btn-outline-secondary btn-sm"> <i class="mdi mdi-arrow-left me-1"></i>Back to Dashboard </a>
+      </div>
       <div class="page-title-right">
         <ol class="breadcrumb m-0">
           <li class="breadcrumb-item"><a href="{% url 'supervisor_dashboard' %}">Dashboard</a></li>
           <li class="breadcrumb-item active">Applications</li>
         </ol>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Filter Summary and Navigation -->
+<div class="row mb-4">
+  <div class="col-12">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <!-- Filter Summary -->
+        <div class="row mb-3">
+          <div class="col-md-3">
+            <div class="text-center">
+              <h5 class="mb-1">{{ total_applications }}</h5>
+              <small class="text-muted">Total Applications</small>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="text-center">
+              <h5 class="mb-1 text-success">{{ accepted_count }}</h5>
+              <small class="text-muted">Accepted</small>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="text-center">
+              <h5 class="mb-1 text-warning">{{ pending_count }}</h5>
+              <small class="text-muted">Pending</small>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="text-center">
+              <h5 class="mb-1 text-danger">{{ declined_count }}</h5>
+              <small class="text-muted">Declined</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filter Buttons -->
+        <div class="d-flex justify-content-center">
+          <div class="btn-group" role="group">
+            <a href="{% url 'supervisor_application' %}" class="btn btn-outline-primary {% if not status_filter %}active{% endif %}"> <i class="mdi mdi-filter-variant me-1"></i>All </a>
+            <a href="{% url 'supervisor_application' %}?status=applied" class="btn btn-outline-warning {% if status_filter == 'applied' %}active{% endif %}"> <i class="mdi mdi-clock me-1"></i>Pending </a>
+            <a href="{% url 'supervisor_application' %}?status=accepted" class="btn btn-outline-success {% if status_filter == 'accepted' %}active{% endif %}"> <i class="mdi mdi-check-circle me-1"></i>Accepted </a>
+            <a href="{% url 'supervisor_application' %}?status=declined" class="btn btn-outline-danger {% if status_filter == 'declined' %}active{% endif %}"> <i class="mdi mdi-close-circle me-1"></i>Declined </a>
+          </div>
+        </div>
+
+        <!-- Current Filter Info -->
+        {% if status_filter %}
+        <div class="text-center mt-3">
+          <small class="text-muted">
+            <i class="mdi mdi-filter me-1"></i>
+            Showing: {{ status_filter|title }} applications only
+            <span class="badge bg-primary ms-2">{{ applications|length }} found</span>
+          </small>
+        </div>
+        {% else %}
+        <div class="text-center mt-3">
+          <small class="text-muted">
+            <i class="mdi mdi-filter-variant me-1"></i>
+            Showing all applications
+            <span class="badge bg-primary ms-2">{{ applications|length }} found</span>
+          </small>
+        </div>
+        {% endif %}
       </div>
     </div>
   </div>
@@ -114,3 +183,43 @@
   {% endif %}
 </div>
 {% endblock %}
+
+<style>
+  /* Filter summary styling */
+  .filter-summary .text-center h5 {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+  }
+
+  /* Filter buttons styling */
+  .btn-group .btn {
+    border-radius: 0;
+    border-left: none;
+  }
+
+  .btn-group .btn:first-child {
+    border-left: 1px solid #dee2e6;
+    border-top-left-radius: 0.375rem;
+    border-bottom-left-radius: 0.375rem;
+  }
+
+  .btn-group .btn:last-child {
+    border-top-right-radius: 0.375rem;
+    border-bottom-right-radius: 0.375rem;
+  }
+
+  .btn-group .btn.active {
+    font-weight: 600;
+  }
+
+  /* Hover effects */
+  .btn-group .btn:hover {
+    transform: translateY(-1px);
+    transition: all 0.2s ease;
+  }
+
+  /* Summary card styling */
+  .filter-summary .card {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  }
+</style>

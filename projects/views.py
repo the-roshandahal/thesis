@@ -351,7 +351,16 @@ def delete_file(request, file_id):
 
 
 def student_projects(request):
+    # Get search and filter parameters
+    query = request.GET.get('q')
+    topic_type = request.GET.get('topic_type')
+    availability_filter = request.GET.get('availability', 'all')
+    
+    print(f"DEBUG: student_projects - Query: {query}, Topic Type: {topic_type}, Availability: {availability_filter}")
+    
+    # Get all projects initially
     projects = Project.objects.all()
+    print(f"DEBUG: Total projects found: {projects.count()}")
     
     # Check if current user has any accepted application to any project
     has_accepted_application_anywhere = False
@@ -364,15 +373,53 @@ def student_projects(request):
         ).exists()
         print(f"DEBUG: student_projects - User {request.user.email} has accepted application anywhere: {has_accepted_application_anywhere}")
     
+    # Apply availability filter if specified
+    if availability_filter == 'available':
+        # Show only projects that are available for new applications
+        projects = [p for p in projects if p.is_available_for_application]
+        print(f"DEBUG: After 'available' filter: {len(projects)} projects")
+    elif availability_filter == 'taken':
+        # Show only projects that have accepted applications (are taken)
+        projects = [p for p in projects if not p.is_available_for_application]
+        print(f"DEBUG: After 'taken' filter: {len(projects)} projects")
+    # If 'all' or no filter, show all projects
+    
+    # Apply search filter if specified
+    if query:
+        query_lower = query.lower()
+        projects = [p for p in projects if 
+                   query_lower in p.title.lower() or 
+                   query_lower in p.description.lower()]
+        print(f"DEBUG: After search filter: {len(projects)} projects")
+    
+    # Apply topic type filter if specified
+    if topic_type:
+        projects = [p for p in projects if p.project_type.lower() == topic_type.lower()]
+        print(f"DEBUG: After topic type filter: {len(projects)} projects")
+    
     # Add availability information to each project
     for project in projects:
         project.is_available = project.is_available_for_application
         print(f"DEBUG: student_projects - Project '{project.title}' - is_available: {project.is_available}")
     
+    # Calculate counts for filter summary
+    total_projects = len(projects)
+    available_count = len([p for p in projects if p.is_available])
+    taken_count = len([p for p in projects if not p.is_available])
+    
     context = {
         'projects': projects,
+        'query': query,
+        'selected_topic_type': topic_type,
+        'selected_availability': availability_filter,
+        'total_projects': total_projects,
+        'available_count': available_count,
+        'taken_count': taken_count,
         'has_accepted_application_anywhere': has_accepted_application_anywhere,
         'user_is_supervisor': request.user.is_staff and not request.user.is_superuser,
         'user_is_admin': request.user.is_superuser,
     }
+    
+    print(f"DEBUG: Final context - Total: {total_projects}, Available: {available_count}, Taken: {taken_count}")
+    
     return render(request, 'projects/student_projects.html', context)

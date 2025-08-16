@@ -196,19 +196,40 @@ def supervisor_application(request):
     print(f"DEBUG: supervisor_application called for user: {user.email}")
     print(f"DEBUG: User is_staff: {user.is_staff}, is_superuser: {user.is_superuser}")
     
+    # Get status filter from URL parameters
+    status_filter = request.GET.get('status', '')
+    print(f"DEBUG: Status filter: {status_filter}")
+    
     # Get all projects for this supervisor
     supervisor_projects = Project.objects.filter(supervisor=user)
     print(f"DEBUG: Supervisor has {supervisor_projects.count()} projects")
     
     # Get applications for supervisor's projects
     applications = Application.objects.filter(project__supervisor=user).select_related('project').prefetch_related('members__user')
+    
+    # Apply status filter if specified
+    if status_filter:
+        applications = applications.filter(status=status_filter)
+        print(f"DEBUG: After status filter '{status_filter}': {applications.count()} applications")
+    
     print(f"DEBUG: Found {applications.count()} applications for supervisor's projects")
     
     for app in applications:
         print(f"DEBUG: Application {app.id}: Project '{app.project.title}', Status: {app.status}, Members: {app.members.count()}")
     
+    # Get counts for different statuses
+    total_applications = Application.objects.filter(project__supervisor=user).count()
+    accepted_count = Application.objects.filter(project__supervisor=user, status='accepted').count()
+    pending_count = Application.objects.filter(project__supervisor=user, status='applied').count()
+    declined_count = Application.objects.filter(project__supervisor=user, status='declined').count()
+    
     return render(request, 'application/supervisor_application.html', {
         'applications': applications,
+        'status_filter': status_filter,
+        'total_applications': total_applications,
+        'accepted_count': accepted_count,
+        'pending_count': pending_count,
+        'declined_count': declined_count,
         'user_is_supervisor': request.user.is_staff and not request.user.is_superuser,
         'user_is_admin': request.user.is_superuser,
     })
