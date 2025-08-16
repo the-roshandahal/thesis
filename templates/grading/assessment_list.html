@@ -5,7 +5,14 @@
 <div class="row">
   <div class="col-12">
     <div class="page-title-box d-flex align-items-center justify-content-between">
-      <h4 class="mb-0">Assessments</h4>
+      <div class="d-flex align-items-center">
+        <h4 class="mb-0 me-3">Assessments</h4>
+        {% if user_is_supervisor %}
+        <a href="{% url 'supervisor_dashboard' %}" class="btn btn-outline-secondary btn-sm"> <i class="mdi mdi-arrow-left me-1"></i>Back to Dashboard </a>
+        {% elif user_is_admin %}
+        <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-secondary btn-sm"> <i class="mdi mdi-arrow-left me-1"></i>Back to Dashboard </a>
+        {% endif %}
+      </div>
       <div class="page-title-right">
         <ol class="breadcrumb m-0">
           {% if user_is_supervisor %}
@@ -15,6 +22,71 @@
           {% endif %}
           <li class="breadcrumb-item active">Assessments</li>
         </ol>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Filter Summary and Navigation -->
+<div class="row mb-4">
+  <div class="col-12">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <!-- Filter Summary -->
+        <div class="row mb-3">
+          <div class="col-md-3">
+            <div class="text-center">
+              <h5 class="mb-1">{{ total_assessments }}</h5>
+              <small class="text-muted">Total Assessments</small>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="text-center">
+              <h5 class="mb-1 text-success">{{ graded_submissions }}</h5>
+              <small class="text-muted">Graded Submissions</small>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="text-center">
+              <h5 class="mb-1 text-warning">{{ ungraded_submissions }}</h5>
+              <small class="text-muted">Ungraded Submissions</small>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="text-center">
+              <h5 class="mb-1 text-info">{{ total_submissions }}</h5>
+              <small class="text-muted">Total Submissions</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filter Buttons -->
+        <div class="d-flex justify-content-center">
+          <div class="btn-group" role="group">
+            <a href="{% url 'grading:grading' %}" class="btn btn-outline-primary {% if not status_filter %}active{% endif %}"> <i class="mdi mdi-filter-variant me-1"></i>All Assessments </a>
+            <a href="{% url 'grading:grading' %}?status=graded" class="btn btn-outline-success {% if status_filter == 'graded' %}active{% endif %}"> <i class="mdi mdi-check-circle me-1"></i>Graded </a>
+            <a href="{% url 'grading:grading' %}?status=ungraded" class="btn btn-outline-warning {% if status_filter == 'ungraded' %}active{% endif %}"> <i class="mdi mdi-clock me-1"></i>Ungraded </a>
+          </div>
+        </div>
+
+        <!-- Current Filter Info -->
+        {% if status_filter %}
+        <div class="text-center mt-3">
+          <small class="text-muted">
+            <i class="mdi mdi-filter me-1"></i>
+            Showing: {{ status_filter|title }} assessments only
+            <span class="badge bg-primary ms-2">{{ assessments|length }} found</span>
+          </small>
+        </div>
+        {% else %}
+        <div class="text-center mt-3">
+          <small class="text-muted">
+            <i class="mdi mdi-filter-variant me-1"></i>
+            Showing all assessments
+            <span class="badge bg-primary ms-2">{{ assessments|length }} found</span>
+          </small>
+        </div>
+        {% endif %}
       </div>
     </div>
   </div>

@@ -13,17 +13,46 @@ from defaults.models import Notification
 @supervisor_required
 def assessment_list(request):
     """List all assessments that need grading"""
+    # Get status filter from URL parameters
+    status_filter = request.GET.get('status', '')
+    print(f"DEBUG: assessment_list - Status filter: {status_filter}")
+    
     assessments = Assessment.objects.annotate(
         total_submissions=Count('studentsubmission'),
         graded_submissions=Count('studentsubmission', filter=Q(studentsubmission__grades_received__isnull=False))
     ).order_by('-due_date')
+    
+    # Apply status filter if specified
+    if status_filter == 'graded':
+        # Show only assessments with graded submissions
+        assessments = assessments.filter(studentsubmission__grades_received__isnull=False).distinct()
+        print(f"DEBUG: After 'graded' filter: {assessments.count()} assessments")
+    elif status_filter == 'ungraded':
+        # Show only assessments with ungraded submissions
+        assessments = assessments.filter(studentsubmission__grades_received__isnull=True).distinct()
+        print(f"DEBUG: After 'ungraded' filter: {assessments.count()} assessments")
+    # If no filter or 'all', show all assessments
+    
+    # Calculate summary statistics
+    total_assessments = Assessment.objects.count()
+    total_submissions = StudentSubmission.objects.count()
+    graded_submissions = StudentSubmission.objects.filter(grades_received__isnull=False).count()
+    ungraded_submissions = StudentSubmission.objects.filter(grades_received__isnull=True).count()
 
     context = {
         'assessments': assessments,
+        'status_filter': status_filter,
+        'total_assessments': total_assessments,
+        'total_submissions': total_submissions,
+        'graded_submissions': graded_submissions,
+        'ungraded_submissions': ungraded_submissions,
         'title': 'Assessments for Grading',
         'user_is_supervisor': request.user.is_staff and not request.user.is_superuser,
         'user_is_admin': request.user.is_superuser,
     }
+    
+    print(f"DEBUG: Final context - Total: {total_assessments}, Graded: {graded_submissions}, Ungraded: {ungraded_submissions}")
+    
     return render(request, 'grading/assessment_list.html', context)
 
 @login_required

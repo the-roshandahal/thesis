@@ -400,6 +400,16 @@ def supervisor_dashboard(request):
         print(f"DEBUG: Error getting pending_applications: {e}")
         pending_applications = 0
     
+    try:
+        declined_applications = Application.objects.filter(
+            project__supervisor=supervisor.user, 
+            status='declined'
+        ).count()
+        print(f"DEBUG: Declined applications: {declined_applications}")
+    except Exception as e:
+        print(f"DEBUG: Error getting declined_applications: {e}")
+        declined_applications = 0
+    
     # Get supervisor's projects
     try:
         supervisor_projects = Project.objects.filter(supervisor=supervisor.user)
@@ -509,6 +519,7 @@ def supervisor_dashboard(request):
             'total_applications': total_applications,
             'accepted_applications': accepted_applications,
             'pending_applications': pending_applications,
+            'declined_applications': declined_applications,
             'project_status_data': project_status_data,
             'recent_applications': recent_applications,
             'recent_activities': recent_activities,
@@ -526,6 +537,7 @@ def supervisor_dashboard(request):
             'total_applications': 0,
             'accepted_applications': 0,
             'pending_applications': 0,
+            'declined_applications': 0,
             'project_status_data': {},
             'recent_applications': [],
             'recent_activities': [],

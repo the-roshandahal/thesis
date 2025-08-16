@@ -89,18 +89,19 @@
           </a>
         </div>
         <div class="col-xl-3 col-md-6">
-          <a href="{% url 'supervisor_application' %}?status=accepted" class="text-decoration-none">
+          <a href="{% url 'grading:grading' %}" class="text-decoration-none">
             <div class="card mini-stats-wid hover-effect">
               <div class="card-body">
                 <div class="d-flex">
                   <div class="flex-grow-1">
-                    <p class="text-muted fw-medium">Accepted Applications</p>
-                    <h4 class="mb-0">{{ accepted_applications }}</h4>
+                    <p class="text-muted fw-medium">Total Assessments</p>
+                    <h4 class="mb-0">{{ total_assessments }}</h4>
+                    <small class="text-muted">View All Assessments</small>
                   </div>
                   <div class="flex-shrink-0 align-self-center">
                     <div class="avatar-sm rounded-circle bg-success bg-opacity-10">
                       <span class="avatar-title">
-                        <i class="mdi mdi-check-circle font-size-24 text-success"></i>
+                        <i class="mdi mdi-file-document font-size-24 text-success"></i>
                       </span>
                     </div>
                   </div>
@@ -110,18 +111,19 @@
           </a>
         </div>
         <div class="col-xl-3 col-md-6">
-          <a href="{% url 'supervisor_application' %}?status=applied" class="text-decoration-none">
+          <a href="{% url 'grading:grading' %}?status=graded" class="text-decoration-none">
             <div class="card mini-stats-wid hover-effect">
               <div class="card-body">
                 <div class="d-flex">
                   <div class="flex-grow-1">
-                    <p class="text-muted fw-medium">Pending Applications</p>
-                    <h4 class="mb-0">{{ pending_applications }}</h4>
+                    <p class="text-muted fw-medium">Graded Submissions</p>
+                    <h4 class="mb-0">{{ completed_submissions }}</h4>
+                    <small class="text-muted">View Graded Only</small>
                   </div>
                   <div class="flex-shrink-0 align-self-center">
                     <div class="avatar-sm rounded-circle bg-warning bg-opacity-10">
                       <span class="avatar-title">
-                        <i class="mdi mdi-clock font-size-24 text-warning"></i>
+                        <i class="mdi mdi-check font-size-24 text-warning"></i>
                       </span>
                     </div>
                   </div>
@@ -129,6 +131,47 @@
               </div>
             </div>
           </a>
+        </div>
+      </div>
+
+      <!-- Application Status Summary -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="card border-0 shadow-sm">
+            <div class="card-body py-3">
+              <div class="d-flex justify-content-center align-items-center">
+                <div class="me-4">
+                  <span class="badge bg-info fs-6 px-3 py-2">
+                    <i class="mdi mdi-file-document-multiple me-1"></i>
+                    {{ total_applications }} Total Applications
+                  </span>
+                </div>
+                <div class="me-4">
+                  <span class="badge bg-success fs-6 px-3 py-2">
+                    <i class="mdi mdi-check-circle me-1"></i>
+                    {{ accepted_applications }} Accepted
+                  </span>
+                </div>
+                <div class="me-4">
+                  <span class="badge bg-warning fs-6 px-3 py-2">
+                    <i class="mdi mdi-clock me-1"></i>
+                    {{ pending_applications }} Pending
+                  </span>
+                </div>
+                <div class="me-4">
+                  <span class="badge bg-danger fs-6 px-3 py-2">
+                    <i class="mdi mdi-close-circle me-1"></i>
+                    {{ declined_applications|default:0 }} Declined
+                  </span>
+                </div>
+                <div>
+                  <a href="{% url 'supervisor_application' %}" class="btn btn-outline-primary btn-sm">
+                    <i class="mdi mdi-eye me-1"></i>View All Applications
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -420,6 +463,39 @@
   /* Add subtle border on hover */
   .hover-effect:hover {
     border-color: #dee2e6;
+  }
+
+  /* Summary card styling */
+  .filter-summary .card {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  }
+  
+  /* Application status summary styling */
+  .badge.fs-6 {
+    font-size: 0.875rem !important;
+    font-weight: 500;
+  }
+  
+  .badge.bg-info, .badge.bg-success, .badge.bg-warning, .badge.bg-danger {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+  }
+  
+  .badge.bg-info:hover, .badge.bg-success:hover, .badge.bg-warning:hover, .badge.bg-danger:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  }
+  
+  /* Responsive adjustments for mobile */
+  @media (max-width: 768px) {
+    .d-flex.justify-content-center.align-items-center {
+      flex-direction: column;
+      gap: 1rem;
+    }
+    
+    .me-4 {
+      margin-right: 0 !important;
+    }
   }
 </style>
 
