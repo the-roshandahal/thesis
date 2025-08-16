@@ -626,6 +626,28 @@
         }
       });
 
+      // Remember me functionality enhancement
+      document.getElementById("remember-me").addEventListener("change", function () {
+        const rememberMe = this.checked;
+        const label = this.nextElementSibling;
+
+        if (rememberMe) {
+          // Show helpful message when checked
+          if (!label.querySelector(".help-text")) {
+            const helpText = document.createElement("div");
+            helpText.className = "help-text text-success mt-2";
+            helpText.innerHTML = '<i class="fas fa-info-circle me-1"></i>You will stay logged in for 30 days, even after closing your browser.';
+            label.appendChild(helpText);
+          }
+        } else {
+          // Remove help text when unchecked
+          const helpText = label.querySelector(".help-text");
+          if (helpText) {
+            helpText.remove();
+          }
+        }
+      });
+
       // Password visibility toggle (optional enhancement)
       // You can add this if you want to show/hide password
     </script>
