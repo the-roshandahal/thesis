@@ -6,6 +6,8 @@ from django.http import Http404, JsonResponse
 from assessment.models import Assessment, StudentSubmission
 from projects.models import Project
 from .forms import GradeSubmissionForm
+from django.urls import reverse
+from defaults.models import Notification  
 
 @login_required
 def assessment_list(request):
@@ -73,8 +75,15 @@ def grade_submission(request, submission_id):
         form = GradeSubmissionForm(request.POST, instance=submission)
         if form.is_valid():
             form.save()
+            Notification.objects.create(
+                user=submission.submitted_by,  
+                message=f"Your submission for '{submission.assignment.title}' has been graded.",
+                url=reverse('grading:assessment_detail', args=[submission.assignment.id])
+            )
+
             messages.success(request, 'Grade submitted successfully!')
             return redirect('grading:assessment_detail', assessment_id=submission.assignment.id)
+        
     else:
         form = GradeSubmissionForm(instance=submission)
 
