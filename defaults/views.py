@@ -20,43 +20,61 @@ def home(request):
         return redirect('admin:index')  # Default Django admin dashboard
 
     elif request.user.is_staff:
-        return render(request, 'supervisor_dashboard.html')
-
-    else:
         try:
-            # Get all applications for the student
-            applications = Application.objects.filter(members__user=request.user).select_related('project').prefetch_related('members__user')
-            
-            # Get assessment data
-            from assessment.models import Assessment, StudentSubmission, AssessmentSchema
+            # Get supervisor data
+            from projects.models import Project
+            from application.models import Application
+            from assessment.models import Assessment, StudentSubmission
             from django.utils import timezone
             from django.db.models import Count, Avg, Q
             
             # Get current date
             today = timezone.now().date()
             
-            # Get accepted applications
-            accepted_applications = applications.filter(status='accepted')
-            accepted_projects_count = accepted_applications.count()
+            # Get projects created by this supervisor
+            supervisor_projects = Project.objects.filter(supervisor=request.user)
+            total_projects = supervisor_projects.count()
+            available_projects = supervisor_projects.filter(availability='available').count()
+            ongoing_projects = supervisor_projects.filter(availability='ongoing').count()
+            completed_projects = supervisor_projects.filter(availability='completed').count()
             
-            # Get student submissions for accepted applications
+            # Get applications for supervisor's projects
+            project_applications = Application.objects.filter(
+                project__supervisor=request.user
+            ).select_related('project').prefetch_related('members__user')
+            
+            total_applications = project_applications.count()
+            pending_applications = project_applications.filter(status='applied').count()
+            accepted_applications = project_applications.filter(status='accepted').count()
+            declined_applications = project_applications.filter(status='declined').count()
+            
+            # Get accepted applications to find active students
+            accepted_applications_list = project_applications.filter(status='accepted')
+            active_students = accepted_applications_list.values('members__user').distinct().count()
+            
+            # Get assessments and submissions for supervisor's projects
+            # First get all assessment schemas that might be related to supervisor's projects
+            # For now, we'll get all assessments and filter by submissions
+            all_assessments = Assessment.objects.all()
+            
+            # Get submissions for accepted applications
             submissions = StudentSubmission.objects.filter(
-                application__in=accepted_applications
-            ).select_related('assignment', 'application')
+                application__in=accepted_applications_list
+            ).select_related('assignment', 'application', 'submitted_by')
             
-            # Get all assessments that the student has submissions for
-            assessments = Assessment.objects.filter(
+            # Get assessments that have submissions
+            assessments_with_submissions = all_assessments.filter(
                 id__in=submissions.values_list('assignment_id', flat=True)
             ).distinct()
             
-            # Get upcoming assessments (due in next 30 days) - only those the student has access to
-            upcoming_assessments = assessments.filter(
+            # Get upcoming assessments (due in next 30 days)
+            upcoming_assessments = assessments_with_submissions.filter(
                 due_date__gte=today,
                 due_date__lte=today + timezone.timedelta(days=30)
             ).order_by('due_date')
             
-            # Get overdue assessments - only those the student has access to
-            overdue_assessments = assessments.filter(due_date__lt=today).exclude(
+            # Get overdue assessments
+            overdue_assessments = assessments_with_submissions.filter(due_date__lt=today).exclude(
                 id__in=submissions.values_list('assignment_id', flat=True)
             )
             
@@ -64,11 +82,6 @@ def home(request):
             recent_submissions = submissions.filter(
                 submitted_at__gte=today - timezone.timedelta(days=7)
             ).order_by('-submitted_at')
-            
-            # Calculate statistics
-            total_applications = applications.count()
-            pending_applications = applications.filter(status='applied').count()
-            declined_applications = applications.filter(status='declined').count()
             
             # Get grades data
             graded_submissions = submissions.filter(grades_received__isnull=False)
@@ -78,10 +91,21 @@ def home(request):
             notifications = Notification.objects.filter(user=request.user).order_by('-created_at')[:5]
             unread_notifications_count = Notification.objects.filter(user=request.user, is_read=False).count()
             
+            # Get project type distribution for charts
+            project_type_data = []
+            for project_type, _ in Project.PROJECT_TYPES:
+                count = supervisor_projects.filter(project_type=project_type).count()
+                if count > 0:
+                    project_type_data.append({
+                        'type': project_type,
+                        'count': count,
+                        'color': '#0c768a' if project_type == 'Research' else '#38c786' if project_type == 'Development' else '#f4ba40'
+                    })
+            
             # Get application status distribution for charts
             application_status_data = [
                 {'status': 'Applied', 'count': pending_applications, 'color': '#f4ba40'},
-                {'status': 'Accepted', 'count': accepted_projects_count, 'color': '#38c786'},
+                {'status': 'Accepted', 'count': accepted_applications, 'color': '#38c786'},
                 {'status': 'Declined', 'count': declined_applications, 'color': '#ed5e49'}
             ]
             
@@ -96,21 +120,28 @@ def home(request):
             
             # Convert to JSON for JavaScript
             import json
+            project_type_json = json.dumps(project_type_data)
             application_status_json = json.dumps(application_status_data)
             grade_ranges_json = json.dumps(grade_ranges)
             
         except Exception as e:
             # If there's an error, provide default values
-            print(f"Error in student dashboard: {e}")
-            applications = Application.objects.filter(members__user=request.user).select_related('project').prefetch_related('members__user')
-            accepted_applications = applications.filter(status='accepted')
-            accepted_projects_count = accepted_applications.count()
-            total_applications = applications.count()
-            pending_applications = applications.filter(status='applied').count()
-            declined_applications = applications.filter(status='declined').count()
+            print(f"Error in supervisor dashboard: {e}")
+            supervisor_projects = Project.objects.filter(supervisor=request.user)
+            total_projects = supervisor_projects.count()
+            available_projects = 0
+            ongoing_projects = 0
+            completed_projects = 0
+            
+            project_applications = Application.objects.filter(project__supervisor=request.user)
+            total_applications = project_applications.count()
+            pending_applications = project_applications.filter(status='applied').count()
+            accepted_applications = project_applications.filter(status='accepted').count()
+            declined_applications = project_applications.filter(status='declined').count()
+            active_students = 0
             
             # Default values for other data
-            assessments = Assessment.objects.none()
+            assessments_with_submissions = Assessment.objects.none()
             submissions = StudentSubmission.objects.none()
             upcoming_assessments = Assessment.objects.none()
             overdue_assessments = Assessment.objects.none()
@@ -120,9 +151,10 @@ def home(request):
             average_grade = 0
             
             # Default chart data
+            project_type_data = []
             application_status_data = [
                 {'status': 'Applied', 'count': pending_applications, 'color': '#f4ba40'},
-                {'status': 'Accepted', 'count': accepted_projects_count, 'color': '#38c786'},
+                {'status': 'Accepted', 'count': accepted_applications, 'color': '#38c786'},
                 {'status': 'Declined', 'count': declined_applications, 'color': '#ed5e49'}
             ]
             grade_ranges = [
@@ -134,37 +166,43 @@ def home(request):
             ]
             
             import json
+            project_type_json = json.dumps(project_type_data)
             application_status_json = json.dumps(application_status_data)
             grade_ranges_json = json.dumps(grade_ranges)
         
         context = {
-            'applications': applications,
-            'assessments': assessments,
+            'supervisor_projects': supervisor_projects,
+            'total_projects': total_projects,
+            'available_projects': available_projects,
+            'ongoing_projects': ongoing_projects,
+            'completed_projects': completed_projects,
+            
+            'project_applications': project_applications,
+            'total_applications': total_applications,
+            'pending_applications': pending_applications,
+            'accepted_applications': accepted_applications,
+            'declined_applications': declined_applications,
+            'active_students': active_students,
+            
+            'assessments': assessments_with_submissions,
             'submissions': submissions,
             'upcoming_assessments': upcoming_assessments,
             'overdue_assessments': overdue_assessments,
             'recent_submissions': recent_submissions,
             'notifications': notifications,
             'unread_notifications_count': unread_notifications_count,
-            
-            # Statistics
-            'total_applications': total_applications,
-            'accepted_projects_count': accepted_projects_count,
-            'pending_applications': pending_applications,
-            'declined_applications': declined_applications,
             'average_grade': round(average_grade, 1),
-            'total_assessments': assessments.count(),
-            'completed_assessments': submissions.count(),
-            'upcoming_assessments_count': upcoming_assessments.count(),
-            'overdue_assessments_count': overdue_assessments.count(),
             
             # Chart data
+            'project_type_data': project_type_data,
             'application_status_data': application_status_data,
             'grade_ranges': grade_ranges,
+            'project_type_json': project_type_json,
             'application_status_json': application_status_json,
             'grade_ranges_json': grade_ranges_json,
         }
-        return render(request, 'student_dashboard.html', context)
+        
+        return render(request, 'supervisor_dashboard.html', context)
 
 
 
