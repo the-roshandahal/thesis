@@ -37,7 +37,8 @@ def home(request):
     """Home view that redirects to appropriate dashboard based on user role."""
     if request.user.is_superuser:
         # Superuser sees admin dashboard
-        return render(request, 'admin_dashboard.html')
+        from .dashboard_views import admin_dashboard
+        return admin_dashboard(request)
     elif request.user.is_staff:
         # Staff (supervisors) see supervisor dashboard
         from .dashboard_views import supervisor_dashboard
