@@ -24,46 +24,44 @@
   }
 
   .card {
-    border: 1px solid #eff5f6;
-    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.04);
-    transition: all 0.3s ease;
-  }
-
-  .card:hover {
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    border: none;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    border-radius: 10px;
+    margin-bottom: 20px;
   }
 
   .card-header {
-    background-color: #f8f9fa;
-    border-bottom: 1px solid #eff5f6;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+    border-radius: 10px 10px 0 0 !important;
+    padding: 15px 20px;
   }
 
   .application-card {
-    border: 1px solid #eff5f6;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
     transition: all 0.3s ease;
   }
 
   .application-card:hover {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
   }
 
   .bg-soft-primary {
     background-color: rgba(12, 118, 138, 0.1);
   }
-
   .bg-soft-success {
     background-color: rgba(56, 199, 134, 0.1);
   }
-
   .bg-soft-warning {
     background-color: rgba(244, 186, 64, 0.1);
   }
-
   .bg-soft-danger {
     background-color: rgba(237, 94, 73, 0.1);
   }
-
   .bg-soft-info {
     background-color: rgba(78, 157, 239, 0.1);
   }
@@ -71,51 +69,17 @@
   .text-primary {
     color: #0c768a !important;
   }
-
   .text-success {
     color: #38c786 !important;
   }
-
   .text-warning {
     color: #f4ba40 !important;
   }
-
   .text-danger {
     color: #ed5e49 !important;
   }
-
   .text-info {
     color: #4e9def !important;
-  }
-
-  .bg-primary {
-    background-color: #0c768a !important;
-  }
-
-  .bg-success {
-    background-color: #38c786 !important;
-  }
-
-  .bg-warning {
-    background-color: #f4ba40 !important;
-  }
-
-  .bg-danger {
-    background-color: #ed5e49 !important;
-  }
-
-  .bg-info {
-    background-color: #4e9def !important;
-  }
-
-  .btn-primary {
-    background-color: #0c768a;
-    border-color: #0c768a;
-  }
-
-  .btn-primary:hover {
-    background-color: #086070;
-    border-color: #086070;
   }
 
   .btn-soft-primary {
@@ -129,43 +93,42 @@
     color: #0c768a;
   }
 
-  .apex-charts {
-    min-height: 300px;
+  .btn-soft-success {
+    background-color: rgba(56, 199, 134, 0.1);
+    color: #38c786;
+    border-color: rgba(56, 199, 134, 0.2);
   }
 
-  .simplebar {
-    max-height: 300px;
+  .btn-soft-success:hover {
+    background-color: rgba(56, 199, 134, 0.2);
+    color: #38c786;
   }
 
-  .avatar-xs {
-    width: 2rem;
-    height: 2rem;
+  .btn-soft-warning {
+    background-color: rgba(244, 186, 64, 0.1);
+    color: #f4ba40;
+    border-color: rgba(244, 186, 64, 0.2);
   }
 
-  .avatar-sm {
-    width: 2.6rem;
-    height: 2.6rem;
+  .btn-soft-warning:hover {
+    background-color: rgba(244, 186, 64, 0.2);
+    color: #f4ba40;
   }
 
-  .avatar-lg {
-    width: 5.6rem;
-    height: 5.6rem;
+  .btn-soft-info {
+    background-color: rgba(78, 157, 239, 0.1);
+    color: #4e9def;
+    border-color: rgba(78, 157, 239, 0.2);
   }
 
-  .avatar-xl {
-    width: 7rem;
-    height: 7rem;
+  .btn-soft-info:hover {
+    background-color: rgba(78, 157, 239, 0.2);
+    color: #4e9def;
   }
 
-  .avatar-title {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    width: 100%;
-    font-weight: 500;
+  .fs-10 {
+    font-size: 10px !important;
   }
-
   .fs-11 {
     font-size: 11px !important;
   }
@@ -175,15 +138,31 @@
   .fs-13 {
     font-size: 13px !important;
   }
-  .fs-14 {
-    font-size: 14px !important;
-  }
   .fs-24 {
     font-size: 24px !important;
   }
 
-  .font-size-24 {
-    font-size: 24px !important;
+  /* Notification item styles */
+  .notification-item {
+    transition: all 0.3s ease;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+
+  .notification-item:hover {
+    background-color: rgba(102, 126, 234, 0.05) !important;
+    transform: translateX(5px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .notification-item a {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .notification-item a:hover {
+    text-decoration: none;
+    color: inherit;
   }
 </style>
 
@@ -346,23 +325,27 @@
               {% if notifications %}
               <div class="simplebar" data-simplebar style="max-height: 300px">
                 {% for notification in notifications %}
-                <div class="d-flex align-items-start mb-3 {% if not notification.is_read %}bg-light rounded p-2{% endif %}">
-                  <div class="avatar-xs me-3">
-                    <span class="avatar-title bg-soft-primary text-primary rounded-circle">
-                      <i class="mdi mdi-bell-outline"></i>
-                    </span>
+                <a href="{% url 'mark_notification_as_read_and_redirect' notification.id %}" class="text-reset text-decoration-none">
+                  <div class="d-flex align-items-start mb-3 {% if not notification.is_read %}bg-light rounded p-2{% endif %} notification-item">
+                    <div class="flex-shrink-0">
+                      <div class="avatar-xs">
+                        <span class="avatar-title bg-soft-primary rounded">
+                          <i class="mdi mdi-bell-outline text-primary"></i>
+                        </span>
+                      </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                      <h6 class="mb-1 fs-13">{{ notification.message|truncatechars:50 }}</h6>
+                      <p class="mb-0 text-muted fs-12">
+                        <i class="mdi mdi-clock-outline"></i>
+                        {{ notification.created_at|timesince }} ago
+                      </p>
+                      {% if not notification.is_read %}
+                      <span class="badge bg-warning text-dark fs-10">New</span>
+                      {% endif %}
+                    </div>
                   </div>
-                  <div class="flex-1">
-                    <h6 class="mb-1 fs-13">{{ notification.message|truncatechars:50 }}</h6>
-                    <p class="text-muted fs-12 mb-0">
-                      <i class="mdi mdi-clock-outline me-1"></i>
-                      {{ notification.created_at|timesince }} ago
-                    </p>
-                    {% if not notification.is_read %}
-                    <span class="badge bg-danger fs-11">New</span>
-                    {% endif %}
-                  </div>
-                </div>
+                </a>
                 {% endfor %}
               </div>
               {% else %}
