@@ -1,5 +1,181 @@
 {% load static %} {% include 'header.html' %}
 
+<style>
+  .mini-stats-wid {
+    transition: all 0.3s ease;
+    border: 1px solid #eff5f6;
+  }
+
+  .mini-stats-wid:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  }
+
+  .mini-stat-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .avatar-title {
+    font-weight: 600;
+  }
+
+  .card {
+    border: none;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    border-radius: 10px;
+    margin-bottom: 20px;
+  }
+
+  .card-header {
+    background: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+    border-radius: 10px 10px 0 0 !important;
+    padding: 15px 20px;
+  }
+
+  .stats-card {
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    transition: all 0.3s ease;
+  }
+
+  .stats-card:hover {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+  }
+
+  .bg-soft-primary {
+    background-color: rgba(12, 118, 138, 0.1) !important;
+  }
+  .bg-soft-success {
+    background-color: rgba(56, 199, 134, 0.1) !important;
+  }
+  .bg-soft-warning {
+    background-color: rgba(244, 186, 64, 0.1) !important;
+  }
+  .bg-soft-danger {
+    background-color: rgba(237, 94, 73, 0.1) !important;
+  }
+  .bg-soft-info {
+    background-color: rgba(78, 157, 239, 0.1) !important;
+  }
+
+  .text-primary {
+    color: #0c768a !important;
+  }
+  .text-success {
+    color: #38c786 !important;
+  }
+  .text-warning {
+    color: #f4ba40 !important;
+  }
+  .text-danger {
+    color: #ed5e49 !important;
+  }
+  .text-info {
+    color: #4e9def !important;
+  }
+
+  .btn-soft-primary {
+    background-color: rgba(12, 118, 138, 0.1);
+    color: #0c768a;
+    border-color: rgba(12, 118, 138, 0.2);
+  }
+
+  .btn-soft-primary:hover {
+    background-color: rgba(12, 118, 138, 0.2);
+    color: #0c768a;
+  }
+
+  .btn-soft-success {
+    background-color: rgba(56, 199, 134, 0.1);
+    color: #38c786;
+    border-color: rgba(56, 199, 134, 0.2);
+  }
+
+  .btn-soft-success:hover {
+    background-color: rgba(56, 199, 134, 0.2);
+    color: #38c786;
+  }
+
+  .btn-soft-warning {
+    background-color: rgba(244, 186, 64, 0.1);
+    color: #f4ba40;
+    border-color: rgba(244, 186, 64, 0.2);
+  }
+
+  .btn-soft-warning:hover {
+    background-color: rgba(244, 186, 64, 0.2);
+    color: #f4ba40;
+  }
+
+  .btn-soft-info {
+    background-color: rgba(78, 157, 239, 0.1);
+    color: #4e9def;
+    border-color: rgba(78, 157, 239, 0.2);
+  }
+
+  .btn-soft-info:hover {
+    background-color: rgba(78, 157, 239, 0.2);
+    color: #4e9def;
+  }
+
+  .fs-10 {
+    font-size: 10px !important;
+  }
+  .fs-11 {
+    font-size: 11px !important;
+  }
+  .fs-12 {
+    font-size: 12px !important;
+  }
+  .fs-13 {
+    font-size: 13px !important;
+  }
+  .fs-24 {
+    font-size: 24px !important;
+  }
+
+  /* Notification item styles */
+  .notification-item {
+    transition: all 0.3s ease;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+
+  .notification-item:hover {
+    background-color: rgba(12, 118, 138, 0.05) !important;
+    transform: translateX(5px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .notification-item a {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .notification-item a:hover {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .trend-up {
+    color: #38c786;
+  }
+  .trend-down {
+    color: #ed5e49;
+  }
+  .trend-neutral {
+    color: #6c757d;
+  }
+</style>
+
 <div class="main-content">
   <div class="page-content">
     <div class="container-fluid">
@@ -7,18 +183,22 @@
       <div class="row">
         <div class="col-12">
           <div class="page-title-box d-flex align-items-center justify-content-between">
-            <h4 class="mb-0">Admin Dashboard</h4>
+            <h4 class="mb-0">
+              Admin Dashboard {% if unread_notifications_count > 0 %}
+              <span class="badge bg-danger ms-2">{{ unread_notifications_count }} new notifications</span>
+              {% endif %}
+            </h4>
             <div class="page-title-right">
               <ol class="breadcrumb m-0">
                 <li class="breadcrumb-item"><a href="javascript: void(0);">Dashboard</a></li>
-                <li class="breadcrumb-item active">Overview</li>
+                <li class="breadcrumb-item active">Admin Overview</li>
               </ol>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Statistics Cards -->
+      <!-- Main Statistics Cards -->
       <div class="row">
         <div class="col-xl-3 col-md-6">
           <div class="card mini-stats-wid">
@@ -26,12 +206,13 @@
               <div class="d-flex">
                 <div class="flex-grow-1">
                   <p class="text-muted fw-medium">Total Students</p>
-                  <h4 class="mb-0">{{ total_students|default:"0" }}</h4>
+                  <h4 class="mb-0">{{ total_students }}</h4>
+                  <p class="text-muted mb-0"><small>Registered users</small></p>
                 </div>
                 <div class="flex-shrink-0 align-self-center">
-                  <div class="avatar-sm rounded-circle bg-primary bg-opacity-10">
+                  <div class="avatar-sm rounded-circle bg-soft-primary">
                     <span class="avatar-title">
-                      <i class="mdi mdi-account-group font-size-24 text-primary"></i>
+                      <i class="mdi mdi-account-group fs-24 text-primary"></i>
                     </span>
                   </div>
                 </div>
@@ -39,18 +220,20 @@
             </div>
           </div>
         </div>
+
         <div class="col-xl-3 col-md-6">
           <div class="card mini-stats-wid">
             <div class="card-body">
               <div class="d-flex">
                 <div class="flex-grow-1">
                   <p class="text-muted fw-medium">Total Supervisors</p>
-                  <h4 class="mb-0">{{ total_supervisors|default:"0" }}</h4>
+                  <h4 class="mb-0">{{ total_supervisors }}</h4>
+                  <p class="text-muted mb-0"><small>Staff members</small></p>
                 </div>
                 <div class="flex-shrink-0 align-self-center">
-                  <div class="avatar-sm rounded-circle bg-success bg-opacity-10">
+                  <div class="avatar-sm rounded-circle bg-soft-success">
                     <span class="avatar-title">
-                      <i class="mdi mdi-account-tie font-size-24 text-success"></i>
+                      <i class="mdi mdi-account-tie fs-24 text-success"></i>
                     </span>
                   </div>
                 </div>
@@ -58,18 +241,20 @@
             </div>
           </div>
         </div>
+
         <div class="col-xl-3 col-md-6">
           <div class="card mini-stats-wid">
             <div class="card-body">
               <div class="d-flex">
                 <div class="flex-grow-1">
                   <p class="text-muted fw-medium">Total Projects</p>
-                  <h4 class="mb-0">{{ total_projects|default:"0" }}</h4>
+                  <h4 class="mb-0">{{ total_projects }}</h4>
+                  <p class="text-muted mb-0"><small>All projects</small></p>
                 </div>
                 <div class="flex-shrink-0 align-self-center">
-                  <div class="avatar-sm rounded-circle bg-warning bg-opacity-10">
+                  <div class="avatar-sm rounded-circle bg-soft-warning">
                     <span class="avatar-title">
-                      <i class="mdi mdi-folder-multiple font-size-24 text-warning"></i>
+                      <i class="mdi mdi-folder-multiple fs-24 text-warning"></i>
                     </span>
                   </div>
                 </div>
@@ -77,20 +262,89 @@
             </div>
           </div>
         </div>
+
         <div class="col-xl-3 col-md-6">
           <div class="card mini-stats-wid">
             <div class="card-body">
               <div class="d-flex">
                 <div class="flex-grow-1">
-                  <p class="text-muted fw-medium">Total Applications</p>
-                  <h4 class="mb-0">{{ total_applications|default:"0" }}</h4>
+                  <p class="text-muted fw-medium">Average Grade</p>
+                  <h4 class="mb-0">{% if average_grade > 0 %}{{ average_grade }}%{% else %}N/A{% endif %}</h4>
+                  <p class="text-muted mb-0"><small>{% if average_grade > 0 %}System average{% else %}No grades yet{% endif %}</small></p>
                 </div>
                 <div class="flex-shrink-0 align-self-center">
-                  <div class="avatar-sm rounded-circle bg-info bg-opacity-10">
+                  <div class="avatar-sm rounded-circle bg-soft-info">
                     <span class="avatar-title">
-                      <i class="mdi mdi-file-document-multiple font-size-24 text-info"></i>
+                      <i class="mdi mdi-chart-line fs-24 text-info"></i>
                     </span>
                   </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Secondary Statistics Row -->
+      <div class="row">
+        <div class="col-xl-3 col-md-6">
+          <div class="card stats-card">
+            <div class="card-body">
+              <div class="d-flex align-items-center">
+                <div class="avatar-sm me-3 bg-soft-primary rounded">
+                  <i class="mdi mdi-folder-open text-primary fs-20"></i>
+                </div>
+                <div>
+                  <h5 class="mb-1">{{ available_projects }}</h5>
+                  <p class="text-muted mb-0 fs-13">Available Projects</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+          <div class="card stats-card">
+            <div class="card-body">
+              <div class="d-flex align-items-center">
+                <div class="avatar-sm me-3 bg-soft-warning rounded">
+                  <i class="mdi mdi-progress-clock text-warning fs-20"></i>
+                </div>
+                <div>
+                  <h5 class="mb-1">{{ ongoing_projects }}</h5>
+                  <p class="text-muted mb-0 fs-13">Ongoing Projects</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+          <div class="card stats-card">
+            <div class="card-body">
+              <div class="d-flex align-items-center">
+                <div class="avatar-sm me-3 bg-soft-success rounded">
+                  <i class="mdi mdi-check-circle text-success fs-20"></i>
+                </div>
+                <div>
+                  <h5 class="mb-1">{{ completed_projects }}</h5>
+                  <p class="text-muted mb-0 fs-13">Completed Projects</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+          <div class="card stats-card">
+            <div class="card-body">
+              <div class="d-flex align-items-center">
+                <div class="avatar-sm me-3 bg-soft-danger rounded">
+                  <i class="mdi mdi-clipboard-text text-danger fs-20"></i>
+                </div>
+                <div>
+                  <h5 class="mb-1">{{ pending_grading }}</h5>
+                  <p class="text-muted mb-0 fs-13">Pending Grading</p>
                 </div>
               </div>
             </div>
@@ -100,66 +354,154 @@
 
       <!-- Charts Row -->
       <div class="row">
-        <div class="col-xl-8">
+        <div class="col-xl-6">
           <div class="card">
             <div class="card-header">
-              <h4 class="card-title mb-0">Project Applications Over Time</h4>
+              <h4 class="card-title mb-0">Applications Trend</h4>
             </div>
             <div class="card-body">
-              <div id="applications-chart" style="height: 300px"></div>
+              {% if monthly_applications %}
+              <div id="applications-trend-chart" class="apex-charts"></div>
+              {% else %}
+              <div class="text-center py-4">
+                <div class="avatar-lg mx-auto mb-3">
+                  <div class="avatar-title bg-soft-primary text-primary rounded-circle fs-24">
+                    <i class="mdi mdi-chart-line"></i>
+                  </div>
+                </div>
+                <h6>No Application Data</h6>
+                <p class="text-muted fs-13">Application trends will appear here</p>
+              </div>
+              {% endif %}
             </div>
           </div>
         </div>
-        <div class="col-xl-4">
+
+        <div class="col-xl-6">
           <div class="card">
             <div class="card-header">
               <h4 class="card-title mb-0">Application Status Distribution</h4>
             </div>
             <div class="card-body">
-              <div id="status-pie-chart" style="height: 300px"></div>
+              {% if application_status_data %}
+              <div id="application-status-chart" class="apex-charts"></div>
+              {% else %}
+              <div class="text-center py-4">
+                <div class="avatar-lg mx-auto mb-3">
+                  <div class="avatar-title bg-soft-warning text-warning rounded-circle fs-24">
+                    <i class="mdi mdi-chart-pie"></i>
+                  </div>
+                </div>
+                <h6>No Status Data</h6>
+                <p class="text-muted fs-13">Application status distribution will appear here</p>
+              </div>
+              {% endif %}
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Additional Statistics Row -->
+      <!-- Secondary Charts Row -->
       <div class="row">
-        <div class="col-xl-4">
+        <div class="col-xl-6">
           <div class="card">
             <div class="card-header">
-              <h4 class="card-title mb-0">Department Statistics</h4>
+              <h4 class="card-title mb-0">Project Types Distribution</h4>
             </div>
             <div class="card-body">
-              <div id="department-chart" style="height: 250px"></div>
-            </div>
-          </div>
-        </div>
-        <div class="col-xl-4">
-          <div class="card">
-            <div class="card-header">
-              <h4 class="card-title mb-0">Recent Activities</h4>
-            </div>
-            <div class="card-body">
-              <div class="timeline-alt pb-0">
-                {% for activity in recent_activities|slice:":5" %}
-                <div class="timeline-item">
-                  <i class="mdi mdi-circle bg-info-lighten text-info timeline-icon"></i>
-                  <div class="timeline-item-info">
-                    <a href="#" class="text-info fw-bold mb-1 d-block">{{ activity.title }}</a>
-                    <small>{{ activity.timestamp|timesince }} ago</small>
-                    <p class="mb-0">{{ activity.description }}</p>
+              {% if project_types_data %}
+              <div id="project-types-chart" class="apex-charts"></div>
+              {% else %}
+              <div class="text-center py-4">
+                <div class="avatar-lg mx-auto mb-3">
+                  <div class="avatar-title bg-soft-success text-success rounded-circle fs-24">
+                    <i class="mdi mdi-chart-donut"></i>
                   </div>
                 </div>
-                {% empty %}
-                <div class="text-center text-muted">
-                  <i class="mdi mdi-information-outline font-size-24"></i>
-                  <p class="mt-2">No recent activities</p>
-                </div>
-                {% endfor %}
+                <h6>No Project Data</h6>
+                <p class="text-muted fs-13">Project type distribution will appear here</p>
               </div>
+              {% endif %}
             </div>
           </div>
         </div>
+
+        <div class="col-xl-6">
+          <div class="card">
+            <div class="card-header">
+              <h4 class="card-title mb-0">Grade Distribution</h4>
+            </div>
+            <div class="card-body">
+              {% if grade_ranges %}
+              <div id="grade-distribution-chart" class="apex-charts"></div>
+              {% else %}
+              <div class="text-center py-4">
+                <div class="avatar-lg mx-auto mb-3">
+                  <div class="avatar-title bg-soft-info text-info rounded-circle fs-24">
+                    <i class="mdi mdi-chart-bar"></i>
+                  </div>
+                </div>
+                <h6>No Grade Data</h6>
+                <p class="text-muted fs-13">Grade distribution will appear here</p>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Data and Actions Row -->
+      <div class="row">
+        <!-- Recent Activities -->
+        <div class="col-xl-4">
+          <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <h4 class="card-title mb-0">Recent Notifications</h4>
+              <a href="{% url 'view_all_notifications' %}" class="btn btn-sm btn-soft-primary">View All</a>
+            </div>
+            <div class="card-body">
+              {% if notifications %}
+              <div class="simplebar" data-simplebar style="max-height: 300px">
+                {% for notification in notifications %}
+                <a href="{% url 'mark_notification_as_read_and_redirect' notification.id %}" class="text-reset text-decoration-none">
+                  <div class="d-flex align-items-start mb-3 {% if not notification.is_read %}bg-light rounded p-2{% endif %} notification-item">
+                    <div class="flex-shrink-0">
+                      <div class="avatar-xs">
+                        <span class="avatar-title bg-soft-primary rounded">
+                          <i class="mdi mdi-bell-outline text-primary"></i>
+                        </span>
+                      </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                      <h6 class="mb-1 fs-13">{{ notification.message|truncatechars:50 }}</h6>
+                      <p class="mb-0 text-muted fs-12">
+                        <i class="mdi mdi-clock-outline"></i>
+                        {{ notification.created_at|timesince }} ago
+                      </p>
+                      {% if not notification.is_read %}
+                      <span class="badge bg-warning text-dark fs-10">New</span>
+                      {% endif %}
+                    </div>
+                  </div>
+                </a>
+                {% endfor %}
+              </div>
+              {% else %}
+              <div class="text-center py-4">
+                <div class="avatar-lg mx-auto mb-3">
+                  <div class="avatar-title bg-soft-primary text-primary rounded-circle fs-24">
+                    <i class="mdi mdi-bell-off-outline"></i>
+                  </div>
+                </div>
+                <h6>No Notifications</h6>
+                <p class="text-muted fs-13">You're all caught up!</p>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
         <div class="col-xl-4">
           <div class="card">
             <div class="card-header">
@@ -167,88 +509,60 @@
             </div>
             <div class="card-body">
               <div class="d-grid gap-2">
-                <a href="{% url 'add_student' %}" class="btn btn-primary"> <i class="mdi mdi-account-plus me-2"></i>Add Student </a>
-                <a href="{% url 'add_supervisor' %}" class="btn btn-success"> <i class="mdi mdi-account-tie-plus me-2"></i>Add Supervisor </a>
-                <a href="{% url 'add_project' %}" class="btn btn-warning"> <i class="mdi mdi-folder-plus me-2"></i>Add Project </a>
-                <a href="{% url 'create_assessment_schema' %}" class="btn btn-info"> <i class="mdi mdi-file-plus me-2"></i>Create Assessment </a>
+                <a href="{% url 'student_admin' %}" class="btn btn-soft-primary">
+                  <i class="mdi mdi-account-plus me-2"></i>
+                  Manage Students
+                </a>
+                <a href="{% url 'supervisor_admin' %}" class="btn btn-soft-success">
+                  <i class="mdi mdi-account-tie-plus me-2"></i>
+                  Manage Supervisors
+                </a>
+                <a href="{% url 'assessment_schema' %}" class="btn btn-soft-warning">
+                  <i class="mdi mdi-file-plus me-2"></i>
+                  Assessment Schemas
+                </a>
+                <a href="{% url 'view_all_notifications' %}" class="btn btn-soft-info">
+                  <i class="mdi mdi-bell-outline me-2"></i>
+                  All Notifications
+                </a>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Data Tables Row -->
-      <div class="row">
-        <div class="col-xl-6">
+        <!-- Recent Applications -->
+        <div class="col-xl-4">
           <div class="card">
             <div class="card-header">
               <h4 class="card-title mb-0">Recent Applications</h4>
             </div>
             <div class="card-body">
-              <div class="table-responsive">
-                <table class="table table-centered table-nowrap mb-0">
-                  <thead>
-                    <tr>
-                      <th>Student</th>
-                      <th>Project</th>
-                      <th>Status</th>
-                      <th>Date</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {% for application in recent_applications|slice:":5" %}
-                    <tr>
-                      <td>
-                        <div class="d-flex align-items-center">
-                          <div class="avatar-sm bg-light rounded-circle flex-shrink-0">
-                            <span class="avatar-title text-primary"> {% with first_member=application.members.first %} {% if first_member %} {{ first_member.user.first_name|first }}{{ first_member.user.last_name|first }} {% else %} N/A {% endif %} {% endwith %} </span>
-                          </div>
-                          <div class="flex-grow-1 ms-3">
-                            <p class="mb-0 fw-medium">{% with first_member=application.members.first %} {% if first_member %} {{ first_member.user.first_name }} {{ first_member.user.last_name }} {% else %} No members {% endif %} {% endwith %}</p>
-                            <small class="text-muted">{{ application.application_type|title }}</small>
-                          </div>
-                        </div>
-                      </td>
-                      <td>{{ application.project.title|truncatechars:30 }}</td>
-                      <td>
-                        {% if application.status == 'applied' %}
-                        <span class="badge bg-warning">Applied</span>
-                        {% elif application.status == 'accepted' %}
-                        <span class="badge bg-success">Accepted</span>
-                        {% elif application.status == 'declined' %}
-                        <span class="badge bg-danger">Declined</span>
-                        {% else %}
-                        <span class="badge bg-secondary">{{ application.status|title }}</span>
-                        {% endif %}
-                      </td>
-                      <td>{{ application.applied_at|date:"M d, Y" }}</td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                      <td colspan="4" class="text-center text-muted">No applications found</td>
-                    </tr>
-                    {% endfor %}
-                  </tbody>
-                </table>
+              {% if recent_applications %}
+              <div class="simplebar" data-simplebar style="max-height: 300px">
+                {% for application in recent_applications|slice:":5" %}
+                <div class="d-flex align-items-start mb-3">
+                  <div class="avatar-xs me-3">
+                    <span class="avatar-title bg-soft-success text-success rounded-circle">
+                      <i class="mdi mdi-file-document"></i>
+                    </span>
+                  </div>
+                  <div class="flex-1">
+                    <h6 class="mb-1 fs-13">{{ application.project.title|truncatechars:30 }}</h6>
+                    <p class="text-muted fs-12 mb-1">{% with first_member=application.members.first %} {% if first_member %} {{ first_member.user.first_name }} {{ first_member.user.last_name }} {% else %} No members {% endif %} {% endwith %}</p>
+                    <span class="badge bg-soft-{% if application.status == 'applied' %}warning{% elif application.status == 'accepted' %}success{% else %}danger{% endif %} fs-11"> {{ application.status|title }} </span>
+                  </div>
+                </div>
+                {% endfor %}
               </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-xl-6">
-          <div class="card">
-            <div class="card-header">
-              <h4 class="card-title mb-0">System Messages</h4>
-            </div>
-            <div class="card-body">
-              {% if messages %} {% for message in messages %}
-              <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-              </div>
-              {% endfor %} {% else %}
-              <div class="text-center text-muted">
-                <i class="mdi mdi-message-text-outline font-size-24"></i>
-                <p class="mt-2">No system messages</p>
+              {% else %}
+              <div class="text-center py-4">
+                <div class="avatar-lg mx-auto mb-3">
+                  <div class="avatar-title bg-soft-warning text-warning rounded-circle fs-24">
+                    <i class="mdi mdi-file-document-outline"></i>
+                  </div>
+                </div>
+                <h6>No Applications</h6>
+                <p class="text-muted fs-13">Recent applications will appear here</p>
               </div>
               {% endif %}
             </div>
@@ -261,127 +575,178 @@
 
 {% include 'footer.html' %}
 
-<!-- Chart.js and ApexCharts -->
-<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<!-- ApexCharts -->
+<script src="{% static 'assets/libs/apexcharts/apexcharts.min.js' %}"></script>
 
 <script>
-  // Applications Over Time Chart
-  var applicationsOptions = {
-      series: [{
-          name: 'Applications',
-          data: [{% for month in monthly_applications %}{{ month.count }}{% if not forloop.last %}, {% endif %}{% endfor %}]
-      }],
-      chart: {
-          type: 'area',
-          height: 300,
-          toolbar: {
-              show: false
-          }
-      },
-      dataLabels: {
-          enabled: false
-      },
-      stroke: {
-          curve: 'smooth',
-          width: 3
-      },
-      colors: ['#556ee6'],
-      fill: {
-          type: 'gradient',
-          gradient: {
+  document.addEventListener('DOMContentLoaded', function() {
+    try {
+      // Applications Trend Chart
+      {% if monthly_applications %}
+        var trendData = {{ monthly_applications_json|safe }};
+        var trendLabels = trendData.map(function(item) { return item.month; });
+        var trendCounts = trendData.map(function(item) { return item.count; });
+
+        var trendOptions = {
+          series: [{
+            name: 'Applications',
+            data: trendCounts
+          }],
+          chart: {
+            type: 'area',
+            height: 300,
+            toolbar: { show: false }
+          },
+          dataLabels: { enabled: false },
+          stroke: {
+            curve: 'smooth',
+            width: 3
+          },
+          colors: ['#0c768a'],
+          fill: {
+            type: 'gradient',
+            gradient: {
               shadeIntensity: 1,
               opacityFrom: 0.7,
               opacityTo: 0.2,
               stops: [0, 90, 100]
-          }
-      },
-      xaxis: {
-          categories: [{% for month in monthly_applications %}'{{ month.month }}'{% if not forloop.last %}, {% endif %}{% endfor %}]
-      },
-      tooltip: {
-          x: {
-              format: 'MM'
+            }
           },
-      },
-  };
-
-  var applicationsChart = new ApexCharts(document.querySelector("#applications-chart"), applicationsOptions);
-  applicationsChart.render();
-
-  // Status Distribution Pie Chart
-  var statusOptions = {
-      series: [{% for status, count in status_data.items %}{{ count }}{% if not forloop.last %}, {% endif %}{% endfor %}],
-      chart: {
-          type: 'pie',
-          height: 300
-      },
-      labels: [{% for status, count in status_data.items %}'{{ status|title }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
-      colors: ['#f1b44c', '#34c38f', '#f46a6a', '#50a5f1'],
-      responsive: [{
-          breakpoint: 480,
-          options: {
-              chart: {
-                  width: 200
-              },
-              legend: {
-                  position: 'bottom'
+          xaxis: {
+            categories: trendLabels
+          },
+          tooltip: {
+            y: {
+              formatter: function (val) {
+                return val + " applications"
               }
+            }
           }
-      }]
-  };
+        };
 
-  var statusChart = new ApexCharts(document.querySelector("#status-pie-chart"), statusOptions);
-  statusChart.render();
+        var trendChart = new ApexCharts(document.querySelector("#applications-trend-chart"), trendOptions);
+        trendChart.render();
+      {% endif %}
 
-  // Department Statistics Chart
-  var departmentOptions = {
-      series: [{
-          name: 'Students',
-          data: [{% for dept in department_stats %}{{ dept.count }}{% if not forloop.last %}, {% endif %}{% endfor %}]
-      }],
-      chart: {
-          type: 'bar',
-          height: 250,
-          toolbar: {
-              show: false
-          }
-      },
-      colors: ['#34c38f'],
-      plotOptions: {
-          bar: {
+      // Application Status Chart
+      {% if application_status_data %}
+        var statusData = {{ application_status_json|safe }};
+        var statusLabels = statusData.map(function(item) { return item.status; });
+        var statusCounts = statusData.map(function(item) { return item.count; });
+        var statusColors = statusData.map(function(item) { return item.color; });
+
+        var statusOptions = {
+          series: statusCounts,
+          chart: {
+            type: 'donut',
+            height: 300
+          },
+          labels: statusLabels,
+          colors: statusColors,
+          legend: {
+            position: 'bottom'
+          },
+          responsive: [{
+            breakpoint: 480,
+            options: {
+              chart: { width: 200 },
+              legend: { position: 'bottom' }
+            }
+          }]
+        };
+
+        var statusChart = new ApexCharts(document.querySelector("#application-status-chart"), statusOptions);
+        statusChart.render();
+      {% endif %}
+
+      // Project Types Chart
+      {% if project_types_data %}
+        var projectData = {{ project_types_json|safe }};
+        var projectLabels = projectData.map(function(item) { return item.type; });
+        var projectCounts = projectData.map(function(item) { return item.count; });
+        var projectColors = projectData.map(function(item) { return item.color; });
+
+        var projectOptions = {
+          series: projectCounts,
+          chart: {
+            type: 'pie',
+            height: 300
+          },
+          labels: projectLabels,
+          colors: projectColors,
+          legend: {
+            position: 'bottom'
+          },
+          responsive: [{
+            breakpoint: 480,
+            options: {
+              chart: { width: 200 },
+              legend: { position: 'bottom' }
+            }
+          }]
+        };
+
+        var projectChart = new ApexCharts(document.querySelector("#project-types-chart"), projectOptions);
+        projectChart.render();
+      {% endif %}
+
+      // Grade Distribution Chart
+      {% if grade_ranges %}
+        var gradeData = {{ grade_ranges_json|safe }};
+        var gradeLabels = gradeData.map(function(item) { return item.range; });
+        var gradeCounts = gradeData.map(function(item) { return item.count; });
+        var gradeColors = gradeData.map(function(item) { return item.color; });
+
+        var gradeOptions = {
+          series: gradeCounts,
+          chart: {
+            type: 'bar',
+            height: 300,
+            toolbar: { show: false }
+          },
+          plotOptions: {
+            bar: {
               horizontal: false,
               columnWidth: '55%',
               endingShape: 'rounded'
+            }
           },
-      },
-      dataLabels: {
-          enabled: false
-      },
-      stroke: {
-          show: true,
-          width: 2,
-          colors: ['transparent']
-      },
-      xaxis: {
-          categories: [{% for dept in department_stats %}'{{ dept.department }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
-      },
-      yaxis: {
-          title: {
-              text: 'Number of Students'
-          }
-      },
-      fill: {
-          opacity: 1
-      },
-      tooltip: {
-          y: {
+          dataLabels: { enabled: false },
+          stroke: {
+            show: true,
+            width: 2,
+            colors: ['transparent']
+          },
+          xaxis: {
+            categories: gradeLabels
+          },
+          yaxis: {
+            title: {
+              text: 'Number of Submissions'
+            }
+          },
+          colors: gradeColors,
+          fill: { opacity: 1 },
+          tooltip: {
+            y: {
               formatter: function (val) {
-                  return val + " students"
+                return val + " submissions"
               }
+            }
           }
-      }
-  };
+        };
 
-  var departmentChart = new ApexCharts(document.querySelector("#department-chart"), departmentOptions);
-  departmentChart.render();
+        var gradeChart = new ApexCharts(document.querySelector("#grade-distribution-chart"), gradeOptions);
+        gradeChart.render();
+      {% endif %}
+
+    } catch (error) {
+      console.error('Error rendering charts:', error);
+      // Hide chart containers if there's an error
+      var chartContainers = document.querySelectorAll('.apex-charts');
+      chartContainers.forEach(function(container) {
+        container.innerHTML = '<div class="text-center py-4"><p class="text-muted">Chart data unavailable</p></div>';
+      });
+    }
+  });
 </script>

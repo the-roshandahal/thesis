@@ -1,121 +1,725 @@
-{% load static %}
-{% include 'header.html' %}
+{% load static %} {% include 'header.html' %}
+
+<style>
+  .mini-stats-wid {
+    transition: all 0.3s ease;
+    border: 1px solid #eff5f6;
+  }
+
+  .mini-stats-wid:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  }
+
+  .mini-stat-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .avatar-title {
+    font-weight: 600;
+  }
+
+  .card {
+    border: none;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    border-radius: 10px;
+    margin-bottom: 20px;
+  }
+
+  .card-header {
+    background: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+    border-radius: 10px 10px 0 0 !important;
+    padding: 15px 20px;
+  }
+
+  .application-card {
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    transition: all 0.3s ease;
+  }
+
+  .application-card:hover {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+  }
+
+  .bg-soft-primary {
+    background-color: rgba(12, 118, 138, 0.1);
+  }
+  .bg-soft-success {
+    background-color: rgba(56, 199, 134, 0.1);
+  }
+  .bg-soft-warning {
+    background-color: rgba(244, 186, 64, 0.1);
+  }
+  .bg-soft-danger {
+    background-color: rgba(237, 94, 73, 0.1);
+  }
+  .bg-soft-info {
+    background-color: rgba(78, 157, 239, 0.1);
+  }
+
+  .text-primary {
+    color: #0c768a !important;
+  }
+  .text-success {
+    color: #38c786 !important;
+  }
+  .text-warning {
+    color: #f4ba40 !important;
+  }
+  .text-danger {
+    color: #ed5e49 !important;
+  }
+  .text-info {
+    color: #4e9def !important;
+  }
+
+  .btn-soft-primary {
+    background-color: rgba(12, 118, 138, 0.1);
+    color: #0c768a;
+    border-color: rgba(12, 118, 138, 0.2);
+  }
+
+  .btn-soft-primary:hover {
+    background-color: rgba(12, 118, 138, 0.2);
+    color: #0c768a;
+  }
+
+  .btn-soft-success {
+    background-color: rgba(56, 199, 134, 0.1);
+    color: #38c786;
+    border-color: rgba(56, 199, 134, 0.2);
+  }
+
+  .btn-soft-success:hover {
+    background-color: rgba(56, 199, 134, 0.2);
+    color: #38c786;
+  }
+
+  .btn-soft-warning {
+    background-color: rgba(244, 186, 64, 0.1);
+    color: #f4ba40;
+    border-color: rgba(244, 186, 64, 0.2);
+  }
+
+  .btn-soft-warning:hover {
+    background-color: rgba(244, 186, 64, 0.2);
+    color: #f4ba40;
+  }
+
+  .btn-soft-info {
+    background-color: rgba(78, 157, 239, 0.1);
+    color: #4e9def;
+    border-color: rgba(78, 157, 239, 0.2);
+  }
+
+  .btn-soft-info:hover {
+    background-color: rgba(78, 157, 239, 0.2);
+    color: #4e9def;
+  }
+
+  .fs-10 {
+    font-size: 10px !important;
+  }
+  .fs-11 {
+    font-size: 11px !important;
+  }
+  .fs-12 {
+    font-size: 12px !important;
+  }
+  .fs-13 {
+    font-size: 13px !important;
+  }
+  .fs-24 {
+    font-size: 24px !important;
+  }
+
+  /* Notification item styles */
+  .notification-item {
+    transition: all 0.3s ease;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+
+  .notification-item:hover {
+    background-color: rgba(102, 126, 234, 0.05) !important;
+    transform: translateX(5px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .notification-item a {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .notification-item a:hover {
+    text-decoration: none;
+    color: inherit;
+  }
+</style>
 
 <div class="main-content">
-    <div class="page-content">
-        <div class="container-fluid">
-            <!-- Start page title -->
-            <div class="row">
-                <div class="col-12 mb-3">
-                    <div class="page-title-box d-flex align-items-center justify-content-between">
-                        <h4 class="mb-0">Your Projects</h4>
-                    </div>
-                </div>
+  <div class="page-content">
+    <div class="container-fluid">
+      <!-- Start page title -->
+      <div class="row">
+        <div class="col-12 mb-3">
+          <div class="page-title-box d-flex align-items-center justify-content-between">
+            <h4 class="mb-0">Student Dashboard</h4>
+            <div class="d-flex align-items-center">
+              <span class="badge bg-soft-primary text-primary me-2">
+                <i class="mdi mdi-bell-outline me-1"></i>
+                {{ unread_notifications_count }} new notifications
+              </span>
             </div>
-            <!-- End page title -->
-
-            <div class="row">
-                <div class="col-12">
-                    {% if applications %}
-                    <div class="row">
-                        {% for app in applications %}
-                        <div class="col-xl-6 col-md-6">
-                            <div class="card application-card">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between align-items-center mb-3">
-                                        <h5 class="card-title mb-0 flex-grow-1 text-truncate">{{ app.project.title }}
-                                        </h5>
-                                        <span
-                                            class="badge rounded-pill bg-soft-{% if app.status == 'applied' %}warning text-warning{% elif app.status == 'accepted' %}success text-success{% else %}danger text-danger{% endif %} fs-12">
-                                            {{ app.status|title }}
-                                        </span>
-                                    </div>
-
-                                    <p class="text-muted mb-2">
-                                        <i class="mdi mdi-clock-outline me-1"></i>
-                                        Applied on: {{ app.applied_at|date:"M d, Y H:i" }}
-                                    </p>
-
-                                    <div class="mb-3">
-                                        <span class="badge bg-soft-primary text-primary">
-                                            {{ app.application_type|title }}
-                                        </span>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <h6 class="fs-14">Group Members:</h6>
-                                        <div class="avatar-group">
-                                            {% for member in app.members.all %}
-                                            <div class="d-flex align-items-center mb-2">
-                                                <div class="avatar-xs me-2">
-                                                    <span
-                                                        class="avatar-title rounded-circle bg-soft-primary text-primary">
-                                                        {{ member.user.get_full_name|slice:":1" }}
-                                                    </span>
-                                                </div>
-                                                <div>
-                                                    <p class="mb-0 fs-13">
-                                                        {{ member.user.get_full_name }}
-                                                        {% if member.is_leader %}
-                                                        <span class="badge bg-soft-info text-info fs-11">Leader</span>
-                                                        {% endif %}
-                                                    </p>
-                                                    <p class="mb-0 text-muted fs-11">{{ member.user.email }}</p>
-                                                </div>
-                                            </div>
-                                            {% endfor %}
-                                        </div>
-                                    </div>
-                                    {% if app.status == 'applied' %}
-                                    {% if app.message %}
-                                    <div class="mb-3">
-                                        <h6 class="fs-14">Message:</h6>
-                                        <div class="p-2 bg-light rounded">
-                                            <p class="mb-0 text-muted fs-13">{{ app.message }}</p>
-                                        </div>
-                                    </div>
-                                    {% endif %}
-                                    {% endif %}
-
-                                    <div class="d-flex justify-content-between align-items-center mt-3">
-                                        <a href="{% url 'student_view_assignment' %}"
-                                            class="btn btn-sm btn-primary">
-                                            <i class="mdi mdi-eye-outline me-1"></i> View assignments
-                                        </a>
-                                        <a href="{% url 'project_detail' app.project.id %}"
-                                            class="btn btn-sm btn-soft-primary">
-                                            <i class="mdi mdi-eye-outline me-1"></i> View Project
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                    {% else %}
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="card">
-                                <div class="card-body text-center py-5">
-                                    <div class="avatar-lg mx-auto mb-4">
-                                        <div class="avatar-title bg-soft-primary text-primary rounded-circle fs-24">
-                                            <i class="mdi mdi-file-document-outline"></i>
-                                        </div>
-                                    </div>
-                                    <h5>No Applications Found</h5>
-                                    <p class="text-muted mb-4">You haven't applied to any projects yet.</p>
-                                    <a href="{% url 'student_projects' %}" class="btn btn-primary">
-                                        <i class="mdi mdi-briefcase-search-outline me-1"></i> Browse Projects
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
+          </div>
         </div>
+      </div>
+      <!-- End page title -->
+
+      <!-- Statistics Cards -->
+      <div class="row">
+        <div class="col-xl-3 col-md-6">
+          <div class="card mini-stats-wid">
+            <div class="card-body">
+              <div class="d-flex">
+                <div class="flex-grow-1">
+                  <p class="text-muted fw-medium">Total Applications</p>
+                  <h4 class="mb-0">{{ total_applications }}</h4>
+                </div>
+                <div class="flex-shrink-0 align-self-center">
+                  <div class="avatar-sm rounded-circle bg-primary align-self-center mini-stat-icon">
+                    <span class="avatar-title">
+                      <i class="mdi mdi-file-document-outline font-size-24"></i>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+          <div class="card mini-stats-wid">
+            <div class="card-body">
+              <div class="d-flex">
+                <div class="flex-grow-1">
+                  <p class="text-muted fw-medium">Accepted Projects</p>
+                  <h4 class="mb-0">{{ accepted_projects_count }}</h4>
+                </div>
+                <div class="flex-shrink-0 align-self-center">
+                  <div class="avatar-sm rounded-circle bg-success align-self-center mini-stat-icon">
+                    <span class="avatar-title">
+                      <i class="mdi mdi-check-circle-outline font-size-24"></i>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+          <div class="card mini-stats-wid">
+            <div class="card-body">
+              <div class="d-flex">
+                <div class="flex-grow-1">
+                  <p class="text-muted fw-medium">Average Grade</p>
+                  <h4 class="mb-0">{{ average_grade }}%</h4>
+                </div>
+                <div class="flex-shrink-0 align-self-center">
+                  <div class="avatar-sm rounded-circle bg-info align-self-center mini-stat-icon">
+                    <span class="avatar-title">
+                      <i class="mdi mdi-chart-line font-size-24"></i>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+          <div class="card mini-stats-wid">
+            <div class="card-body">
+              <div class="d-flex">
+                <div class="flex-grow-1">
+                  <p class="text-muted fw-medium">Upcoming Assessments</p>
+                  <h4 class="mb-0">{{ upcoming_assessments_count }}</h4>
+                </div>
+                <div class="flex-shrink-0 align-self-center">
+                  <div class="avatar-sm rounded-circle bg-warning align-self-center mini-stat-icon">
+                    <span class="avatar-title">
+                      <i class="mdi mdi-clock-outline font-size-24"></i>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts Row -->
+      <div class="row">
+        <div class="col-xl-6">
+          <div class="card">
+            <div class="card-header">
+              <h4 class="card-title mb-0">Application Status Distribution</h4>
+            </div>
+            <div class="card-body">
+              {% if total_applications > 0 %}
+              <div id="application-status-chart" class="apex-charts" data-colors="#f4ba40,#38c786,#ed5e49"></div>
+              {% else %}
+              <div class="text-center py-4">
+                <div class="avatar-lg mx-auto mb-3">
+                  <div class="avatar-title bg-soft-primary text-primary rounded-circle fs-24">
+                    <i class="mdi mdi-chart-pie"></i>
+                  </div>
+                </div>
+                <h6>No Data Available</h6>
+                <p class="text-muted fs-13">Apply to projects to see statistics</p>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-6">
+          <div class="card">
+            <div class="card-header">
+              <h4 class="card-title mb-0">Grade Distribution</h4>
+            </div>
+            <div class="card-body">
+              {% if completed_assessments > 0 %}
+              <div id="grade-distribution-chart" class="apex-charts" data-colors="#38c786,#0c768a,#f4ba40,#ed5e49,#8590a5"></div>
+              {% else %}
+              <div class="text-center py-4">
+                <div class="avatar-lg mx-auto mb-3">
+                  <div class="avatar-title bg-soft-info text-info rounded-circle fs-24">
+                    <i class="mdi mdi-chart-bar"></i>
+                  </div>
+                </div>
+                <h6>No Grades Yet</h6>
+                <p class="text-muted fs-13">Complete assessments to see grade distribution</p>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notifications and Quick Actions -->
+      <div class="row">
+        <div class="col-xl-4">
+          <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <h4 class="card-title mb-0">Recent Notifications</h4>
+              <a href="{% url 'view_all_notifications' %}" class="btn btn-sm btn-soft-primary">View All</a>
+            </div>
+            <div class="card-body">
+              {% if notifications %}
+              <div class="simplebar" data-simplebar style="max-height: 300px">
+                {% for notification in notifications %}
+                <a href="{% url 'mark_notification_as_read_and_redirect' notification.id %}" class="text-reset text-decoration-none">
+                  <div class="d-flex align-items-start mb-3 {% if not notification.is_read %}bg-light rounded p-2{% endif %} notification-item">
+                    <div class="flex-shrink-0">
+                      <div class="avatar-xs">
+                        <span class="avatar-title bg-soft-primary rounded">
+                          <i class="mdi mdi-bell-outline text-primary"></i>
+                        </span>
+                      </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                      <h6 class="mb-1 fs-13">{{ notification.message|truncatechars:50 }}</h6>
+                      <p class="mb-0 text-muted fs-12">
+                        <i class="mdi mdi-clock-outline"></i>
+                        {{ notification.created_at|timesince }} ago
+                      </p>
+                      {% if not notification.is_read %}
+                      <span class="badge bg-warning text-dark fs-10">New</span>
+                      {% endif %}
+                    </div>
+                  </div>
+                </a>
+                {% endfor %}
+              </div>
+              {% else %}
+              <div class="text-center py-4">
+                <div class="avatar-lg mx-auto mb-3">
+                  <div class="avatar-title bg-soft-primary text-primary rounded-circle fs-24">
+                    <i class="mdi mdi-bell-off-outline"></i>
+                  </div>
+                </div>
+                <h6>No Notifications</h6>
+                <p class="text-muted fs-13">You're all caught up!</p>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-4">
+          <div class="card">
+            <div class="card-header">
+              <h4 class="card-title mb-0">Upcoming Deadlines</h4>
+            </div>
+            <div class="card-body">
+              {% if upcoming_assessments %}
+              <div class="simplebar" data-simplebar style="max-height: 300px">
+                {% for assessment in upcoming_assessments|slice:":5" %}
+                <div class="d-flex align-items-start mb-3">
+                  <div class="avatar-xs me-3">
+                    <span class="avatar-title bg-soft-warning text-warning rounded-circle">
+                      <i class="mdi mdi-calendar-clock"></i>
+                    </span>
+                  </div>
+                  <div class="flex-1">
+                    <h6 class="mb-1 fs-13">{{ assessment.title }}</h6>
+                    <p class="text-muted fs-12 mb-0">
+                      <i class="mdi mdi-calendar me-1"></i>
+                      Due: {{ assessment.due_date|date:"M d, Y" }}
+                    </p>
+                    <span class="badge bg-soft-warning text-warning fs-11"> {{ assessment.weight }}% weight </span>
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+              {% else %}
+              <div class="text-center py-4">
+                <div class="avatar-lg mx-auto mb-3">
+                  <div class="avatar-title bg-soft-success text-success rounded-circle fs-24">
+                    <i class="mdi mdi-check-circle-outline"></i>
+                  </div>
+                </div>
+                <h6>No Upcoming Deadlines</h6>
+                <p class="text-muted fs-13">You're all caught up!</p>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-4">
+          <div class="card">
+            <div class="card-header">
+              <h4 class="card-title mb-0">Quick Actions</h4>
+            </div>
+            <div class="card-body">
+              <div class="d-grid gap-2">
+                <a href="{% url 'student_projects' %}" class="btn btn-primary">
+                  <i class="mdi mdi-briefcase-search-outline me-2"></i>
+                  Browse Projects
+                </a>
+                <a href="{% url 'student_view_assignment' %}" class="btn btn-soft-primary">
+                  <i class="mdi mdi-file-document-outline me-2"></i>
+                  View Assignments
+                </a>
+                <a href="{% url 'view_all_notifications' %}" class="btn btn-soft-info">
+                  <i class="mdi mdi-bell-outline me-2"></i>
+                  All Notifications
+                </a>
+                {% if overdue_assessments_count > 0 %}
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                  <i class="mdi mdi-alert-circle-outline me-2"></i>
+                  You have {{ overdue_assessments_count }} overdue assessment(s)!
+                  <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Activity and Projects -->
+      <div class="row">
+        <div class="col-xl-8">
+          <div class="card">
+            <div class="card-header">
+              <h4 class="card-title mb-0">Recent Activity</h4>
+            </div>
+            <div class="card-body">
+              {% if recent_submissions %}
+              <div class="simplebar" data-simplebar style="max-height: 400px">
+                {% for submission in recent_submissions %}
+                <div class="d-flex align-items-start mb-3">
+                  <div class="avatar-xs me-3">
+                    <span class="avatar-title bg-soft-success text-success rounded-circle">
+                      <i class="mdi mdi-upload"></i>
+                    </span>
+                  </div>
+                  <div class="flex-1">
+                    <h6 class="mb-1 fs-13">Submitted: {{ submission.assignment.title }}</h6>
+                    <p class="text-muted fs-12 mb-0">
+                      <i class="mdi mdi-clock-outline me-1"></i>
+                      {{ submission.submitted_at|date:"M d, Y H:i" }}
+                    </p>
+                    {% if submission.grades_received %}
+                    <span class="badge bg-soft-info text-info fs-11"> Grade: {{ submission.grades_received }}% </span>
+                    {% else %}
+                    <span class="badge bg-soft-warning text-warning fs-11"> Pending Grade </span>
+                    {% endif %}
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+              {% else %}
+              <div class="text-center py-4">
+                <div class="avatar-lg mx-auto mb-3">
+                  <div class="avatar-title bg-soft-info text-info rounded-circle fs-24">
+                    <i class="mdi mdi-information-outline"></i>
+                  </div>
+                </div>
+                <h6>No Recent Activity</h6>
+                <p class="text-muted fs-13">Your recent submissions will appear here</p>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-4">
+          <div class="card">
+            <div class="card-header">
+              <h4 class="card-title mb-0">Your Projects</h4>
+            </div>
+            <div class="card-body">
+              {% if applications %}
+              <div class="simplebar" data-simplebar style="max-height: 400px">
+                {% for app in applications|slice:":5" %}
+                <div class="d-flex align-items-start mb-3">
+                  <div class="avatar-xs me-3">
+                    <span class="avatar-title bg-soft-primary text-primary rounded-circle">
+                      <i class="mdi mdi-briefcase-outline"></i>
+                    </span>
+                  </div>
+                  <div class="flex-1">
+                    <h6 class="mb-1 fs-13">{{ app.project.title|truncatechars:30 }}</h6>
+                    <span class="badge rounded-pill bg-soft-{% if app.status == 'applied' %}warning text-warning{% elif app.status == 'accepted' %}success text-success{% else %}danger text-danger{% endif %} fs-11"> {{ app.status|title }} </span>
+                    <p class="text-muted fs-12 mb-0 mt-1">
+                      <i class="mdi mdi-calendar me-1"></i>
+                      Applied: {{ app.applied_at|date:"M d, Y" }}
+                    </p>
+                  </div>
+                </div>
+                {% endfor %} {% if applications.count > 5 %}
+                <div class="text-center mt-3">
+                  <a href="#" class="btn btn-sm btn-soft-primary">View All Projects</a>
+                </div>
+                {% endif %}
+              </div>
+              {% else %}
+              <div class="text-center py-4">
+                <div class="avatar-lg mx-auto mb-3">
+                  <div class="avatar-title bg-soft-primary text-primary rounded-circle fs-24">
+                    <i class="mdi mdi-briefcase-outline"></i>
+                  </div>
+                </div>
+                <h6>No Projects Yet</h6>
+                <p class="text-muted fs-13">Start by browsing available projects</p>
+                <a href="{% url 'student_projects' %}" class="btn btn-primary btn-sm"> Browse Projects </a>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Original Projects Section (Collapsible) -->
+      <div class="row">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header">
+              <h4 class="card-title mb-0">
+                <a class="text-dark" data-bs-toggle="collapse" href="#projects-collapse" role="button">
+                  <i class="mdi mdi-chevron-down me-2"></i>
+                  All Project Applications
+                </a>
+              </h4>
+            </div>
+            <div class="collapse" id="projects-collapse">
+              <div class="card-body">
+                {% if applications %}
+                <div class="row">
+                  {% for app in applications %}
+                  <div class="col-xl-6 col-md-6 mb-3">
+                    <div class="card application-card">
+                      <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                          <h5 class="card-title mb-0 flex-grow-1 text-truncate">{{ app.project.title }}</h5>
+                          <span class="badge rounded-pill bg-soft-{% if app.status == 'applied' %}warning text-warning{% elif app.status == 'accepted' %}success text-success{% else %}danger text-danger{% endif %} fs-12"> {{ app.status|title }} </span>
+                        </div>
+
+                        <p class="text-muted mb-2">
+                          <i class="mdi mdi-clock-outline me-1"></i>
+                          Applied on: {{ app.applied_at|date:"M d, Y H:i" }}
+                        </p>
+
+                        <div class="mb-3">
+                          <span class="badge bg-soft-primary text-primary"> {{ app.application_type|title }} </span>
+                        </div>
+
+                        <div class="mb-3">
+                          <h6 class="fs-14">Group Members:</h6>
+                          <div class="avatar-group">
+                            {% for member in app.members.all %}
+                            <div class="d-flex align-items-center mb-2">
+                              <div class="avatar-xs me-2">
+                                <span class="avatar-title rounded-circle bg-soft-primary text-primary"> {{ member.user.get_full_name|slice:":1" }} </span>
+                              </div>
+                              <div>
+                                <p class="mb-0 fs-13">
+                                  {{ member.user.get_full_name }} {% if member.is_leader %}
+                                  <span class="badge bg-soft-info text-info fs-11">Leader</span>
+                                  {% endif %}
+                                </p>
+                                <p class="mb-0 text-muted fs-11">{{ member.user.email }}</p>
+                              </div>
+                            </div>
+                            {% endfor %}
+                          </div>
+                        </div>
+                        {% if app.status == 'applied' %} {% if app.message %}
+                        <div class="mb-3">
+                          <h6 class="fs-14">Message:</h6>
+                          <div class="p-2 bg-light rounded">
+                            <p class="mb-0 text-muted fs-13">{{ app.message }}</p>
+                          </div>
+                        </div>
+                        {% endif %} {% endif %}
+
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                          <a href="{% url 'student_view_assignment' %}" class="btn btn-sm btn-primary"> <i class="mdi mdi-eye-outline me-1"></i> View assignments </a>
+                          <a href="{% url 'project_detail' app.project.id %}" class="btn btn-sm btn-soft-primary"> <i class="mdi mdi-eye-outline me-1"></i> View Project </a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                  <div class="avatar-lg mx-auto mb-4">
+                    <div class="avatar-title bg-soft-primary text-primary rounded-circle fs-24">
+                      <i class="mdi mdi-file-document-outline"></i>
+                    </div>
+                  </div>
+                  <h5>No Applications Found</h5>
+                  <p class="text-muted mb-4">You haven't applied to any projects yet.</p>
+                  <a href="{% url 'student_projects' %}" class="btn btn-primary"> <i class="mdi mdi-briefcase-search-outline me-1"></i> Browse Projects </a>
+                </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
 </div>
+
+<!-- Include ApexCharts -->
+<script src="{% static 'assets/libs/apexcharts/apexcharts.min.js' %}"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+      try {
+          // Application Status Chart
+          var applicationStatusOptions = {
+              series: [{{ pending_applications }}, {{ accepted_projects_count }}, {{ declined_applications }}],
+              chart: {
+                  type: 'donut',
+                  height: 300,
+              },
+              labels: ['Applied', 'Accepted', 'Declined'],
+              colors: ['#f4ba40', '#38c786', '#ed5e49'],
+              legend: {
+                  position: 'bottom'
+              },
+              responsive: [{
+                  breakpoint: 480,
+                  options: {
+                      chart: {
+                          width: 200
+                      },
+                      legend: {
+                          position: 'bottom'
+                      }
+                  }
+              }]
+          };
+
+          var applicationStatusChart = new ApexCharts(document.querySelector("#application-status-chart"), applicationStatusOptions);
+          applicationStatusChart.render();
+
+          // Grade Distribution Chart
+          var gradeData = {{ grade_ranges_json|safe }};
+          var gradeLabels = gradeData.map(function(item) { return item.range; });
+          var gradeCounts = gradeData.map(function(item) { return item.count; });
+          var gradeColors = gradeData.map(function(item) { return item.color; });
+
+          var gradeDistributionOptions = {
+              series: gradeCounts,
+              chart: {
+                  type: 'bar',
+                  height: 300,
+                  toolbar: {
+                      show: false
+                  }
+              },
+              plotOptions: {
+                  bar: {
+                      horizontal: false,
+                      columnWidth: '55%',
+                      endingShape: 'rounded'
+                  },
+              },
+              dataLabels: {
+                  enabled: false
+              },
+              stroke: {
+                  show: true,
+                  width: 2,
+                  colors: ['transparent']
+              },
+              xaxis: {
+                  categories: gradeLabels,
+              },
+              yaxis: {
+                  title: {
+                      text: 'Number of Submissions'
+                  }
+              },
+              fill: {
+                  opacity: 1
+              },
+              colors: gradeColors,
+              tooltip: {
+                  y: {
+                      formatter: function (val) {
+                          return val + " submissions"
+                      }
+                  }
+              }
+          };
+
+          var gradeDistributionChart = new ApexCharts(document.querySelector("#grade-distribution-chart"), gradeDistributionOptions);
+          gradeDistributionChart.render();
+
+      } catch (error) {
+          console.error('Error rendering charts:', error);
+          // Hide chart containers if there's an error
+          var chartContainers = document.querySelectorAll('.apex-charts');
+          chartContainers.forEach(function(container) {
+              container.innerHTML = '<div class="text-center py-4"><p class="text-muted">Chart data unavailable</p></div>';
+          });
+      }
+  });
+</script>
 
 {% include 'footer.html' %}
