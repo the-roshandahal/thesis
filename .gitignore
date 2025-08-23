@@ -23,7 +23,7 @@ db.sqlite3
 media/
 staticfiles/
 
-# IDEs and Editors
+# IDEs
 .vscode/
 .idea/
 *.swp
