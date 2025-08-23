@@ -12,6 +12,20 @@ import json
 
 
 def homepage(request):
+    if request.user.is_authenticated:
+        if request.user.is_superuser:
+            # Superuser sees admin dashboard
+            from .dashboard_views import admin_dashboard
+            return admin_dashboard(request)
+        elif request.user.is_staff:
+            # Staff (supervisors) see supervisor dashboard
+            from .dashboard_views import supervisor_dashboard
+            return supervisor_dashboard(request)
+        else:
+            # Regular users (students) see student dashboard
+            from .dashboard_views import student_dashboard
+            return student_dashboard(request)
+    
     """Public homepage view with project search functionality."""
     query = request.GET.get('q')
     topic_type = request.GET.get('topic_type')
