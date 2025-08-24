@@ -61,11 +61,41 @@
                                                     <td>
                                                         <ul class="list-inline mb-0">
                                                             <li class="list-inline-item">
-                                                                <a href="javascript:void(0);" class="px-2 text-primary"><i class="ri-pencil-line font-size-18"></i></a>
+                                                                <a href="{% url 'edit_supervisor' supervisor.id %}" class="px-2 text-primary"><i class="ri-pencil-line font-size-18"></i></a>
                                                             </li>
                                                             <li class="list-inline-item">
-                                                                <a href="javascript:void(0);" class="px-2 text-danger"><i class="ri-delete-bin-line font-size-18"></i></a>
+                                                                <!-- Trigger button -->
+                                                                <a href="#" 
+                                                                class="px-2 text-danger" 
+                                                                data-bs-toggle="modal" 
+                                                                data-bs-target="#deleteModal{{ supervisor.user.id }}">
+                                                                <i class="ri-delete-bin-line font-size-18"></i>
+                                                                </a>
                                                             </li>
+
+                                                            <!-- Delete Confirmation Modal -->
+                                                            <div class="modal fade" id="deleteModal{{ supervisor.user.id }}" tabindex="-1" aria-hidden="true">
+                                                            <div class="modal-dialog modal-dialog-centered">
+                                                                <div class="modal-content">
+                                                                
+                                                                <div class="modal-header">
+                                                                    <h5 class="modal-title">Confirm Delete</h5>
+                                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                                </div>
+                                                                
+                                                                <div class="modal-body">
+                                                                    Are you sure you want to delete <strong>{{ supervisor.user.username }}</strong>?
+                                                                </div>
+                                                                
+                                                                <div class="modal-footer">
+                                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                                    <a href="{% url 'delete_supervisor' supervisor.user.id %}" class="btn btn-danger">Delete</a>
+                                                                </div>
+                                                                
+                                                                </div>
+                                                            </div>
+                                                            </div>
+
                                                         </ul>
                                                     </td>
                                                 </tr>

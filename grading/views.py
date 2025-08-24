@@ -8,20 +8,57 @@ from projects.models import Project
 from .forms import GradeSubmissionForm
 from django.urls import reverse
 from defaults.models import Notification  
+from application.models import *
 
 @login_required
 def assessment_list(request):
-    """List all assessments that need grading"""
-    assessments = Assessment.objects.annotate(
-        total_submissions=Count('studentsubmission'),
-        graded_submissions=Count('studentsubmission', filter=Q(studentsubmission__grades_received__isnull=False))
-    ).order_by('-due_date')
+    assessments = []
+
+    for assessment in Assessment.objects.all().prefetch_related('detail_files', 'sample_files'):
+        # Total expected submissions
+        if assessment.submission_type == "individual":
+            expected_total = ApplicationMember.objects.filter(
+                application__status="accepted"
+            ).count()
+        else:  # group
+            expected_total = Application.objects.filter(
+                status="accepted",
+                application_type="group"
+            ).count()
+
+        # Total submitted
+        submitted_total = StudentSubmission.objects.filter(assignment=assessment).count()
+
+        # Total graded
+        graded_total = StudentSubmission.objects.filter(
+            assignment=assessment,
+            grades_received__isnull=False
+        ).count()
+
+        # Left to grade
+        left_to_grade = submitted_total - graded_total
+
+        assessments.append({
+            'assessment': assessment,
+            'title': assessment.title,
+            'due_date': assessment.due_date,
+            'weight': assessment.weight,
+            'submission_type': assessment.submission_type,
+            'total_submissions': submitted_total,
+            'graded_submissions': graded_total,
+            'expected_total': expected_total,
+            'left_to_grade': left_to_grade,
+        })
 
     context = {
         'assessments': assessments,
         'title': 'Assessments for Grading'
     }
     return render(request, 'grading/assessment_list.html', context)
+from django.db.models import Avg
+from django.shortcuts import get_object_or_404, render
+from django.contrib.auth.decorators import login_required
+from datetime import date
 
 @login_required
 def assessment_detail(request, assessment_id):
@@ -36,29 +73,56 @@ def assessment_detail(request, assessment_id):
 
     # Calculate average grade
     avg_grade = submissions.aggregate(Avg('grades_received'))['grades_received__avg']
-    
-    # Calculate grading progress
+
+    # Total submissions
     total_submissions = submissions.count()
+
+    # Total graded submissions
     graded_submissions = submissions.filter(grades_received__isnull=False).count()
+
+    # Left to grade
+    left_to_grade = total_submissions - graded_submissions
+
+    # Total expected submissions
+    if assessment.submission_type == "individual":
+        expected_total = ApplicationMember.objects.filter(
+            application__status="accepted"
+        ).count()
+    else:  # group
+        expected_total = Application.objects.filter(
+            status="accepted",
+            application_type="group"
+        ).count()
+
+    # Grading progress %
     grading_progress = (graded_submissions / total_submissions * 100) if total_submissions > 0 else 0
 
+    # Published status
     published_status = 'unpublished'
     for sub in submissions:
         if sub.published_status == 'published':
             published_status = 'published'
-
+    today = date.today()
+    can_publish = False
+    if assessment.submit_by and assessment.submit_by <= today:
+        can_publish = True    
 
     context = {
         'assessment': assessment,
+        'can_publish': can_publish,
         'submissions': submissions,
         'avg_grade': avg_grade,
         'total_submissions': total_submissions,
         'graded_submissions': graded_submissions,
+        'left_to_grade': left_to_grade,
+        'expected_total': expected_total,
         'published_status': published_status,
         'grading_progress': grading_progress,
         'title': f'Submissions for {assessment.title}'
     }
+
     return render(request, 'grading/assessment_detail.html', context)
+
 
 @login_required
 def grade_submission(request, submission_id):
@@ -106,3 +170,48 @@ def submission_files(request, submission_id):
         return render(request, 'grading/files_partial.html', {'files': files})
     
     return JsonResponse({'error': 'Invalid request'}, status=400)
+
+
+
+
+from django.contrib import messages
+from django.shortcuts import get_object_or_404, redirect, render
+from django.contrib.auth.decorators import login_required
+
+@login_required
+def publish_grades(request, assessment_id):
+    """
+    Publish grades for an assessment with confirmation modal.
+    """
+    assessment = get_object_or_404(Assessment, id=assessment_id)
+    submissions = StudentSubmission.objects.filter(assignment=assessment)
+
+    # Total expected submissions
+    if assessment.submission_type == "individual":
+        expected_total = ApplicationMember.objects.filter(
+            application__status="accepted"
+        ).count()
+    else:
+        expected_total = Application.objects.filter(
+            status="accepted",
+            application_type="group"
+        ).count()
+
+    submitted_total = submissions.count()
+    graded_total = submissions.filter(grades_received__isnull=False).count()
+
+    pending_submissions = expected_total - submitted_total
+    ungraded_submissions = submitted_total - graded_total
+
+    if request.method == "POST":
+        # Publish graded submissions
+        submissions.filter(grades_received__isnull=False).update(published_status='published')
+        messages.success(request, "Grades published successfully for all graded submissions.")
+        return redirect('grading:assessment_detail', assessment_id=assessment.id)
+
+    context = {
+        'assessment': assessment,
+        'pending_submissions': pending_submissions,
+        'ungraded_submissions': ungraded_submissions,
+    }
+    return render(request, 'grading/publish_grades_confirm.html', context)

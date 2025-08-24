@@ -342,3 +342,111 @@ def admin_dashboard(request):
     }
     
     return render(request, 'admin_dashboard.html', context)
+
+
+
+def delete_student(request, user_id):
+    student = Student.objects.get(user=user_id)
+    student.delete()
+    messages.success(request,'Student deleted succesfully')
+    return redirect(student_admin)
+
+
+
+def delete_supervisor(request, user_id):
+    supervisor = Supervisor.objects.get(user=user_id)
+    supervisor.delete()
+    messages.success(request,'Supervisor deleted succesfully')
+    return redirect(supervisor_admin)
+
+
+
+
+def edit_student(request, student_id):
+    student = get_object_or_404(Student, id=student_id)
+    user = student.user  
+
+    if request.method == 'POST':
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        email = request.POST.get('email')
+        department = request.POST.get('department')
+        password = request.POST.get('password')
+        password2 = request.POST.get('password2')
+
+        # Email uniqueness check (exclude current user)
+        if User.objects.filter(email=email).exclude(id=user.id).exists():
+            messages.error(request, "Email already exists.")
+            return redirect('edit_student', student_id=student.id)
+
+        # Password validation (only if provided)
+        if password or password2:
+            if password != password2:
+                messages.error(request, "Passwords do not match.")
+                return redirect('edit_student', student_id=student.id)
+            user.password = make_password(password)
+
+        # Update user fields
+        user.first_name = first_name
+        user.last_name = last_name
+        user.email = email
+        user.username = email
+        user.save()
+
+        # Update student fields
+        student.department = department
+        student.save()
+
+        messages.success(request, "Student updated successfully.")
+        return redirect('student_admin')
+
+    context = {
+        'student': student,
+    }
+    return render(request, 'accounts/edit_student.html', context)
+
+
+
+
+def edit_supervisor(request, supervisor_id):
+    supervisor = get_object_or_404(Supervisor, id=supervisor_id)
+    user = supervisor.user  
+
+    if request.method == 'POST':
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        email = request.POST.get('email')
+        department = request.POST.get('department')
+        password = request.POST.get('password')
+        password2 = request.POST.get('password2')
+
+        # Email uniqueness check (exclude current supervisor’s user)
+        if User.objects.filter(email=email).exclude(id=user.id).exists():
+            messages.error(request, "Email already exists.")
+            return redirect('edit_supervisor', supervisor_id=supervisor.id)
+
+        # Password validation (only if provided)
+        if password or password2:
+            if password != password2:
+                messages.error(request, "Passwords do not match.")
+                return redirect('edit_supervisor', supervisor_id=supervisor.id)
+            user.password = make_password(password)
+
+        # Update user fields
+        user.first_name = first_name
+        user.last_name = last_name
+        user.email = email
+        user.username = email
+        user.save()
+
+        # Update supervisor fields
+        supervisor.department = department
+        supervisor.save()
+
+        messages.success(request, "Supervisor updated successfully.")
+        return redirect('supervisor_admin')  # list page for supervisors
+
+    context = {
+        'supervisor': supervisor,
+    }
+    return render(request, 'accounts/edit_supervisor.html', context)
