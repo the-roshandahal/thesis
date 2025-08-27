@@ -1,15 +1,18 @@
-from django.shortcuts import render, redirect
-from assessment.models import *
+import os
+from datetime import date
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.utils.dateparse import parse_date
+from django.utils import timezone
+from django.utils.text import get_valid_filename
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
-import os
-from django.utils.text import get_valid_filename
-from django.utils import timezone
-from datetime import date
-from application.models import *
 from django.db import transaction
+from django.db.models import Avg, Sum, Count, Q
+from django.utils.dateparse import parse_date
+from django.contrib.auth.decorators import login_required
+
+from .models import *
+from application.models import *
 
 
 def assessment_schema(request):
@@ -525,20 +528,60 @@ def delete_assessment(request, id):
     return redirect('assessment_schema')
 
 
-from datetime import date
-from django.shortcuts import render
-from .models import AssessmentSchema, StudentSubmission, Assessment
-from application.models import ApplicationMember
 
 def student_view_assignment(request):
+
+
+
+    submissions = StudentSubmission.objects.filter(submitted_by=request.user)
+
+    total_submitted = submissions.count()
+    total_graded = submissions.filter(grades_received__isnull=False).count()
+        # Graded + published submissions
+    # Sum of marks received only from published + graded submissions
+    # 1️⃣ Individual submissions
+    individual_subs = StudentSubmission.objects.filter(submitted_by=request.user)
+
+    # 2️⃣ Group submissions: find all applications the user belongs to
+    user_apps = ApplicationMember.objects.filter(
+        user=request.user,
+        application__status='accepted'
+    ).values_list('application_id', flat=True)
+
+    group_subs = StudentSubmission.objects.filter(
+        application_id__in=user_apps,
+        assignment__submission_type='group'
+    )
+
+    # 3️⃣ Combine both using Q
+    all_subs = StudentSubmission.objects.filter(
+        Q(id__in=individual_subs) | Q(id__in=group_subs)
+    )
+
+    # 4️⃣ Calculate totals
+    total_submitted = all_subs.count()
+    total_graded = all_subs.filter(grades_received__isnull=False).count()
+
+    # 5️⃣ Sum grades only from graded + published submissions
+    total_percentage = all_subs.filter(
+        grades_received__isnull=False,
+        published_status="published"
+    ).aggregate(total=Sum('grades_received'))['total'] or 0
+
+    
+
+
+
     has_accepted_project = ApplicationMember.objects.filter(
         user=request.user,
         application__status='accepted'
     ).exists()
 
     schema = AssessmentSchema.objects.first()
-
     context = {
+        "total_submitted": total_submitted,
+        "total_graded": total_graded,
+        "total_percentage": total_percentage,
         'has_accepted_project': has_accepted_project,
         'schema': schema if has_accepted_project else None,
         'assessments_with_days': [],
@@ -618,12 +661,7 @@ def student_view_assignment(request):
     return render(request, 'assessment/student_view_assignment.html', context)
 
 
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib import messages
-from django.utils import timezone
-from .models import Assessment, StudentSubmission, SubmissionFile
-from application.models import Application  # Ensure this is correct
-from django.contrib.auth.decorators import login_required
+
 
 @login_required
 def attempt_assessment(request, id):
@@ -661,51 +699,47 @@ def attempt_assessment(request, id):
     })
 
 
-import os
-from django.shortcuts import get_object_or_404, render, redirect
-from .models import * # adjust if needed
 
-def view_submission(request, assessment_id):
+
+
+
+
+
+
+
+
+
+
+def view_individual_submission(request, assessment_id):
+    """
+    View all attempts of an individual assignment submission.
+    """
     assessment = get_object_or_404(Assessment, id=assessment_id)
-    member = ApplicationMember.objects.filter(
-        user=request.user,
-        application__status='accepted'
-    ).select_related('application').first()
-    is_leader = member.is_leader if member else False
-    application = member.application if member else None
 
-    # Determine whose submissions to fetch
-    if assessment.submission_type == 'group' and not is_leader:
-        leader = ApplicationMember.objects.filter(application=application, is_leader=True).first()
-        submitted_user = leader.user if leader else request.user
-    else:
-        submitted_user = request.user
-
+    # Fetch all attempts by current user
     all_attempts = StudentSubmission.objects.filter(
         assignment=assessment,
-        submitted_by=submitted_user
+        submitted_by=request.user
     ).order_by('-submitted_at')
 
-    attempt_id = request.GET.get('attempt')
-    current_submission = (get_object_or_404(all_attempts, id=attempt_id)
-                          if attempt_id else all_attempts.first())
-    if not current_submission:
-        return redirect('attempt_assessment', assessment_id=assessment_id)
+    if not all_attempts.exists():
+        return redirect('attempt_assessment', assessment_id=assessment.id)
 
+    # Check if a specific attempt is selected via query param
+    attempt_id = request.GET.get('attempt')
+    current_submission = all_attempts.filter(id=attempt_id).first() if attempt_id else all_attempts.first()
+
+    # Attach basename to files
     for file in current_submission.files.all():
         file.basename = os.path.basename(file.file.name)
 
-    # Deadline check
-    today = date.today()
-    is_submit_by_passed = assessment.submit_by < today if assessment.submit_by else False
+    # Can submit new attempt? Only if before submit_by
+    can_submit_new_attempt = date.today() <= assessment.submit_by if assessment.submit_by else True
 
-    # Group submission check
-    other_submission_exists = False
-    if assessment.submission_type == 'group' and not is_leader:
-        other_submission_exists = all_attempts.exists()
+    if current_submission.published_status == 'published':
+        can_submit_new_attempt = False
 
-    can_submit_new_attempt = not (is_submit_by_passed or other_submission_exists)
-
+        
     context = {
         'assessment': assessment,
         'submission': current_submission,
@@ -714,4 +748,78 @@ def view_submission(request, assessment_id):
         'detail_files': assessment.detail_files.all(),
         'sample_files': assessment.sample_files.all(),
     }
+
+    return render(request, 'assessment/view_submission.html', context)
+
+
+
+
+
+
+
+
+
+
+def view_group_submission(request, assessment_id):
+    """
+    Fully working view for group assignments.
+    Leader and members can see submissions, attempts, grades, feedback.
+    """
+    # 1️⃣ Fetch assessment
+    assessment = get_object_or_404(Assessment, id=assessment_id)
+
+    # 2️⃣ Check if user is in a group/application
+    member = ApplicationMember.objects.filter(
+        user=request.user,
+        application__status='accepted'
+    ).select_related('application').first()
+
+    if not member:
+        # User is not part of any accepted group
+        return redirect('student_view_assignment')
+
+    application = member.application
+    is_leader = member.is_leader
+
+    # 3️⃣ Fetch all submissions for the group
+    all_attempts = StudentSubmission.objects.filter(
+        assignment=assessment,
+        application=application
+    ).order_by('-submitted_at')
+
+    # 4️⃣ Pick selected attempt or latest
+    attempt_id = request.GET.get('attempt')
+    submission = all_attempts.filter(id=attempt_id).first() if attempt_id else all_attempts.first()
+
+    # 5️⃣ If no submission exists yet
+    if not submission:
+        context = {
+            'assessment': assessment,
+            'submission': None,
+            'all_attempts': [],
+            'can_submit_new_attempt': is_leader and (date.today() <= assessment.submit_by),
+            'detail_files': assessment.detail_files.all(),
+            'sample_files': assessment.sample_files.all(),
+            'is_leader': is_leader,
+        }
+        return render(request, 'assessment/view_submission.html', context)
+
+    # 6️⃣ Attach basename for files
+    for file in submission.files.all():
+        file.basename = os.path.basename(file.file.name)
+
+    # 7️⃣ Determine if leader can submit new attempt
+    can_submit_new_attempt = is_leader and (date.today() <= assessment.submit_by)
+
+    # 8️⃣ Render context
+    context = {
+        'assessment': assessment,
+        'submission': submission,
+        'all_attempts': all_attempts,
+        'can_submit_new_attempt': can_submit_new_attempt,
+        'detail_files': assessment.detail_files.all(),
+        'sample_files': assessment.sample_files.all(),
+        'is_leader': is_leader,
+    }
+
     return render(request, 'assessment/view_submission.html', context)

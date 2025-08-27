@@ -106,6 +106,8 @@ def assessment_detail(request, assessment_id):
     can_publish = False
     if assessment.submit_by and assessment.submit_by <= today:
         can_publish = True    
+    if expected_total == total_submissions:
+        can_publish = True
 
     context = {
         'assessment': assessment,
