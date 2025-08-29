@@ -9,7 +9,7 @@ from .models import Notification
 from django.utils import timezone
 from django.db.models import Count, Avg, Q
 import json
-
+from .decorators import *
 
 def homepage(request):
     if request.user.is_authenticated:
@@ -62,7 +62,7 @@ def home(request):
         from .dashboard_views import student_dashboard
         return student_dashboard(request)
 
-
+@login_required
 def view_all_notifications(request):
     """View all notifications for the logged-in user."""
     if request.user.is_authenticated:

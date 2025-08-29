@@ -13,4 +13,11 @@ urlpatterns = [
     path('view_profile/', views.view_profile, name='view_profile'),
     path('edit_profile/', views.edit_profile, name='edit_profile'),
     path('change-password/', views.change_password, name='change_password'),
+    path('delete_student/<int:user_id>', views.delete_student, name='delete_student'),
+    path('delete_supervisor/<int:user_id>', views.delete_supervisor, name='delete_supervisor'),
+
+    path('edit-student/<int:student_id>/', views.edit_student, name='edit_student'),
+    path('edit-supervisor/<int:supervisor_id>/', views.edit_supervisor, name='edit_supervisor'),
+
+
 ]

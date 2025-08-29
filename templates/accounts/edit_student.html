@@ -1,0 +1,91 @@
+{% load static %}
+{% include 'header.html' %}
+
+<div class="main-content">
+  <div class="page-content">
+    <div class="container-fluid">
+      
+      <div class="row">
+        <div class="col-xl-12">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Edit Student</h5>
+              
+              {% if messages %}
+                {% for message in messages %}
+                  <div class="alert alert-primary alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  </div>
+                {% endfor %}
+              {% endif %}
+
+              <form method="POST" action="{% url 'edit_student' student.id %}">
+                {% csrf_token %}
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="form-floating mb-3">
+                      <input type="text" name="first_name" class="form-control" 
+                             value="{{ student.user.first_name }}" required>
+                      <label>First Name</label>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-floating mb-3">
+                      <input type="text" name="last_name" class="form-control" 
+                             value="{{ student.user.last_name }}" required>
+                      <label>Last Name</label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="form-floating mb-3">
+                      <input type="email" name="email" class="form-control" 
+                             value="{{ student.user.email }}" required>
+                      <label>Email</label>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-floating mb-3">
+                      <select name="department" class="form-select">
+                        <option value="IT" {% if student.department == "IT" %}selected{% endif %}>IT</option>
+                        <option value="business" {% if student.department == "business" %}selected{% endif %}>Business</option>
+                        <option value="others" {% if student.department == "others" %}selected{% endif %}>Others</option>
+                      </select>
+                      <label>Department</label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="form-floating mb-3">
+                      <input type="password" name="password" class="form-control">
+                      <label>New Password (leave blank if unchanged)</label>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-floating mb-3">
+                      <input type="password" name="password2" class="form-control">
+                      <label>Confirm Password</label>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <button type="submit" class="btn btn-primary w-md">Update</button>
+                </div>
+              </form>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+{% include 'footer.html' %}

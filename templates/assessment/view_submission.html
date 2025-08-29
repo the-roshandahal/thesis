@@ -100,7 +100,7 @@
             <div class="card-body p-0">
               <div class="list-group list-group-flush">
                 {% for attempt in all_attempts %}
-                  <a href="{% url 'view_submission' assessment.id %}?attempt={{ attempt.id }}"
+                  <a href="#"
                      class="list-group-item list-group-item-action {% if attempt.id == submission.id %}active{% endif %}">
                     <div class="d-flex justify-content-between">
                       <strong>Attempt #{{ attempt.attempt_number }}</strong>

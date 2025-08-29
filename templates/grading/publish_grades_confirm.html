@@ -1,0 +1,36 @@
+{% load static %}
+{% include 'header.html' %}
+
+<div class="container py-5">
+    <div class="card shadow">
+        <div class="card-body">
+            <h4 class="card-title">Publish Grades for: {{ assessment.title }}</h4>
+            <p class="card-text">
+                Please confirm publishing grades.
+            </p>
+
+            {% if pending_submissions > 0 %}
+            <div class="alert alert-warning">
+                ⚠ Not all students/groups have submitted. Pending submissions: {{ pending_submissions }}
+            </div>
+            {% endif %}
+
+            {% if ungraded_submissions > 0 %}
+            <div class="alert alert-warning">
+                ⚠ Not all submissions are graded. Ungraded submissions: {{ ungraded_submissions }}
+            </div>
+            {% endif %}
+
+            <form method="post">
+                {% csrf_token %}
+                <a href="{% url 'grading:assessment_detail' assessment.id %}" 
+                   class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">
+                    Proceed & Publish Grades
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% include 'footer.html' %}

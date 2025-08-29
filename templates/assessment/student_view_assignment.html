@@ -29,6 +29,45 @@
                         <span><i class="mdi mdi-calendar-end me-1"></i> Term End - {{ schema.end_date|date:"M d, Y" }}</span>
                     </div>
                 </div>
+                <div class="container mt-4">
+  <div class="container mt-4">
+  <h2 class="mb-4">My Assignment Stats</h2>
+  <div class="row g-4">
+
+    <!-- Total Submitted -->
+    <div class="col-md-4">
+      <div class="card text-center shadow-sm border-0">
+        <div class="card-body">
+          <h5 class="card-title text-primary">Total Submitted</h5>
+          <p class="display-6 fw-bold">{{ total_submitted }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Total Graded -->
+    <div class="col-md-4">
+      <div class="card text-center shadow-sm border-0">
+        <div class="card-body">
+          <h5 class="card-title text-success">Total Graded</h5>
+          <p class="display-6 fw-bold">{{ total_graded }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Total Percentage -->
+    <div class="col-md-4">
+      <div class="card text-center shadow-sm border-0">
+        <div class="card-body">
+          <h5 class="card-title text-warning">Total Percentage</h5>
+          <p class="display-6 fw-bold">{{ total_percentage }}%</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
                 
                 {% if assessments_with_days %}
                 <div class="assessment-list">
@@ -73,7 +112,7 @@
                                     <div>
    {% if assessment.can_attempt %}
     {% if assessment.has_submission %}
-        <a href="{% url 'view_submission' assessment.obj.id %}" 
+        <a href="{% url 'view_individual_submission' assessment.obj.id %}" 
            class="btn btn-info btn-sm">
            <i class="mdi mdi-eye-outline me-1"></i> View Submission
         </a>
@@ -94,7 +133,7 @@
     {% endif %}
 {% else %}
     {% if assessment.group_leader_submitted %}
-        <a href="{% url 'view_submission' assessment.leader_submission.id %}" 
+        <a href="{% url 'view_group_submission' assessment.obj.id%}" 
            class="btn btn-info btn-sm">
            <i class="mdi mdi-eye-outline me-1"></i> View Group Submission
         </a>

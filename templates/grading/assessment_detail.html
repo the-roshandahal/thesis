@@ -5,125 +5,157 @@
 
     <div class="page-content">
         <div class="container-fluid">
-            <!-- Main content here -->
-             <div class="container-fluid">
-    <!-- Assessment Header -->
-    <div class="card shadow mb-4">
-        <div class="card-header py-3 bg-primary text-white">
-            <div class="d-flex justify-content-between align-items-center">
-                <h4 class="m-0 font-weight-bold text-white">
-                    <i class="fas fa-clipboard-check mr-2"></i>
-                    {{ assessment.title }}
-                </h4>
-                <span class="badge badge-light">
-                    Due: {{ assessment.due_date|date:"M d, Y" }}
-                </span>
-            </div>
-        </div>
-        <div class="card-body bg-light">
-            <div class="row">
-                <div class="col-md-3">
-                    <div class="detail-item">
-                        <h5>Total Marks</h5>
-                        <p>{{ assessment.weight }}</p>
+            <!-- Assessment Header -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 bg-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="m-0 font-weight-bold text-white">
+                            <i class="fas fa-clipboard-check mr-2"></i>
+                            {{ assessment.title }}
+                        </h4>
+                        <span class="badge badge-light">
+                            Due: {{ assessment.due_date|date:"M d, Y" }}
+                        </span>
                     </div>
                 </div>
-                <div class="col-md-3">
-                    <div class="detail-item">
-                        <h5>Average Grade</h5>
-                        <p>{{ avg_grade|default:"-" }}/{{ assessment.weight }}</p>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="detail-item">
-                        <h5>Total Submissions</h5>
-                        <p>{{ submissions.count }}</p>
-                    </div>
-                </div>
-                {% if published_status == 'unpublished' %}
-                <div class="col-md-3">
-                    <button type="button" class="btn btn-primary waves-effect waves-light">Publish Grades</button>
-                </div>
-                {% else %}
-                Published
-                {% endif %}
-            </div>
-        </div>
-    </div>
+                <div class="card-body bg-light">
+                    <div class="row">
+                        <!-- Total Marks -->
+                        <div class="col-md-2">
+                            <div class="detail-item">
+                                <h6>Total Marks</h6>
+                                <p>{{ assessment.weight }}</p>
+                            </div>
+                        </div>
 
-    <!-- Submissions Table -->
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h5 class="m-0 font-weight-bold text-primary">
-                <i class="fas fa-users mr-2"></i>
-                Student Submissions
-            </h5>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-bordered table-hover">
-                    <thead class="thead-dark">
-                        <tr>
-                            <th>Student</th>
-                            <th>Project</th>
-                            <th>Submitted</th>
-                            <th>Grade</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for submission in submissions %}
-                        <tr>
-                            <td>{{ submission.submitted_by.get_full_name }}</td>
-                            <td>{{ submission.application.project.title }}</td>
-                            <td>{{ submission.submitted_at|date:"M d, Y H:i" }}</td>
-                            <td>
-                                {% if submission.grades_received %}
-                                {{ submission.grades_received }}/{{ assessment.weight }}
-                                {% else %}
-                                <span class="text-muted">Pending</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if submission.is_late %}
-                                    <span class="badge bg-danger">Late</span>
-                                {% else %}
-                                    <span class="badge bg-success">On Time</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                <a href="{% url 'grading:grade_submission' submission.id %}" 
-                                   class="btn btn-sm btn-primary">
-                                    <i class="fas fa-edit"></i> Grade
-                                </a>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                        <!-- Total Expected -->
+                        <div class="col-md-2">
+                            <div class="detail-item">
+                                <h6>Total Expected</h6>
+                                <p>
+                                    {% if assessment.submission_type == 'individual' %}
+                                        {{ expected_total }}
+                                    {% else %}
+                                        {{ expected_total }}
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Total Submitted -->
+                        <div class="col-md-2">
+                            <div class="detail-item">
+                                <h6>Total Submitted</h6>
+                                <p>{{ total_submissions }}</p>
+                            </div>
+                        </div>
+
+                        <!-- Total Graded -->
+                        <div class="col-md-2">
+                            <div class="detail-item">
+                                <h6>Total Graded</h6>
+                                <p>{{ graded_submissions }}</p>
+                            </div>
+                        </div>
+
+                        <!-- Left to Grade -->
+                        <div class="col-md-2">
+                            <div class="detail-item">
+                                <h6>Grading Pending</h6>
+                                <p>{{ left_to_grade }}</p>
+                            </div>
+                        </div>
+
+                        <!-- Average Grade -->
+                        <div class="col-md-2">
+                            <div class="detail-item">
+                                <h6>Average Grade</h6>
+                                <p>{{ avg_grade|default:"-" }}/{{ assessment.weight }}</p>
+                            </div>
+                        </div>
+
+                        {% if published_status == 'unpublished' and can_publish %}
+                        <div class="col-md-3">
+                            <a href="{% url 'grading:publish_grades' assessment.id %}" 
+                            class="btn btn-primary waves-effect waves-light">
+                                Publish Grades
+                            </a>
+                        </div>
+                        {% elif published_status == 'unpublished' and not can_publish %}
+                        <div class="col-12">
+                            <span class="text-warning">Grades cannot be published until all the student submit their assessment or the submission deadline passes.</span>
+                        </div>
+                        {% else %}
+                        <div class="col-12">
+                            <span class="badge bg-success">Grades Published</span>
+                        </div>
+
+                        {% endif %}
+
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submissions Table -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h5 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-users mr-2"></i>
+                        Student Submissions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th>Student</th>
+                                    <th>Project</th>
+                                    <th>Submitted</th>
+                                    <th>Grade</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for submission in submissions %}
+                                <tr>
+                                    <td>{{ submission.submitted_by.get_full_name }}</td>
+                                    <td>{{ submission.application.project.title }}</td>
+                                    <td>{{ submission.submitted_at|date:"M d, Y H:i" }}</td>
+                                    <td>
+                                        {% if submission.grades_received %}
+                                            {{ submission.grades_received }}/{{ assessment.weight }}
+                                        {% else %}
+                                            <span class="text-muted">Pending</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if submission.is_late %}
+                                            <span class="badge bg-danger">Late</span>
+                                        {% else %}
+                                            <span class="badge bg-success">On Time</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'grading:grade_submission' submission.id %}" 
+                                           class="btn btn-sm btn-primary">
+                                            <i class="fas fa-edit"></i> Grade
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        {% if submissions|length == 0 %}
+                        <p class="text-muted mt-3">No submissions yet for this assessment.</p>
+                        {% endif %}
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-
-            
-
-
-
-
-
-
-
-
-
-
-        </div>
-
-    </div>
-    <!-- End Page-content -->
-
-</div>
-<!-- end main content-->
 {% include 'footer.html' %}
