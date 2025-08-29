@@ -9,6 +9,7 @@ from .forms import GradeSubmissionForm
 from django.urls import reverse
 from defaults.models import Notification  
 from application.models import *
+from defaults.decorators import *
 
 @login_required
 def assessment_list(request):
@@ -61,6 +62,7 @@ from django.contrib.auth.decorators import login_required
 from datetime import date
 
 @login_required
+@is_supervisor
 def assessment_detail(request, assessment_id):
     """Show all submissions for a specific assessment"""
     assessment = get_object_or_404(Assessment, id=assessment_id)
@@ -127,6 +129,7 @@ def assessment_detail(request, assessment_id):
 
 
 @login_required
+@is_supervisor
 def grade_submission(request, submission_id):
     submission = get_object_or_404(
         StudentSubmission.objects.select_related('assignment'),
@@ -163,6 +166,7 @@ def grade_submission(request, submission_id):
 
 #AJAX view for loading submission files in modal
 @login_required
+@is_supervisor
 def submission_files(request, submission_id):
     """AJAX view for loading submission files in modal"""
     submission = get_object_or_404(StudentSubmission, id=submission_id)
@@ -181,6 +185,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required
 
 @login_required
+@is_supervisor
 def publish_grades(request, assessment_id):
     """
     Publish grades for an assessment with confirmation modal.

@@ -6,7 +6,7 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from application.models import ApplicationMember
-
+from defaults.decorators import *
 
 def project_supervisor(request):
     projects = Project.objects.filter(supervisor=request.user)

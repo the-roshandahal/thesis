@@ -6,6 +6,7 @@ from django.contrib.auth.hashers import check_password, make_password
 from .models import Admin, Supervisor, Student, User
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import update_session_auth_hash
+from defaults.decorators import *
 
 
 
@@ -74,11 +75,15 @@ def logout_view(request):
     return redirect('homepage')
 
 
+@login_required
+@is_admin
 def student_admin(request):
     students = Student.objects.all()
     return render(request, 'accounts/student_admin.html', {'students': students})
 
 
+@login_required
+@is_admin
 def add_student(request):
     if request.method == 'POST':
         first_name = request.POST.get('first_name')
@@ -117,11 +122,15 @@ def add_student(request):
     return render(request, 'accounts/add_student.html')
 
 
+@login_required
+@is_admin
 def supervisor_admin(request):
     supervisors = Supervisor.objects.all()
     return render(request, 'accounts/supervisor_admin.html', {'supervisors': supervisors})
 
 
+@login_required
+@is_admin
 def add_supervisor(request):
     if request.method == 'POST':
         first_name = request.POST.get('first_name')
@@ -257,7 +266,8 @@ def change_password(request):
 
     return render(request, 'accounts/change_password.html')
 
-
+@login_required
+@is_admin
 def admin_dashboard(request):
     """Comprehensive admin dashboard with statistics and charts data"""
     from django.db.models import Count, Q
@@ -345,6 +355,8 @@ def admin_dashboard(request):
 
 
 
+@login_required
+@is_admin
 def delete_student(request, user_id):
     student = Student.objects.get(user=user_id)
     student.delete()
@@ -353,6 +365,8 @@ def delete_student(request, user_id):
 
 
 
+@login_required
+@is_admin
 def delete_supervisor(request, user_id):
     supervisor = Supervisor.objects.get(user=user_id)
     supervisor.delete()
@@ -362,6 +376,8 @@ def delete_supervisor(request, user_id):
 
 
 
+@login_required
+@is_admin
 def edit_student(request, student_id):
     student = get_object_or_404(Student, id=student_id)
     user = student.user  
@@ -408,6 +424,8 @@ def edit_student(request, student_id):
 
 
 
+@login_required
+@is_admin
 def edit_supervisor(request, supervisor_id):
     supervisor = get_object_or_404(Supervisor, id=supervisor_id)
     user = supervisor.user  

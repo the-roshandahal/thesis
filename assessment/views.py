@@ -10,18 +10,21 @@ from django.db import transaction
 from django.db.models import Avg, Sum, Count, Q
 from django.utils.dateparse import parse_date
 from django.contrib.auth.decorators import login_required
+from defaults.decorators import *
 
 from .models import *
 from application.models import *
 
-
+@is_admin
+@login_required
 def assessment_schema(request):
     schema = AssessmentSchema.objects.first()  # Only one allowed
     return render(request, 'assessment/assessment_schema.html', {
         'schema': schema
     })
 
-
+@is_admin
+@login_required
 def create_assessment_schema(request):
     if AssessmentSchema.objects.exists():
         return redirect('assessment_schema')
@@ -163,7 +166,8 @@ def create_assessment_schema(request):
 
     return render(request, 'assessment/create_schema.html')
 
-
+@is_admin
+@login_required
 def edit_schema(request, id):
     try:
         schema = AssessmentSchema.objects.get(id=id)
@@ -294,7 +298,8 @@ def edit_schema(request, id):
     # GET request - display the edit form
     return render(request, 'assessment/edit_schema.html', {'schema': schema})
 
-
+@is_admin
+@login_required
 def add_assessment(request, id):
     # Add a single assessment to an existing schema
     try:
@@ -389,7 +394,8 @@ def add_assessment(request, id):
         'existing_total': sum(a.weight for a in schema.assessments.all()),
     })
 
-
+@is_admin
+@login_required
 def edit_assessment(request, id):
     assignment = get_object_or_404(Assessment, id=id)
     schema = assignment.schema
@@ -484,7 +490,8 @@ def edit_assessment(request, id):
         'existing_other_total': sum(a.weight for a in schema.assessments.exclude(id=assignment.id)),
     })
 
-
+@is_admin
+@login_required
 def delete_assessment(request, id):
     assessment = get_object_or_404(Assessment, id=id)
     schema = assessment.schema
@@ -527,12 +534,9 @@ def delete_assessment(request, id):
     
     return redirect('assessment_schema')
 
-
-
+@is_admin
+@login_required
 def student_view_assignment(request):
-
-
-
     submissions = StudentSubmission.objects.filter(submitted_by=request.user)
 
     total_submitted = submissions.count()
@@ -664,6 +668,7 @@ def student_view_assignment(request):
 
 
 @login_required
+@is_student
 def attempt_assessment(request, id):
     assignment = get_object_or_404(Assessment, id=id)
     application = get_object_or_404(
@@ -708,8 +713,8 @@ def attempt_assessment(request, id):
 
 
 
-
-
+@login_required
+@is_student
 def view_individual_submission(request, assessment_id):
     """
     View all attempts of an individual assignment submission.
@@ -760,6 +765,8 @@ def view_individual_submission(request, assessment_id):
 
 
 
+@login_required
+@is_student
 def view_group_submission(request, assessment_id):
     """
     Fully working view for group assignments.
