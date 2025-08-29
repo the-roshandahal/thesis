@@ -4,6 +4,7 @@ from functools import wraps
 from django.shortcuts import redirect
 from django.conf import settings
 from django.http import HttpResponseForbidden
+from django.shortcuts import render, redirect, get_object_or_404
 
 def _get_role_for_user(user):
     """Return a simple role string for a given user object."""
@@ -30,7 +31,7 @@ def is_admin(view_func):
             return _redirect_to_login(request)
         if request.user.is_superuser:
             return view_func(request, *args, **kwargs)
-        return HttpResponseForbidden("Admins only.")
+        return render(request, 'error.html')
     return _wrapped
 
 
@@ -42,7 +43,7 @@ def is_supervisor(view_func):
         # superuser should also be allowed (if you want); adjust logic if not
         if request.user.is_superuser or (request.user.is_staff and not request.user.is_superuser):
             return view_func(request, *args, **kwargs)
-        return HttpResponseForbidden("Supervisors only.")
+        return render(request, 'error.html')
     return _wrapped
 
 
@@ -53,7 +54,7 @@ def is_student(view_func):
             return _redirect_to_login(request)
         if not request.user.is_staff and not request.user.is_superuser:
             return view_func(request, *args, **kwargs)
-        return HttpResponseForbidden("Students only.")
+        return render(request, 'error.html')
     return _wrapped
 
 
@@ -71,7 +72,7 @@ def role_required(allowed_roles):
             role = _get_role_for_user(request.user)
             if role in allowed_roles:
                 return view_func(request, *args, **kwargs)
-            return HttpResponseForbidden("You don’t have permission.")
+            return render(request, 'error.html')
         return _wrapped
     return decorator
 

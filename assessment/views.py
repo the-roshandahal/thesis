@@ -534,7 +534,7 @@ def delete_assessment(request, id):
     
     return redirect('assessment_schema')
 
-@is_admin
+@is_student
 @login_required
 def student_view_assignment(request):
     submissions = StudentSubmission.objects.filter(submitted_by=request.user)

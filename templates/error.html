@@ -1,0 +1,63 @@
+{% load static %}
+<html lang="en" data-bs-theme="light"><head>
+        
+        <meta charset="utf-8">
+        <title>404 Error | Tocly - Admin &amp; Dashboard Template</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta content="Premium Multipurpose Admin &amp; Dashboard Template" name="description">
+        <meta content="Themesdesign" name="author">
+        <!-- App favicon -->
+   <link rel="shortcut icon" href="{% static 'assets/images/favicon.ico' %}">
+
+    <!-- plugin css -->
+    <link href="{% static 'assets/libs/jsvectormap/jsvectormap.min.css' %}" rel="stylesheet" type="text/css" />
+
+    <!-- Layout Js -->
+    <script src="{% static 'assets/js/layout.js' %}"></script>
+    <!-- Bootstrap Css -->
+    <link href="{% static 'assets/css/bootstrap.min.css' %}" id="bootstrap-style" rel="stylesheet" type="text/css" />
+    <!-- Icons Css -->
+    <link href="{% static 'assets/css/icons.min.css' %}" rel="stylesheet" type="text/css" />
+    <!-- App Css-->
+    <link href="{% static 'assets/css/app.min.css' %}" id="app-style" rel="stylesheet" type="text/css" />
+</head>
+
+    <body>
+        <div class="auth-error d-flex align-items-center min-vh-100">
+            <div class="bg-overlay bg-light"></div>
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-8">
+                        <div>
+                            <div class="text-center mb-4">
+                                <div class="mt-5">
+                                    <h1 class="error-title mt-5"><span>404!</span></h1>
+                                    <h4 class="mt-2 text-uppercase mt-4">Sorry, page not found</h4>
+                                    <p class="mt-4 text-muted w-50 mx-auto">You do not have permission to access this page.</p>
+                                </div>
+
+                                <div class="mt-5 text-center">
+                                    <a class="btn btn-primary waves-effect waves-light" href="{% url 'home' %}">Back to Dashboard</a>
+                                </div>
+                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- JAVASCRIPT -->
+        <script src="{% static 'assets/libs/jquery/jquery.min.js' %}"></script>
+        <script src="{% static 'assets/libs/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+        <script src="{% static 'assets/libs/metismenu/metisMenu.min.js' %}"></script>
+        <script src="{% static 'assets/libs/simplebar/simplebar.min.js' %}"></script>
+        <script src="{% static 'assets/libs/node-waves/waves.min.js' %}"></script>
+
+        <!-- Icon -->
+        <script src="https://unicons.iconscout.com/release/v2.0.1/script/monochrome/bundle.js"></script>
+
+        <script src="{% static 'assets/js/app.js' %}"></script>
+
+    
+
+</body></html>
