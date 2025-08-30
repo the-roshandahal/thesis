@@ -126,6 +126,8 @@
                 </div>
                 {% endif %}
               </div>
+              {% if not request.user.is_superuser and not request.user.is_staff %}
+
               <div class="mb-4">
                 {% if has_applied %}
                 <button class="btn btn-secondary" disabled>You’ve already applied</button>
@@ -135,6 +137,7 @@
                 </a>
                 {% endif %}
               </div>
+              {%endif%}
 
               {% if user == project.supervisor %}
               <div class="mb-4 text-end">
