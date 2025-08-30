@@ -1,0 +1,500 @@
+# Thesis Management System (TMS) - User Manual
+
+## Table of Contents
+1. [Introduction](#introduction)
+2. [Home Page](#home-page)
+3. [Admin Dashboard](#admin-dashboard)
+4. [Supervisor Dashboard](#supervisor-dashboard)
+5. [Student Dashboard](#student-dashboard)
+6. [System Features](#system-features)
+7. [Troubleshooting](#troubleshooting)
+8. [Technical Requirements](#technical-requirements)
+9. [Support and Contact](#support-and-contact)
+
+---
+
+## Introduction
+
+### What is TMS?
+The Thesis Management System (TMS) is a comprehensive web-based platform designed to streamline the entire thesis project lifecycle in academic institutions. It facilitates project creation, student applications, assessment management, and grading processes.
+
+### Purpose and Benefits
+- **Streamlined Workflow**: Automates thesis project management from creation to completion
+- **Improved Communication**: Centralized platform for students, supervisors, and administrators
+- **Efficient Assessment**: Digital submission and grading system
+- **Better Organization**: Structured file management and project tracking
+- **Enhanced Transparency**: Clear visibility into project status and progress
+
+### System Architecture
+- **Backend**: Django 5.0.2 (Python web framework)
+- **Database**: SQLite (development) / PostgreSQL (production ready)
+- **Frontend**: HTML5, CSS3, JavaScript with Bootstrap framework
+- **File Storage**: Local file system with organized directory structure
+
+### Key Stakeholders
+- **Students**: Apply to projects, submit assessments, track progress
+- **Supervisors**: Create projects, review applications, grade submissions
+- **Administrators**: Manage users, monitor system, maintain platform
+
+---
+
+## Home Page
+
+### Landing Page Overview
+The home page serves as the main entry point for all users, providing an overview of the system and navigation to different user dashboards.
+
+### Main Navigation Elements
+- **Logo and Branding**: TMS system identification
+- **Navigation Menu**: Access to different system sections
+- **Search Functionality**: Find projects and resources
+- **User Authentication**: Login/logout options
+
+### Project Discovery Section
+- **Project Search**: Keyword-based project search
+- **Filter Options**: Filter by project type (Research, Development, R&D)
+- **Project Cards**: Visual display of available projects
+- **Quick Apply**: Direct application to projects
+
+### User Access Points
+- **Student Portal**: Access to project browsing and applications
+- **Supervisor Portal**: Project management and assessment tools
+- **Admin Portal**: System administration and user management
+
+### Responsive Design Features
+- **Mobile Optimization**: Works seamlessly on all devices
+- **Touch Interface**: Optimized for tablet and mobile use
+- **Cross-Browser Compatibility**: Supports all modern browsers
+
+---
+
+## Admin Dashboard
+
+### Dashboard Overview
+The Admin Dashboard provides comprehensive system management capabilities for administrators to oversee the entire TMS platform.
+
+### Main Dashboard Components
+
+#### System Statistics Panel
+- **User Counts**: Total students, supervisors, and administrators
+- **Project Metrics**: Active projects, completed projects, pending applications
+- **System Health**: Performance indicators and status alerts
+- **Recent Activity**: Latest system events and user actions
+
+#### User Management Section
+- **User Accounts**: Create, edit, and deactivate user accounts
+- **Role Assignment**: Assign user roles (Student, Supervisor, Admin)
+- **Permission Management**: Configure user access levels
+- **Account Status**: Monitor active, inactive, and suspended accounts
+
+#### System Configuration
+- **General Settings**: System-wide configuration options
+- **Email Settings**: Notification and communication preferences
+- **Security Settings**: Password policies and authentication rules
+- **Backup Configuration**: Automated backup scheduling
+
+#### Monitoring and Analytics
+- **System Performance**: Real-time performance metrics
+- **User Activity**: Track user login patterns and usage
+- **Error Logs**: Monitor system errors and issues
+- **Audit Trails**: Track system changes and modifications
+
+### Administrative Functions
+
+#### User Account Operations
+1. **Create New User:**
+   - Fill in user details (name, email, role)
+   - Set initial password
+   - Assign department and supervisor (if applicable)
+   - Activate account
+
+2. **Edit User Information:**
+   - Update personal details
+   - Modify role assignments
+   - Change account status
+   - Reset passwords
+
+3. **User Deactivation:**
+   - Suspend user access temporarily
+   - Archive inactive accounts
+   - Maintain data integrity
+
+#### System Maintenance
+- **Database Management**: Optimize and maintain database performance
+- **File System**: Monitor storage usage and cleanup
+- **Security Updates**: Apply patches and security updates
+- **Performance Optimization**: System tuning and optimization
+
+#### Reporting and Analytics
+- **Usage Reports**: Generate user activity reports
+- **Project Statistics**: Analyze project success rates
+- **System Metrics**: Monitor platform performance
+- **Custom Reports**: Create tailored reports for stakeholders
+
+---
+
+## Supervisor Dashboard
+
+### Dashboard Overview
+The Supervisor Dashboard provides tools for faculty members to manage thesis projects, review student applications, create assessments, and grade submissions.
+
+### Main Dashboard Components
+
+#### Project Management Panel
+- **My Projects**: Overview of all created projects
+- **Project Status**: Visual indicators for project states
+- **Quick Actions**: Create new project, edit existing ones
+- **Project Analytics**: Student engagement and progress metrics
+
+#### Application Management
+- **Pending Applications**: Applications requiring review
+- **Application Queue**: Organized view of all applications
+- **Student Profiles**: Quick access to applicant information
+- **Decision Management**: Accept, decline, or request more information
+
+#### Assessment Tools
+- **Assessment Creation**: Build new assessments and assignments
+- **Submission Review**: Access student submissions for grading
+- **Grade Management**: Assign grades and provide feedback
+- **Assessment Analytics**: Performance metrics and trends
+
+### Project Management Functions
+
+#### Creating New Projects
+1. **Project Information:**
+   - **Title**: Descriptive project name (max 255 characters)
+   - **Project Type**: Research, Development, or R&D
+   - **Prerequisites**: Required skills and knowledge
+   - **Description**: Detailed project overview
+   - **Availability**: Open for applications
+
+2. **Project Resources:**
+   - **Project Files**: Upload supporting documents
+   - **Project Areas**: Define research domains
+   - **External Links**: Reference materials and resources
+   - **Contact Information**: How students can reach you
+
+3. **Project Submission:**
+   - Review all information
+   - Set project visibility
+   - Submit for student access
+
+#### Managing Existing Projects
+- **Edit Project Details**: Update information and requirements
+- **Project Status Updates**: Change availability status
+- **File Management**: Add, remove, or update project files
+- **Student Assignment**: Assign projects to accepted students
+
+### Application Review Process
+
+#### Application Dashboard
+- **Application List**: View all applications for your projects
+- **Filter Options**: Sort by status, date, or student
+- **Quick Actions**: Accept, decline, or request information
+- **Application Details**: Full student information and message
+
+#### Review Process
+1. **Initial Review:**
+   - Check student qualifications
+   - Review application message
+   - Verify prerequisites match
+   - Assess group composition (if applicable)
+
+2. **Decision Making:**
+   - **Accept**: Approve student application
+   - **Decline**: Reject with feedback
+   - **Request Info**: Ask for additional details
+
+3. **Follow-up Actions:**
+   - Notify students of decisions
+   - Update project status
+   - Begin project planning
+
+### Assessment Management
+
+#### Creating Assessments
+1. **Assessment Schema:**
+   - Define assessment period
+   - Set submission deadlines
+   - Configure grading criteria
+
+2. **Assessment Details:**
+   - **Title**: Assessment name and description
+   - **Weight**: Percentage of final grade
+   - **Due Date**: Submission deadline
+   - **Submission Type**: Accepted file formats
+
+3. **Assessment Materials:**
+   - **Guidelines**: Assignment instructions and requirements
+   - **Rubrics**: Grading criteria and standards
+   - **Sample Files**: Example submissions and templates
+   - **Resources**: Additional materials and references
+
+#### Grading and Feedback
+- **Submission Access**: View all student submissions
+- **File Review**: Download and examine submitted work
+- **Grade Assignment**: Assign numerical grades (0-100)
+- **Feedback Provision**: Provide written comments and suggestions
+- **Grade Publication**: Release grades to students
+
+---
+
+## Student Dashboard
+
+### Dashboard Overview
+The Student Dashboard provides students with tools to browse thesis projects, submit applications, manage assessments, and track their academic progress.
+
+### Main Dashboard Components
+
+#### Project Discovery Panel
+- **Available Projects**: Browse open thesis projects
+- **Search and Filter**: Find projects by type, topic, or supervisor
+- **Project Details**: Comprehensive project information
+- **Quick Apply**: Direct application to projects
+
+#### Application Management
+- **My Applications**: Track application status
+- **Application History**: View all submitted applications
+- **Status Updates**: Real-time application status
+- **Communication**: Messages from supervisors
+
+#### Assessment Center
+- **My Assessments**: View assigned assessments
+- **Submission Status**: Track submission progress
+- **Grades and Feedback**: Access results and comments
+- **Upcoming Deadlines**: Important dates and reminders
+
+### Project Application Process
+
+#### Browsing Projects
+1. **Project Search:**
+   - Use search bar for keywords
+   - Filter by project type
+   - Sort by relevance or date
+   - Save favorite projects
+
+2. **Project Information:**
+   - **Overview**: Project description and objectives
+   - **Requirements**: Prerequisites and skills needed
+   - **Supervisor**: Faculty member information
+   - **Resources**: Available materials and files
+   - **Timeline**: Project duration and milestones
+
+#### Submitting Applications
+
+##### Individual Application
+1. **Application Form:**
+   - Select project
+   - Choose "Individual" application type
+   - Write application message
+   - Review and submit
+
+2. **Application Message:**
+   - Explain interest in project
+   - Highlight relevant skills and experience
+   - Describe how you meet prerequisites
+   - Outline your approach to the project
+
+##### Group Application
+1. **Group Formation:**
+   - Designate group leader
+   - Add group members (max 4 students)
+   - Assign roles and responsibilities
+   - Coordinate application message
+
+2. **Group Application:**
+   - Select project
+   - Choose "Group" application type
+   - Add all group members
+   - Submit collaborative application
+
+### Assessment Management
+
+#### Accessing Assessments
+- **Assessment List**: View all assigned assessments
+- **Deadline Information**: Important dates and requirements
+- **Material Download**: Access guidelines and resources
+- **Submission Requirements**: File formats and size limits
+
+#### Submitting Work
+1. **File Preparation:**
+   - Ensure files meet requirements
+   - Check file size limits
+   - Verify format compatibility
+   - Include all required components
+
+2. **Submission Process:**
+   - Navigate to assessment
+   - Click "Submit" button
+   - Upload required files
+   - Add submission notes
+   - Confirm submission
+
+3. **Submission Confirmation:**
+   - Receive confirmation message
+   - Note submission timestamp
+   - Save submission receipt
+   - Monitor submission status
+
+#### Tracking Progress
+- **Submission Status**: Confirmed, processing, or completed
+- **Grade Availability**: When grades will be published
+- **Feedback Access**: Supervisor comments and suggestions
+- **Resubmission Options**: If allowed by supervisor
+
+### Profile and Account Management
+
+#### Personal Information
+- **Basic Details**: Name, email, contact information
+- **Academic Information**: Student ID, department, supervisor
+- **Profile Picture**: Upload and manage profile photo
+- **Address and Contact**: Update location and communication details
+
+#### Account Settings
+- **Password Management**: Change password regularly
+- **Notification Preferences**: Email and system alerts
+- **Privacy Settings**: Control information visibility
+- **Session Management**: Monitor active sessions
+
+---
+
+## System Features
+
+### Core Functionality
+- **User Authentication**: Secure login and role-based access
+- **File Management**: Organized file storage and retrieval
+- **Communication Tools**: Internal messaging and notifications
+- **Reporting System**: Comprehensive analytics and insights
+
+### Advanced Features
+- **Mobile Responsiveness**: Works on all devices
+- **Real-time Updates**: Live status changes and notifications
+- **Data Export**: Download reports and data
+- **Backup and Recovery**: Automated data protection
+
+### Security Features
+- **Role-based Access Control**: Secure permission management
+- **Data Encryption**: Protected data transmission
+- **Audit Logging**: Track all system activities
+- **Session Management**: Secure user sessions
+
+---
+
+## Troubleshooting
+
+### Common Issues and Solutions
+
+#### Login Problems
+**Issue**: Cannot log into system
+**Solutions:**
+1. Verify username and password
+2. Check account status (active/inactive)
+3. Clear browser cache and cookies
+4. Contact system administrator
+
+#### File Upload Issues
+**Issue**: Files not uploading properly
+**Solutions:**
+1. Check file size limits
+2. Verify file format compatibility
+3. Ensure stable internet connection
+4. Try different browser or device
+
+#### Assessment Submission Problems
+**Issue**: Cannot submit assessment
+**Solutions:**
+1. Check submission deadline
+2. Verify all required files uploaded
+3. Ensure file format requirements met
+4. Contact supervisor for assistance
+
+#### Grade Access Issues
+**Issue**: Cannot view grades
+**Solutions:**
+1. Check if grades have been published
+2. Verify assessment completion
+3. Contact supervisor for grade status
+4. Check system notifications
+
+### Error Messages
+- **404 Error**: Page not found - check URL or contact administrator
+- **500 Error**: Server error - report to technical support
+- **Permission Denied**: Insufficient access rights - contact supervisor
+- **Session Expired**: Re-login required
+
+---
+
+## Technical Requirements
+
+### System Requirements
+- **Operating System**: Windows 10+, macOS 10.14+, Linux (Ubuntu 18.04+)
+- **Browser**: Chrome 90+, Firefox 88+, Safari 14+, Edge 90+
+- **Internet**: Stable broadband connection (minimum 5 Mbps)
+- **Storage**: Sufficient local storage for file downloads
+
+### Browser Compatibility
+- **Chrome**: Full functionality, recommended browser
+- **Firefox**: Full functionality, good alternative
+- **Safari**: Full functionality on macOS
+- **Edge**: Full functionality on Windows
+
+### Mobile Access
+- **Responsive Design**: System adapts to mobile devices
+- **Touch Interface**: Optimized for touchscreen devices
+- **Mobile Browsers**: Chrome Mobile, Safari Mobile supported
+
+---
+
+## Support and Contact
+
+### Getting Help
+1. **User Guide**: Refer to this manual for common procedures
+2. **FAQ Section**: Check frequently asked questions
+3. **Video Tutorials**: Watch step-by-step guides
+4. **Help Desk**: Contact institutional IT support
+
+### Contact Information
+- **Technical Support**: [Your IT Support Email]
+- **System Administrator**: [Admin Contact Information]
+- **User Training**: [Training Coordinator Contact]
+- **Emergency Support**: [24/7 Support Contact]
+
+### Training Resources
+- **Online Tutorials**: Interactive learning modules
+- **User Workshops**: In-person training sessions
+- **Documentation**: Comprehensive system documentation
+- **Video Library**: Recorded training sessions
+
+---
+
+## Appendix
+
+### Keyboard Shortcuts
+- **Ctrl+S**: Save changes
+- **Ctrl+Z**: Undo last action
+- **F5**: Refresh page
+- **Ctrl+F**: Find text on page
+- **Ctrl+P**: Print current page
+
+### System Updates
+- **Regular Updates**: Monthly system maintenance
+- **Feature Releases**: Quarterly new feature rollouts
+- **Security Patches**: As-needed security updates
+- **User Notifications**: Advance notice of system changes
+
+### Data Backup
+- **Automatic Backups**: Daily system backups
+- **User Data**: Regular backup of user files and submissions
+- **Recovery Procedures**: Documented data recovery processes
+- **Archive Policy**: Long-term data retention guidelines
+
+---
+
+**Document Version**: 1.0  
+**Last Updated**: [Current Date]  
+**Next Review**: [Next Review Date]  
+**Prepared By**: [Your Name/Department]  
+**Approved By**: [Approver Name/Title]
+
+---
+
+*This user manual is a living document that will be updated as the system evolves. Please check for the latest version before using the system.*
