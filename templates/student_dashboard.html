@@ -211,13 +211,13 @@
             <div class="card-body">
               <div class="d-flex">
                 <div class="flex-grow-1">
-                  <p class="text-muted fw-medium">Accepted Projects</p>
-                  <h4 class="mb-0">{{ accepted_projects_count }}</h4>
+                  <p class="text-muted fw-medium">Active Project</p>
+                  <h4 class="mb-0 {% if has_active_project %}text-success{% else %}text-danger{% endif %}">{% if has_active_project %}YES{% else %}NO{% endif %}</h4>
                 </div>
                 <div class="flex-shrink-0 align-self-center">
-                  <div class="avatar-sm rounded-circle bg-success align-self-center mini-stat-icon">
+                  <div class="avatar-sm rounded-circle {% if has_active_project %}bg-success{% else %}bg-danger{% endif %} align-self-center mini-stat-icon">
                     <span class="avatar-title">
-                      <i class="mdi mdi-check-circle-outline font-size-24"></i>
+                      <i class="mdi {% if has_active_project %}mdi-check-circle-outline{% else %}mdi-close-circle-outline{% endif %} font-size-24"></i>
                     </span>
                   </div>
                 </div>
@@ -366,7 +366,7 @@
         <div class="col-xl-4">
           <div class="card">
             <div class="card-header">
-              <h4 class="card-title mb-0">Upcoming Deadlines</h4>
+              <h4 class="card-title mb-0">Upcoming Deadlines (Unsubmitted)</h4>
             </div>
             <div class="card-body">
               {% if upcoming_assessments %}
@@ -384,7 +384,10 @@
                       <i class="mdi mdi-calendar me-1"></i>
                       Due: {{ assessment.due_date|date:"M d, Y" }}
                     </p>
-                    <span class="badge bg-soft-warning text-warning fs-11"> {{ assessment.weight }}% weight </span>
+                    <div class="mt-1">
+                      <span class="badge bg-soft-warning text-warning fs-11"> {{ assessment.weight }}% weight </span>
+                      <span class="badge bg-soft-danger text-danger fs-11"> Not Submitted </span>
+                    </div>
                   </div>
                 </div>
                 {% endfor %}
@@ -396,8 +399,8 @@
                     <i class="mdi mdi-check-circle-outline"></i>
                   </div>
                 </div>
-                <h6>No Upcoming Deadlines</h6>
-                <p class="text-muted fs-13">You're all caught up!</p>
+                <h6>No Pending Submissions</h6>
+                <p class="text-muted fs-13">All assignments submitted!</p>
               </div>
               {% endif %}
             </div>
@@ -631,7 +634,7 @@
       try {
           // Application Status Chart
           var applicationStatusOptions = {
-              series: [{{ pending_applications }}, {{ accepted_projects_count }}, {{ declined_applications }}],
+              series: [{{ pending_applications }}, {% if has_active_project %}1{% else %}0{% endif %}, {{ declined_applications }}],
               chart: {
                   type: 'donut',
                   height: 300,

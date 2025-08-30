@@ -23,7 +23,7 @@ def student_dashboard(request):
         # Get applications for this student
         applications = Application.objects.filter(members__user=request.user).select_related('project')
         total_applications = applications.count()
-        accepted_projects_count = applications.filter(status='accepted').count()
+        has_active_project = applications.filter(status='accepted').exists()
         pending_applications = applications.filter(status='applied').count()
         declined_applications = applications.filter(status='declined').count()
         
@@ -35,21 +35,27 @@ def student_dashboard(request):
             application__in=accepted_applications
         ).select_related('assignment', 'application', 'submitted_by')
         
-        # Get assessments that have submissions
-        assessments = Assessment.objects.filter(
-            id__in=submissions.values_list('assignment_id', flat=True)
+        # Get ALL assessments for accepted projects
+        accepted_project_ids = accepted_applications.values_list('project_id', flat=True)
+        all_assessments = Assessment.objects.filter(
+            project__in=accepted_project_ids
         ).distinct()
         
-        # Get upcoming assessments (due in next 30 days)
-        upcoming_assessments = assessments.filter(
+        # Get IDs of already submitted assessments
+        submitted_assessment_ids = submissions.values_list('assignment_id', flat=True)
+        
+        # Get upcoming assessments (due in next 30 days) that haven't been submitted yet
+        upcoming_assessments = all_assessments.exclude(
+            id__in=submitted_assessment_ids
+        ).filter(
             due_date__gte=today,
             due_date__lte=today + timezone.timedelta(days=30)
         ).order_by('due_date')
         
-        # Get overdue assessments
-        overdue_assessments = assessments.filter(due_date__lt=today).exclude(
-            id__in=submissions.values_list('assignment_id', flat=True)
-        )
+        # Get overdue assessments (unsubmitted assessments past due date)
+        overdue_assessments = all_assessments.exclude(
+            id__in=submitted_assessment_ids
+        ).filter(due_date__lt=today)
         
         # Get recent submissions (last 7 days)
         recent_submissions = submissions.filter(
@@ -67,7 +73,7 @@ def student_dashboard(request):
         # Prepare chart data
         application_status_data = [
             {'status': 'Applied', 'count': pending_applications, 'color': '#f4ba40'},
-            {'status': 'Accepted', 'count': accepted_projects_count, 'color': '#38c786'},
+            {'status': 'Accepted', 'count': 1 if has_active_project else 0, 'color': '#38c786'},
             {'status': 'Declined', 'count': declined_applications, 'color': '#ed5e49'}
         ]
         
@@ -89,14 +95,14 @@ def student_dashboard(request):
         print(f"Error in student dashboard: {e}")
         applications = Application.objects.filter(members__user=request.user)
         total_applications = applications.count()
-        accepted_projects_count = applications.filter(status='accepted').count()
+        has_active_project = applications.filter(status='accepted').exists()
         pending_applications = applications.filter(status='applied').count()
         declined_applications = applications.filter(status='declined').count()
         
         # Default values for other data
         accepted_applications = applications.filter(status='accepted')
         submissions = StudentSubmission.objects.none()
-        assessments = Assessment.objects.none()
+        all_assessments = Assessment.objects.none()
         upcoming_assessments = Assessment.objects.none()
         overdue_assessments = Assessment.objects.none()
         recent_submissions = StudentSubmission.objects.none()
@@ -107,7 +113,7 @@ def student_dashboard(request):
         # Default chart data
         application_status_data = [
             {'status': 'Applied', 'count': pending_applications, 'color': '#f4ba40'},
-            {'status': 'Accepted', 'count': accepted_projects_count, 'color': '#38c786'},
+            {'status': 'Accepted', 'count': 1 if has_active_project else 0, 'color': '#38c786'},
             {'status': 'Declined', 'count': declined_applications, 'color': '#ed5e49'}
         ]
         grade_ranges = [
@@ -124,11 +130,11 @@ def student_dashboard(request):
     context = {
         'applications': applications,
         'total_applications': total_applications,
-        'accepted_projects_count': accepted_projects_count,
+        'has_active_project': has_active_project,
         'pending_applications': pending_applications,
         'declined_applications': declined_applications,
         
-        'assessments': assessments,
+        'assessments': all_assessments,
         'submissions': submissions,
         'upcoming_assessments': upcoming_assessments,
         'overdue_assessments': overdue_assessments,
