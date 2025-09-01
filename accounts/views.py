@@ -102,8 +102,8 @@ def add_student(request):
             return redirect('add_student')
 
         user = User.objects.create(
-            username=email,
-            email=email,
+            username=email.lower(),
+            email=email.lower(),
             first_name=first_name,
             last_name=last_name,
             is_staff=False,
@@ -149,8 +149,8 @@ def add_supervisor(request):
             return redirect('add_student')
 
         user = User.objects.create(
-            username=email,
-            email=email,
+            username=email.lower(),
+            email=email.lower(),
             first_name=first_name,
             last_name=last_name,
             is_staff=True,
