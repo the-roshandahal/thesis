@@ -3,7 +3,18 @@
 </div>
 <!-- END layout-wrapper -->
 
+<!-- Place the first <script> tag in your HTML's <head> -->
+<script src="https://cdn.tiny.cloud/1/pe0ptqkzisvdzcwvnywvj7urndv6wf68ccaj2kxmzdxr7eaz/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
 
+<!-- Place the following <script> and <textarea> tags your HTML's <body> -->
+<script>
+  tinymce.init({
+    selector: 'textarea',
+    plugins: [],  // no plugins
+    toolbar: 'undo redo | bold italic underline | alignleft aligncenter alignright | bullist numlist | removeformat',
+    menubar: false, // hides the menu bar
+  });
+</script>
 <!-- JAVASCRIPT -->
 <script src="{% static 'assets/libs/jquery/jquery.min.js' %}"></script>
 <script src="{% static 'assets/libs/bootstrap/js/bootstrap.bundle.min.js' %}"></script>

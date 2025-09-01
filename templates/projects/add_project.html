@@ -68,7 +68,7 @@
                             <div class="mb-3">
                                 <label class="form-label">Reference Links</label>
                                 <div class="input-group mb-2">
-                                    <input type="url" id="linkInput" class="form-control" placeholder="https://example.com">
+                                    <input type="url" id="linkInput" class="form-control" placeholder="https://website.com">
                                     <button class="btn btn-primary" type="button" onclick="addLink()">Add Link</button>
                                 </div>
                                 <div id="linkList" class="mb-3"></div>
@@ -83,18 +83,7 @@
     </div>
 </div>
 
-<!-- Place the first <script> tag in your HTML's <head> -->
-<script src="https://cdn.tiny.cloud/1/pe0ptqkzisvdzcwvnywvj7urndv6wf68ccaj2kxmzdxr7eaz/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
 
-<!-- Place the following <script> and <textarea> tags your HTML's <body> -->
-<script>
-  tinymce.init({
-    selector: 'textarea',
-    plugins: [],  // no plugins
-    toolbar: 'undo redo | bold italic underline | alignleft aligncenter alignright | bullist numlist | removeformat',
-    menubar: false, // hides the menu bar
-  });
-</script>
 <script>
 
     // --- Global array to hold selected files and their custom names ---
