@@ -10,6 +10,48 @@
 
 </head>
 
+ {% if messages %}
+  <div id="message-container" class="position-fixed top-0 start-50 translate-middle-x mt-3" style="z-index: 2000; width: 50%;">
+    {% for message in messages %}
+      <div class="custom-alert shadow-lg p-3 mb-3 rounded text-dark text-center">
+        {{ message }}
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+<style>
+    .custom-alert {
+  background-color: #ffffff; /* pure white */
+  border: 1px solid #e0e0e0;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
+  font-weight: 500;
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.custom-alert.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+</style>
+ <script>
+document.addEventListener("DOMContentLoaded", function () {
+    const alerts = document.querySelectorAll('#message-container .custom-alert');
+    alerts.forEach((alert) => {
+        // show with animation
+        setTimeout(() => alert.classList.add('show'), 100);
+
+        // auto-hide after 3s
+        setTimeout(() => {
+            alert.classList.remove('show');
+            setTimeout(() => alert.remove(), 400); // remove after fade
+        }, 3000);
+    });
+});
+</script>
+
 <body data-topbar="colored" data-layout="horizontal">
     <!-- Begin page -->
     <div id="layout-wrapper">

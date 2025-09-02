@@ -11,14 +11,6 @@
             <div class="card-body">
               <h5 class="card-title">Edit Student</h5>
               
-              {% if messages %}
-                {% for message in messages %}
-                  <div class="alert alert-primary alert-dismissible fade show" role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                  </div>
-                {% endfor %}
-              {% endif %}
 
               <form method="POST" action="{% url 'edit_student' student.id %}">
                 {% csrf_token %}
