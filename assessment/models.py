@@ -23,8 +23,8 @@ def student_submission_upload_path(instance, filename):
 
 class AssessmentSchema(models.Model):
     name = models.CharField(max_length=100)
-    start_date = models.DateField()
-    end_date = models.DateField()
+    start_date = models.DateField(blank=True, null=True)
+    end_date = models.DateField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -37,9 +37,9 @@ class Assessment(models.Model):
     title = models.CharField(max_length=100)
     description = models.TextField(blank=True)
     weight = models.PositiveIntegerField(help_text="Percentage weight for this assessment")
-    due_date = models.DateField()
-    submit_by = models.DateField()
-    submission_type = models.CharField(max_length=50)
+    due_date = models.DateField(blank=True, null=True)
+    submit_by = models.DateField(blank=True, null=True)
+    submission_type = models.CharField(max_length=50, blank=True, null=True)
 
     def __str__(self):
         return f"{self.title} ({self.weight}%)"
