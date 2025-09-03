@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
+{% load static %}
 <div class="container py-5">
   <div class="row justify-content-center">
     <div class="col-lg-8">
@@ -18,14 +19,7 @@
           </div>
         </div>
         
-        <!-- Messages -->
-        {% for message in messages %}
-        <div class="alert alert-{{ message.tags }} alert-dismissible fade show m-3 mb-0 rounded">
-          <i class="bi {% if message.tags == 'success' %}bi-check-circle-fill{% else %}bi-exclamation-triangle-fill{% endif %} me-2"></i>
-          {{ message }}
-          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-        {% endfor %}
+        
 
         <!-- Card Body -->
         <div class="card-body p-4">
@@ -33,7 +27,8 @@
             <!-- Profile Picture Column -->
             <div class="col-md-4 text-center mb-4 mb-md-0">
               <div class="position-relative d-inline-block">
-                <img src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}https://via.placeholder.com/150{% endif %}" 
+                
+                <img src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}{% static 'profile.png' %}{% endif %}" 
                      class="img-thumbnail rounded-circle shadow" 
                      style="width: 150px; height: 150px; object-fit: cover;"
                      alt="Profile Picture">

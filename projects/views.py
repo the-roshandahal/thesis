@@ -25,7 +25,8 @@ def validate_pdf(file):
     max_size = 10 * 1024 * 1024  # 10MB
     if file.size > max_size:
         raise ValidationError(f'File size exceeds {max_size//(1024*1024)}MB limit')
-
+@login_required
+@is_supervisor
 @require_http_methods(["GET", "POST"])
 def add_project(request):
     if request.method == 'POST':

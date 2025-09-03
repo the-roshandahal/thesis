@@ -56,7 +56,7 @@
                       <div class="form-floating mb-3">
                           <input type="password" name="password" class="form-control" id="password"
                                 placeholder="Enter password"
-                                minlength="8" required>
+                                minlength="8">
                           <label for="password">New Password (leave blank if unchanged)</label>
                           <div class="form-text">
                               Must be at least 8 characters, include a number, an uppercase, and a special character.
@@ -66,7 +66,7 @@
                   <div class="col-md-6">
                       <div class="form-floating mb-3">
                           <input type="password" name="password2" class="form-control" id="confirm_password"
-                                placeholder="Confirm password" required>
+                                placeholder="Confirm password">
                           <label for="confirm_password">Confirm Password</label>
                           <div class="form-text text-danger" id="password-error" style="display:none;">
                               Passwords do not match.
@@ -96,26 +96,42 @@ document.addEventListener("DOMContentLoaded", function () {
     const errorText = document.getElementById("password-error");
 
     function validatePasswords() {
-        if (password.value !== confirmPassword.value) {
-            errorText.style.display = "block";
-            confirmPassword.setCustomValidity("Passwords do not match");
+        if (password.value) {
+            // If password filled, confirm password becomes required
+            confirmPassword.required = true;
+
+            // Check if both match
+            if (password.value !== confirmPassword.value) {
+                errorText.style.display = "block";
+                confirmPassword.setCustomValidity("Passwords do not match");
+            } else {
+                errorText.style.display = "none";
+                confirmPassword.setCustomValidity("");
+            }
+
+            // Apply strong password rule only when password is not empty
+            password.setAttribute(
+                "pattern",
+                "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$"
+            );
+            password.setAttribute(
+                "title",
+                "Must contain at least 8 characters, one uppercase, one lowercase, one number, and one special character."
+            );
         } else {
-            errorText.style.display = "none";
+            // If password is empty, remove rules
+            confirmPassword.required = false;
             confirmPassword.setCustomValidity("");
+            password.removeAttribute("pattern");
+            password.removeAttribute("title");
+            errorText.style.display = "none";
         }
     }
 
     password.addEventListener("input", validatePasswords);
     confirmPassword.addEventListener("input", validatePasswords);
-
-    // Extra: enforce strong password pattern
-    password.setAttribute("pattern", 
-        "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$"
-    );
-    password.setAttribute("title", 
-        "Must contain at least 8 characters, one uppercase, one lowercase, one number, and one special character."
-    );
 });
 </script>
+
 
 {% include 'footer.html' %}

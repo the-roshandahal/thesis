@@ -157,9 +157,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                 <img class="rounded-circle header-profile-user avatar-sm"
                                     src="{{ request.user.profile_picture.url }}" alt="Profile Picture">
                             {% else %}
-                                <div class="rounded-circle header-profile-user avatar-sm bg-primary d-flex align-items-center justify-content-center text-white fw-bold">
-                                    {{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}
-                                </div>
+                                <img class="rounded-circle header-profile-user avatar-sm" src="{% static 'profile.png' %}" alt="Profile Picture">
                             {% endif %}
                             <span class="d-none d-xl-inline-block ms-1">{{request.user.first_name}} {{request.user.last_name}}</span>
                             <i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i>

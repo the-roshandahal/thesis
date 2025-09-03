@@ -23,6 +23,7 @@ db.sqlite3
 media/
 staticfiles/
 */migrations/*.py
+*/migrations/0001_initial.py
 !*/migrations/__init__.py
 
 # IDEs

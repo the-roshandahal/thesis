@@ -1,4 +1,6 @@
-from django.utils import timezone
+from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login as auth_login
+from django.db.models import Q
 from django.shortcuts import render, redirect,get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import login as auth_login
@@ -20,54 +22,41 @@ def get_user_type(user):
     else:
         return 'student'
 
+
+
 def login(request):
     if request.user.is_authenticated:
         if request.user.is_superuser:
             return admin_dashboard(request)
         elif request.user.is_staff:
-            return render( request,'supervisor_dashboard.html')  
+            return render(request, 'supervisor_dashboard.html')
         else:
             return redirect('home')
     else:
         if request.method == 'POST':
-            email = request.POST.get('email')
+            email_or_username = request.POST.get('email')
             password = request.POST.get('password')
-            user_type = request.POST.get('user_type')
-            user_obj = None
 
-            # Find the correct user based on user_type
-            if user_type == 'admin':
-                try:
-                    user_obj = Admin.objects.get(user__email=email)
-                except Admin.DoesNotExist:
-                    user_obj = None
+            # Find a user by either email or username
+            try:
+                user = User.objects.get(Q(email=email_or_username) | Q(username=email_or_username))
+            except User.DoesNotExist:
+                user = None
 
-            elif user_type == 'supervisor':
-                try:
-                    user_obj = Supervisor.objects.get(user__email=email)
-                except Supervisor.DoesNotExist:
-                    user_obj = None
-
-            elif user_type == 'student':
-                try:
-                    user_obj = Student.objects.get(user__email=email)
-                except Student.DoesNotExist:
-                    user_obj = None
-
-            if user_obj:
-                user = user_obj.user  # Get the actual Django User object
-                if check_password(password, user.password):
-                    auth_login(request, user)
-                    request.session['user_type'] = user_type
-                    user.last_login = timezone.now()
-                    user.save()
+            if user is not None:
+                # Use Django's authenticate function to verify password
+                authenticated_user = authenticate(request, username=user.username, password=password)
+                
+                if authenticated_user is not None:
+                    auth_login(request, authenticated_user)
+                    messages.success(request, f"Welcome back, {authenticated_user.username}!")
                     return redirect('home')
                 else:
-                    messages.error(request, 'Incorrect password.')
+                    messages.error(request, 'Invalid password.')
             else:
-                messages.error(request, f"No user found for email {email}.")
+                messages.error(request, 'No user found with that email or username.')
 
-        return render(request, 'accounts/login.html')
+    return render(request, 'accounts/login.html')
 
 
 def logout_view(request):
