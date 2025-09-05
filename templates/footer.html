@@ -1,9 +1,22 @@
 {% load static %}
 
 </div>
-<!-- END layout-wrapper -->
-<script src="https://cdn.tiny.cloud/1/pe0ptqkzisvdzcwvnywvj7urndv6wf68ccaj2kxmzdxr7eaz/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
 
+ <script>
+document.addEventListener("DOMContentLoaded", function () {
+    const alerts = document.querySelectorAll('#message-container .custom-alert');
+    alerts.forEach((alert) => {
+        // show with animation
+        setTimeout(() => alert.classList.add('show'), 100);
+
+        // auto-hide after 3s
+        setTimeout(() => {
+            alert.classList.remove('show');
+            setTimeout(() => alert.remove(), 400); // remove after fade
+        }, 3000);
+    });
+});
+</script>
 <!-- Place the following <script> and <textarea> tags your HTML's <body> -->
 <script>
   tinymce.init({

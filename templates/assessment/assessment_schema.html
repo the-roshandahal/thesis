@@ -70,7 +70,7 @@
               </div>
             </div>
             <div class="card-body">
-              <p class="text-muted mb-3">{{ assessment.description|default:"No description provided" }}</p>
+              <p class="text-muted mb-3">{{ assessment.description|safe|default:"No description provided" }}</p>
 
               <div class="d-flex justify-content-between mb-3">
                 <div>

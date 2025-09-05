@@ -36,21 +36,6 @@
 }
 
 </style>
- <script>
-document.addEventListener("DOMContentLoaded", function () {
-    const alerts = document.querySelectorAll('#message-container .custom-alert');
-    alerts.forEach((alert) => {
-        // show with animation
-        setTimeout(() => alert.classList.add('show'), 100);
-
-        // auto-hide after 3s
-        setTimeout(() => {
-            alert.classList.remove('show');
-            setTimeout(() => alert.remove(), 400); // remove after fade
-        }, 3000);
-    });
-});
-</script>
 
 <body data-topbar="colored" data-layout="horizontal">
     <!-- Begin page -->

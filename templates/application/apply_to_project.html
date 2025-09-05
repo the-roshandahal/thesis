@@ -10,7 +10,7 @@
 
             <div class="container mt-4">
                 <h2>Apply to Project: {{ project.title }}</h2>
-                <form method="POST">
+                <form method="POST" action = "{% url 'apply_to_project' project.id %}">
                     {% csrf_token %}
                     <div class="mb-3">
                         <label for="application_type" class="form-label">Apply as:</label>
@@ -28,7 +28,7 @@
 
                     <div class="mb-3">
                         <label for="message" class="form-label">Why are you applying? (Brief Message)</label>
-                        <textarea class="form-control" name="message" rows="4" required></textarea>
+                        <textarea class="form-control" name="message" required>Your message here </textarea>
                     </div>
 
                     <button type="submit" class="btn btn-primary">Submit Application</button>
