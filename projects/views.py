@@ -266,3 +266,11 @@ def student_projects(request):
         'projects' : projects,
     }
     return render(request,'projects/student_projects.html', context)
+
+
+
+@login_required
+def delete_project(request, project_id):
+    project = Project.objects.get(id = project_id)
+    project.delete()
+    return redirect(project_supervisor)

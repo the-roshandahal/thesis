@@ -134,8 +134,9 @@
               {%endif%}
 
               {% if user == project.supervisor %}
-              <div class="mb-4 text-end">
-                <a href="{% url 'edit_project' project.id %}" class="btn btn-warning"> <i class="fas fa-edit"></i> Edit Project </a>
+              <div class="d-flex justify-content-between align-items-center mt-3">
+                <a href="{% url 'delete_project' project.id %}" class="btn btn-outline-primary btn-sm"> <i class="mdi mdi-delete me-1"></i> Delete Project</a>
+                <a href="{% url 'edit_project' project.id %}" class="btn btn-warning btn-sm"> <i class="mdi mdi-pencil me-1"></i> Edit Project </a>
               </div>
               {% endif %}
             </div>
