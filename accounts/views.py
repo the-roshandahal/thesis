@@ -347,7 +347,7 @@ def admin_dashboard(request):
 @login_required
 @is_admin
 def delete_student(request, user_id):
-    student = User.objects.get(user=user_id)
+    student = User.objects.get(id=user_id)
     student.delete()
     messages.success(request,'Student deleted succesfully')
     return redirect(student_admin)
@@ -357,7 +357,7 @@ def delete_student(request, user_id):
 @login_required
 @is_admin
 def delete_supervisor(request, user_id):
-    supervisor = User.objects.get(user=user_id)
+    supervisor = User.objects.get(id=user_id)
     supervisor.delete()
     messages.success(request,'Supervisor deleted succesfully')
     return redirect(supervisor_admin)
